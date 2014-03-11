@@ -1,0 +1,3 @@
+[submodule "android-pdfview"]
+	path = android-pdfview
+	url = https://github.com/elsonLee/android-pdfview.git

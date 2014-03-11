@@ -6,7 +6,7 @@ public interface ITransceiverOps {
 
 	boolean isSupported();
 	
-	void open(Activity activity);
+	boolean open(Activity activity);
 	void close(Activity activity);
 	boolean discovery();
 	

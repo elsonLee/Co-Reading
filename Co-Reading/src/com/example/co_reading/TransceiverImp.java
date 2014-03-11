@@ -11,9 +11,9 @@ public class TransceiverImp implements ITransceiverOps {
 	}
 
 	@Override
-	public void open(Activity activity) {
+	public boolean open(Activity activity) {
 		// TODO Auto-generated method stub
-
+		return false;
 	}
 
 	@Override

@@ -35,8 +35,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
         
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);        
     }
     
     @Override
@@ -64,7 +63,9 @@ public class MainActivity extends Activity implements OnPageChangeListener {
     		}
     		
     		if (true == m_TransceiverManager.isSupported()) {
-    			m_TransceiverManager.open(this);
+    			if (true == m_TransceiverManager.open(this) && null != m_TransceiverDiscDialog) {
+        			m_TransceiverDiscDialog.show(getFragmentManager(), "nothing");
+    			}
     		}    		
     		return true;
     		
@@ -80,8 +81,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
     		
     	default:
     		return super.onOptionsItemSelected(item);    	
-    	}
-    	
+    	}    	
     }
     
     @Override

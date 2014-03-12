@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:orientation="vertical" 
     android:background="@drawable/discoverydevice_bg"
@@ -55,14 +55,14 @@
 
         <ProgressBar
             android:id="@+id/progresscircle"
-            style="@style/spinnerStyle"
+            style="@android:style/Widget.ProgressBar.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginLeft="200dp"
             android:layout_toRightOf="@+id/textView1"
-            android:visibility="visible" />
+            android:visibility="visible"
+            />
 
     </RelativeLayout>
 

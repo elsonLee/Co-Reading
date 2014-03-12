@@ -22,6 +22,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
 
     // find id by view
     private PDFView 		m_pdfView;
+    //private PDFView			m_pdfViewtest;
 
     private String 			m_pdfName = SAMPLE_FILE;
     private Integer 		m_pageNumber = 1;    
@@ -32,6 +33,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
         setContentView(R.layout.myfirstactivity_main);
         
         m_pdfView = (PDFView)findViewById(R.id.pdfView);
+        //m_pdfViewtest = (PDFView)findViewById(R.id.pdfViewtest);
         
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -123,6 +125,11 @@ public class MainActivity extends Activity implements OnPageChangeListener {
                 .defaultPage(m_pageNumber)
                 .onPageChange(this)
                 .load();
+        
+//        m_pdfViewtest.fromAsset("sampletest.pdf")
+//        .defaultPage(m_pageNumber)
+//        .onPageChange(this)
+//        .load();
     }
 
     @Override

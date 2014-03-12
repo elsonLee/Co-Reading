@@ -19,7 +19,8 @@ public class CacheStringKeyMap<String, V> extends HashMap<String, V> {
 	
 	@Override
 	public V put(String key, V value) {
-		m_keyCacheList.add(key);
+		if (!super.containsKey(key))
+			m_keyCacheList.add(key);
 		return super.put(key, value);
 	}
 

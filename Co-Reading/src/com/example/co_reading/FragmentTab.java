@@ -25,20 +25,64 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 	private String m_currentFileName = "";
 	
 	// find id by view
-	public static final String 	SAMPLE_FILE = "sample.pdf";
-	public static final String 	ABOUT_FILE = "about.pdf";
-	private PDFView m_pdfView = null;
+	private static final String 	SAMPLE_FILE = "sample.pdf";
+	private static final String 	ABOUT_FILE = "about.pdf";
+	private static PDFView m_pdfView = null;
+	private PDFView m_curpdfView = null;
 	
     private String 			m_pdfName = SAMPLE_FILE;
-    private Integer 		m_pageNumber = 1;    
+    private Integer 		m_pageNumber = 1;
+    
+    @Override
+	public void onStart() {
+        super.onStart();
+        Log.v("fragment", this+"onStart:"+m_pdfView);
+//        if (m_pdfView == null) {
+//        	if (m_curpdfView == null) {
+//        		m_pdfView = new PDFView(getActivity(), null);
+//        		m_curpdfView = m_pdfView;
+//        	} else {
+//        		m_pdfView = m_curpdfView;
+//        	}
+//        }
+        // The activity is about to become visible.
+    }
+    
+    @Override
+	public void onResume() {
+        super.onResume();
+        
+        Log.v("fragment", this+"onResume:"+m_pdfView);
+        // The activity is about to become visible.
+    }
+    
+    @Override
+	public void onPause() {
+        super.onPause();
+        
+        Log.v("fragment", this+"onPause:"+m_pdfView);
+        // The activity is about to become visible.
+    }
+    
+    @Override
+	public void onStop() {
+        super.onStop();
+        
+        Log.v("fragment", this+"onStop:"+m_pdfView);
+        //m_pdfView = null;
+        // The activity is about to become visible.
+    }
+
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		
+		//if (m_pdfView == null) {
 		m_pdfView = new PDFView(getActivity(), null);
+		//}
 		
-		Log.v("tab", "onCreate"+m_pdfView);
+		Log.v("fragment", this+"onCreate:"+m_pdfView);
 		Intent getContentIntent = FileUtils.createGetContentIntent();
 		Intent intent = Intent.createChooser(getContentIntent, "Select a PDF file");
 		startActivityForResult(intent, REQUEST_CHOOSER);
@@ -48,7 +92,7 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 			Bundle savedInstanceState) {
 
-		//Log.v("tab", "onCreateView");
+		Log.v("fragment", this+"onCreateView:"+m_pdfView);
 		//m_rootView = inflater.inflate(R.layout.fragment_pdfview, container, false);
 		m_rootView = m_pdfView;
 		
@@ -61,7 +105,7 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 	@Override
 	public void onDestroy () {
 		super.onDestroy();
-		Log.v("tab", "onDestroy");
+		Log.v("fragment", this+"onDestroy:"+m_pdfView);
 	}
 	
 	@Override
@@ -77,8 +121,8 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 						Log.d("open pdf", "file path:"+path);
 						// display(path, true);
 						File file = FileUtils.getFile(getActivity(), uri);
-						if (file != null) {
-							Log.d("file", "file:"+file);
+						if (file != null && file.exists()) {
+							Log.d("file", "file:"+file);							
 							display(file, true);
 						}
 						//TextView textView = (TextView)m_rootView.findViewById(R.id.pdfViewfragment);

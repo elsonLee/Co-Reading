@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
     // find id by view
     //private PDFView 		m_pdfView = null;
 
-    //private String 			m_pdfName = SAMPLE_FILE;
+    //private String 		m_pdfName = SAMPLE_FILE;
     //private Integer 		m_pageNumber = 1;    
  
     @Override

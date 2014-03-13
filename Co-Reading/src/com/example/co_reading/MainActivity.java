@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
     		ActionBar actionBar = getActionBar();            
     		newTab = actionBar.newTab().setText("newTab");            
     		newTab.setTabListener(new TabListener(new FragmentTab()));
-            
+    		
             actionBar.addTab(newTab);
             return true;
             

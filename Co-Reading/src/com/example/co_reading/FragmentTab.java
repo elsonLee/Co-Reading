@@ -8,9 +8,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.graphics.*;
 import android.widget.TextView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
@@ -30,13 +29,18 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 	private PDFView m_pdfView = null;
 	
     private String 			m_pdfName = SAMPLE_FILE;
-    private Integer 		m_pageNumber = 1;    
+    private Integer 		m_pageNumber = 1;
+    
+    private SurfaceView mSurfaceView;
+    private SurfaceHolder mSurfaceHolder;
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		
-		m_pdfView = new PDFView(getActivity(), null);
+		//m_pdfView = new PDFView(getActivity(), null);
+		
+		createSurfaceView();
 		
 		Log.v("tab", "onCreate"+m_pdfView);
 		Intent getContentIntent = FileUtils.createGetContentIntent();
@@ -48,7 +52,7 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 			Bundle savedInstanceState) {
 
-		//Log.v("tab", "onCreateView");
+		Log.v("tab", "onCreateView");
 		//m_rootView = inflater.inflate(R.layout.fragment_pdfview, container, false);
 		m_rootView = m_pdfView;
 		
@@ -56,6 +60,25 @@ public class FragmentTab extends Fragment implements OnPageChangeListener {
 		//TextView textView = (TextView)m_rootView.findViewById(R.id.pdfViewfragment);
 		
 		return m_rootView;
+	}
+	
+	private void createSurfaceView() {
+		mSurfaceView = new SurfaceView(getActivity());
+		mSurfaceHolder = mSurfaceView.getHolder();
+		mSurfaceHolder.addCallback(new SurfaceViewCallback());
+		mSurfaceView.setVisibility(View.VISIBLE);
+		try {
+			Canvas canvas = mSurfaceHolder.lockCanvas();
+			if (canvas != null) {
+				Paint paint = new Paint();
+				paint.setStrokeWidth(2.0f);
+				paint.setColor(Color.RED);
+				canvas.drawText("hello", 50, 50, paint);
+				mSurfaceHolder.unlockCanvasAndPost(canvas);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

@@ -60,8 +60,7 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-            if (mPainter == null)
-                mPainter = Painter.getInstance();
+            mPainter = Painter.getInstance();
             return true;
 
     	case R.id.action_search:

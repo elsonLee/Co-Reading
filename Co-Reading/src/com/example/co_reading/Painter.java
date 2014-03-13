@@ -8,6 +8,7 @@ import android.graphics.*;
 
 public class Painter extends Activity implements SurfaceHolder.Callback, Runnable {
     private final String TAG = "Painter";
+    private static Painter mSelf;
     public SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceHolder;
 
@@ -16,7 +17,9 @@ public class Painter extends Activity implements SurfaceHolder.Callback, Runnabl
     }
 
     public static Painter getInstance() {
-        return new Painter();
+        if (mSelf == null)
+            return new Painter();
+        return mSelf;
     }
 
     @Override

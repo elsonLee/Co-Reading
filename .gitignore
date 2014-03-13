@@ -18,4 +18,5 @@ gen/
 out
 gen-external-apklibs/
 classes/
+!.gitignore
 

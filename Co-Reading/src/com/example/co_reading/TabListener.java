@@ -19,27 +19,17 @@ public class TabListener implements ActionBar.TabListener {
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		Log.v("TabListener", "onTabSelected");
-		// ft.replace(R.id.fragment_container, m_fragment);
-		if (m_isAdded == false) {
-			if (m_fragment != null) {
-				ft.add(R.id.fragment_container, m_fragment);
-				m_isAdded = true;
-			}
-		} else {
-			ft.show(m_fragment);
-		}
+		ft.replace(R.id.fragment_container, m_fragment);
 	}
 	
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 		Log.v("TabListener", "onTabUnselected:"+m_fragment);
-		ft.hide(m_fragment);
-		//ft.remove(fragment);
+		ft.remove(m_fragment);
 	}
 	
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 		Log.v("TabListener", "onTabReselected");
-		ft.show(m_fragment);
 	}
 }

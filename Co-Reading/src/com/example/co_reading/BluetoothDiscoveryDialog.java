@@ -26,7 +26,7 @@ import android.widget.ProgressBar;
 
 import com.example.co_reading.util.CacheStringKeyMap;
 
-public class BluetoothDiscoveryDialogFragment extends DialogFragment {
+public class BluetoothDiscoveryDialog extends DialogFragment {
 	
 	private ListView 			m_listView;
 	private View				m_dialogView;

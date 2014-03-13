@@ -15,5 +15,8 @@
     <string name="bluetooth_discovery">Find Device</string>
     <string name="bluetooth_scan">Scan...</string>
     <string name="bluetooth_listdevice">Available Devices</string>
+    
+    <!-- file chooser -->
+    <string name="chooser_nofile">No File</string>
 
 </resources>

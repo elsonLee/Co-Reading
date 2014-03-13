@@ -8,30 +8,38 @@ import android.util.Log;
 
 public class TabListener implements ActionBar.TabListener {
 
-	Fragment fragment;
+	private Fragment m_fragment = null;
+	private boolean m_isAdded = false;
 
 	public TabListener(Fragment fragment) {
-		// TODO Auto-generated method stub
-		this.fragment = fragment;
+		Log.v("tablistener", "Tablistener constructor");
+		this.m_fragment = fragment;
 	}
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
 		Log.v("TabListener", "onTabSelected");
-		ft.replace(R.id.fragment_container, fragment);
+		// ft.replace(R.id.fragment_container, m_fragment);
+		if (m_isAdded == false) {
+			if (m_fragment != null) {
+				ft.add(R.id.fragment_container, m_fragment);
+				m_isAdded = true;
+			}
+		} else {
+			ft.show(m_fragment);
+		}
 	}
 	
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		Log.v("TabListener", "onTabUnselected");
-		ft.remove(fragment);
+		Log.v("TabListener", "onTabUnselected:"+m_fragment);
+		ft.hide(m_fragment);
+		//ft.remove(fragment);
 	}
 	
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
 		Log.v("TabListener", "onTabReselected");
+		ft.show(m_fragment);
 	}
 }

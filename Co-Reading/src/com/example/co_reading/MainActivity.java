@@ -12,28 +12,27 @@ import android.view.MenuItem;
 import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class MainActivity extends Activity implements OnPageChangeListener {
+// public class MainActivity extends Activity implements OnPageChangeListener {
+public class MainActivity extends Activity {
 
-    public static final String 	SAMPLE_FILE = "sample.pdf";
-    public static final String 	ABOUT_FILE = "about.pdf";
+//    public static final String 	SAMPLE_FILE = "sample.pdf";
+//    public static final String 	ABOUT_FILE = "about.pdf";
     
-    private TransceiverImp	m_TransceiverManager;
-    private DialogFragment	m_TransceiverDiscDialog;
+    private TransceiverImp	m_TransceiverManager = null;
+    private DialogFragment	m_TransceiverDiscDialog = null;
 
     // find id by view
-    private PDFView 		m_pdfView;
-    //private PDFView			m_pdfViewtest;
+    //private PDFView 		m_pdfView = null;
 
-    private String 			m_pdfName = SAMPLE_FILE;
-    private Integer 		m_pageNumber = 1;    
+    //private String 			m_pdfName = SAMPLE_FILE;
+    //private Integer 		m_pageNumber = 1;    
  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);                    
         setContentView(R.layout.myfirstactivity_main);
         
-        m_pdfView = (PDFView)findViewById(R.id.pdfView);
-        //m_pdfViewtest = (PDFView)findViewById(R.id.pdfViewtest);
+        // m_pdfView = (PDFView)findViewById(R.id.pdfView);
         
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -50,7 +49,7 @@ public class MainActivity extends Activity implements OnPageChangeListener {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
     	case R.id.action_addtab:
-    		ActionBar.Tab newTab;
+    		ActionBar.Tab newTab = null;
     		ActionBar actionBar = getActionBar();            
     		newTab = actionBar.newTab().setText("newTab");            
     		newTab.setTabListener(new TabListener(new FragmentTab()));
@@ -73,12 +72,12 @@ public class MainActivity extends Activity implements OnPageChangeListener {
     		
     	case R.id.action_search:
     		//openSearch();
-    		about();
+    		//about();
     		return true;
     		
     	case R.id.action_settings:
     		//openSettings();
-    		setting();
+    		//setting();
     		return true;
     		
     	default:
@@ -103,51 +102,51 @@ public class MainActivity extends Activity implements OnPageChangeListener {
     	
     }
     
-    void afterViews() {
-        display(m_pdfName, false);
-    }
-
-    public void about() {
-        if (!displaying(ABOUT_FILE))
-            display(ABOUT_FILE, true);
-    }
-    
-    public void setting() {
-    	if (!displaying(SAMPLE_FILE))
-    		display(SAMPLE_FILE, true);    	
-    }
-
-    private void display(String assetFileName, boolean jumpToFirstPage) {
-        if (jumpToFirstPage) m_pageNumber = 1;
-        setTitle(m_pdfName = assetFileName);
-        
-        m_pdfView.fromAsset(assetFileName)
-                .defaultPage(m_pageNumber)
-                .onPageChange(this)
-                .load();
+//    void afterViews() {
+//        display(m_pdfName, false);
+//    }
+//
+//    public void about() {
+//        if (!displaying(ABOUT_FILE))
+//            display(ABOUT_FILE, true);
+//    }
+//    
+//    public void setting() {
+//    	if (!displaying(SAMPLE_FILE))
+//    		display(SAMPLE_FILE, true);    	
+//    }
+//
+//    private void display(String assetFileName, boolean jumpToFirstPage) {
+//        if (jumpToFirstPage) m_pageNumber = 1;
+//        setTitle(m_pdfName = assetFileName);
+//        
+//        m_pdfView.fromAsset(assetFileName)
+//                .defaultPage(m_pageNumber)
+//                .onPageChange(this)
+//                .load();
         
 //        m_pdfViewtest.fromAsset("sampletest.pdf")
 //        .defaultPage(m_pageNumber)
 //        .onPageChange(this)
 //        .load();
-    }
+//    }
 
-    @Override
-    public void onPageChanged(int page, int pageCount) {
-    	m_pageNumber = page;
-        //setTitle(format("%s %s / %s", pdfName, page, pageCount));
-    }
+//    @Override
+//    public void onPageChanged(int page, int pageCount) {
+//    	m_pageNumber = page;
+//        //setTitle(format("%s %s / %s", pdfName, page, pageCount));
+//    }
 
-    @Override
-    public void onBackPressed() {
-        if (ABOUT_FILE.equals(m_pdfName)) {
-            display(SAMPLE_FILE, true);
-        } else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        if (ABOUT_FILE.equals(m_pdfName)) {
+//            display(SAMPLE_FILE, true);
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
 
-    private boolean displaying(String fileName) {
-        return fileName.equals(m_pdfName);
-    }
+//    private boolean displaying(String fileName) {
+//        return fileName.equals(m_pdfName);
+//    }
 }

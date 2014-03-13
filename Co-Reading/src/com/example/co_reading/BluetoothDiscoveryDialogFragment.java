@@ -1,6 +1,8 @@
 package com.example.co_reading;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -117,9 +119,31 @@ public class BluetoothDiscoveryDialogFragment extends DialogFragment {
 				
 				try {
 					BluetoothSocket btSocket = clientDev.createInsecureRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
+					// BluetoothSocket btSocket = clientDev.createRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
 					if (btSocket != null) {
 						Log.d("create channel", "begin to connect");
 						btSocket.connect();
+						
+						// test for transfer
+						InputStream tmpIn = null;
+						OutputStream tmpOut = null;
+						try {
+							tmpIn = btSocket.getInputStream();
+							tmpOut = btSocket.getOutputStream();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						
+						int EXIT_CMD = -1;
+						int KEY_RIGHT =1;
+						int KEY_LEFT = 2;
+						byte cmdRight = (byte) KEY_RIGHT;
+						byte cmdLeft = (byte) KEY_LEFT;
+						byte cmdExit = (byte) EXIT_CMD;
+						
+						tmpOut.write(cmdLeft);
+						tmpOut.write(cmdRight);
+						
 					} else {
 						Log.d("create channel", "get Socket error");
 					}

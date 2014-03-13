@@ -41,8 +41,12 @@ public class MainActivity extends Activity {
     		ActionBar actionBar = getActionBar();            
     		newTab = actionBar.newTab().setText("newTab");            
     		newTab.setTabListener(new TabListener(new PdfFragment()));
+    		
+    		actionBar.addTab(newTab);
+    		
+    		if (actionBar.getNavigationItemCount() > 1)
+    			actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
             
-            actionBar.addTab(newTab);
             return true;
             
     	case R.id.action_bluetooth:		// TODO: support bluetooth & wifi

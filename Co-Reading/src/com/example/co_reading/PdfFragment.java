@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.joanzapata.pdfview.PDFView;
@@ -21,7 +20,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	
 	private static final int REQUEST_CHOOSER = 1234;
 	
-	private File m_curPdfFile = null;
+	private String m_curPdfUriString = "";
 	
 	// find id by view
 	private static PDFView m_pdfView = null;
@@ -37,20 +36,24 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
     
     @Override
 	public void onStop() {
-        super.onStop();
-        
+        super.onStop();        
     }
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		
-		if (m_curPdfFile == null) {
+		if (m_curPdfUriString.isEmpty()) {
 			Intent getContentIntent = FileUtils.createGetContentIntent();
 			Intent intent = Intent.createChooser(getContentIntent,
 					"Select a PDF file");
 			startActivityForResult(intent, REQUEST_CHOOSER);
 		}
+	}
+	
+	@Override
+	public void onDestroy () {
+		super.onDestroy();
 	}
 	
 	@Override
@@ -64,25 +67,20 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	}
 	
 	@Override
-	public void onDestroy () {
-		super.onDestroy();
-	}
-	
-	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_CHOOSER:
 			if (resultCode == Activity.RESULT_OK) {
 				final Uri uri = data.getData();
-				String path = FileUtils.getPath(getActivity(), uri);
-				if (path != null && FileUtils.isLocal(path)) {
-					// open file
+				String uriString = uri.toString();
+				if (uri != null && FileUtils.isLocal(FileUtils.getPath(getActivity(), uri))) {
+
 					if (m_pdfView != null) {
-						File file = FileUtils.getFile(getActivity(), uri);
+						File file = FileUtils.getFile(getActivity(), Uri.parse(uriString));
 						if (file != null && file.exists()) {
 							Log.d("file", "file:"+file);							
 							display(file, true);
-							m_curPdfFile = file;
+							m_curPdfUriString = uriString;
 						}
 					}
 				}
@@ -94,9 +92,10 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	}
 	
     void backToDisplay() {
-        if (m_curPdfFile != null) {
-        	display(m_curPdfFile, false);
-        }
+    	if (m_curPdfUriString.isEmpty() == false) {
+    		File file = FileUtils.getFile(getActivity(), Uri.parse(m_curPdfUriString));
+    		display(file, false);
+    	}
     }
 
   /*
@@ -106,6 +105,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
     }
     */
 
+    /*
     private void display(String assetFileName, boolean jumpToFirstPage) {
         if (jumpToFirstPage) m_pageNumber = 1;
         // setTitle(m_pdfName = assetFileName);
@@ -115,6 +115,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
                 .onPageChange(this)
                 .load();
     }
+    */
     
     private void display(File file, boolean jumpToFirstPage) {
     	if (jumpToFirstPage) m_pageNumber = 1;

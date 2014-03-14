@@ -4,16 +4,13 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.util.Log;
-import android.view.*;
-import android.graphics.*;
 
 public class TabListener implements ActionBar.TabListener {
 
 	private Fragment m_fragment = null;
 
 	public TabListener(Fragment fragment) {
-		this.m_fragment = fragment;
+		m_fragment = fragment;
 	}
 
 	@Override

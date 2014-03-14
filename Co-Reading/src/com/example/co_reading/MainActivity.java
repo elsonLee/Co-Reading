@@ -1,8 +1,12 @@
 package com.example.co_reading;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,14 +14,34 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.joanzapata.pdfview.PDFView;
-import com.joanzapata.pdfview.listener.OnPageChangeListener;
-
 public class MainActivity extends Activity {
 
     private TransceiverImp	m_TransceiverManager = null;
     private DialogFragment	m_TransceiverDiscDialog = null;
     private Painter mPainter;
+
+    private RetainedFragment m_retainedFragment = null;
+    private OnRestoreData m_restoreData = null;
+
+    public class OnRestoreData {
+    	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
+    	int m_curTabPos;
+
+     	void addToTabList(ActionBar.Tab tab) {
+            m_tabList.add(tab);
+    	}
+
+    	void restoreNavigationTab(ActionBar actionBar) {
+
+            if (m_tabList.isEmpty() == false) {
+            	for (ActionBar.Tab mtab : m_tabList) {
+                    actionBar.addTab(mtab);
+            	}
+            }
+
+            actionBar.setSelectedNavigationItem(m_curTabPos);
+    	}
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +51,30 @@ public class MainActivity extends Activity {
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        FragmentManager fm = getFragmentManager();
+        m_retainedFragment = (RetainedFragment) fm.findFragmentByTag("restoreData");
+
+        if (m_retainedFragment == null) {
+            m_retainedFragment = new RetainedFragment();
+            fm.beginTransaction().add(m_retainedFragment, "restoreData").commit();
+            if (m_restoreData == null)
+                m_restoreData = new OnRestoreData();
+            m_retainedFragment.setData(m_restoreData);
+        } else {
+            m_restoreData = m_retainedFragment.getData();
+            ActionBar mactionBar = getActionBar();
+            m_restoreData.restoreNavigationTab(mactionBar);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+    	ActionBar actionBar = getActionBar();
+    	m_restoreData.m_curTabPos = actionBar.getSelectedNavigationIndex();
+    	m_retainedFragment.setData(m_restoreData);
+
+    	super.onDestroy();
     }
 
     @Override
@@ -39,15 +87,17 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
     	case R.id.action_addtab:
-    		ActionBar.Tab newTab = null;
-    		ActionBar actionBar = getActionBar();
-    		newTab = actionBar.newTab().setText("newTab");
-    		newTab.setTabListener(new TabListener(new PdfFragment()));
+            ActionBar.Tab newTab = null;
+            ActionBar actionBar = getActionBar();
 
-    		actionBar.addTab(newTab);
+            newTab = actionBar.newTab().setText("newTab");
+            newTab.setTabListener(new TabListener(new PdfFragment()));
 
-    		if (actionBar.getNavigationItemCount() > 1)
-    			actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
+            actionBar.addTab(newTab);
+            m_restoreData.addToTabList(newTab);
+
+            if (actionBar.getNavigationItemCount() > 1)
+                actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
 
             return true;
 

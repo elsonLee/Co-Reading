@@ -12,18 +12,6 @@ import com.example.co_reading.util.CacheStringKeyMap;
 
 public class BlueToothManager extends TransceiverImp {
 	
-/*	public class BtDeviceStruct {
-		public String m_name;
-		public String m_address;
-		public boolean m_paired;
-		
-		public BtDeviceStruct() {
-			m_name = null;
-			m_address = null;
-			m_paired = false;
-		}
-	};*/
-	
 	public static final int 	REQUEST_ENABLE_BT = 10;
 	public static final int		REQUEST_DIALOG_BT = 11;
 	
@@ -38,8 +26,6 @@ public class BlueToothManager extends TransceiverImp {
 	private BlueToothManager(){
 		m_pairedDevList = new CacheStringKeyMap<String, BluetoothDevice>();
 		m_foundDevList = new CacheStringKeyMap<String, BluetoothDevice>();
-		
-		// m_UUID = new UUID((long)0x04c6093b00001000l, (long)0x800000805f9b34fbl);
 	}
 	
 	public static BlueToothManager getInstance() {
@@ -91,7 +77,7 @@ public class BlueToothManager extends TransceiverImp {
 		
     	if (pairedDevices.size() > 0) {  		
     		for (BluetoothDevice btDevice : pairedDevices) {
-    			m_pairedDevList.put(btDevice.getAddress()+"(Paired)", btDevice);
+    			m_pairedDevList.put(btDevice.getAddress(), btDevice);
     		}
     	}
     	return m_pairedDevList;

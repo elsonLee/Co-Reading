@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -13,6 +14,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -79,7 +81,6 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int pos,
 					long id) {
-				// TODO Auto-generated method stub
 				Log.d("click list:", arg0+" "+arg1+" "+pos+" "+id);
 				ArrayAdapter<String> mArrayAdapter = (ArrayAdapter<String>) arg0.getAdapter();
 				String mAddress = mArrayAdapter.getItem(pos);
@@ -91,13 +92,11 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 					if (clientDev == null) {
 						return;
 					} else {
-						// pair first
 						Log.d("pair", "begin to pair");
-						if (clientDev.createBond() == false)
-							return;
 					}
 				}
 				
+				/*
 				int mboundState = clientDev.getBondState();
 				switch (mboundState) {
 				case BluetoothDevice.BOND_NONE:
@@ -116,6 +115,7 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 					Log.d("fetch uuid", "fetch failed");
 					return;
 				}
+				*/
 				
 				try {
 					BluetoothSocket btSocket = clientDev.createInsecureRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
@@ -143,6 +143,7 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 						
 						tmpOut.write(cmdLeft);
 						tmpOut.write(cmdRight);
+						Log.d("create channel", "end transfer");
 						
 					} else {
 						Log.d("create channel", "get Socket error");
@@ -181,6 +182,4 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 		
 		return builder.create();		
 	}
-	
-	
 }

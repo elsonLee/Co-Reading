@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
@@ -39,15 +40,15 @@ public class MainActivity extends Activity {
     	switch (item.getItemId()) {
     	case R.id.action_addtab:
     		ActionBar.Tab newTab = null;
-    		ActionBar actionBar = getActionBar();            
-    		newTab = actionBar.newTab().setText("newTab");            
+    		ActionBar actionBar = getActionBar();
+    		newTab = actionBar.newTab().setText("newTab");
     		newTab.setTabListener(new TabListener(new PdfFragment()));
-    		
+
     		actionBar.addTab(newTab);
-    		
+
     		if (actionBar.getNavigationItemCount() > 1)
     			actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
-            
+
             return true;
 
     	case R.id.action_bluetooth:		// TODO: support bluetooth & wifi
@@ -64,7 +65,8 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-            mPainter = Painter.getInstance();
+            mPainter = Painter.getInstance(this);
+            mPainter.toggle();
             return true;
 
     	case R.id.action_search:

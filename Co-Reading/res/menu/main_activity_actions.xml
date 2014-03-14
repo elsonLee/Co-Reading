@@ -12,7 +12,7 @@
         android:showAsAction="ifRoom" />
 
     <item android:id="@+id/action_painter"
-        android:icon="@drawable/ic_menu_share_holo_dark"
+        android:icon="@drawable/spinner_ab_disabled_eltabview"
         android:title="@string/action_painter"
         android:showAsAction="always" />
 

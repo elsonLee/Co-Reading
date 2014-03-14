@@ -1,66 +1,145 @@
 package com.example.co_reading;
 
 import android.util.Log;
-import android.os.Bundle;
+import android.content.Context;
 import android.app.*;
 import android.view.*;
 import android.graphics.*;
 
-public class Painter extends Activity implements SurfaceHolder.Callback, Runnable {
+public class Painter {
     private final String TAG = "Painter";
+
     private static Painter mSelf;
-    public SurfaceView mSurfaceView;
-    private SurfaceHolder mSurfaceHolder;
+    private Activity mActivity;
+    private Paint mPaint;
+    private PainterView mPainterView;
+    private ViewGroup mPainterContainer;
+    private Boolean mActive;
 
-    Painter() {
+    private Painter(Activity activity) {
         Log.i(TAG, "Painter constructor");
+
+        mActivity = activity;
+        mActive = false;
+
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setDither(true);
+        mPaint.setColor(0x0EFF0000);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStrokeWidth(12);
+
+        mPainterView = new PainterView(activity);
+        mPainterContainer = (ViewGroup)activity.findViewById(R.id.painter_container);
+        mPainterContainer.addView(mPainterView);
     }
 
-    public static Painter getInstance() {
-        if (mSelf == null)
-            return new Painter();
-        return mSelf;
-    }
+    public class PainterView extends View {
+        private static final float MINP = 0.25f;
+        private static final float MAXP = 0.75f;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "Activity create");
+        private Bitmap  mBitmap;
+        private Canvas  mCanvas;
+        private Path    mPath;
+        private Paint   mBitmapPaint;
 
-        mSurfaceView = new SurfaceView(this);
-        mSurfaceHolder = mSurfaceView.getHolder();
-        mSurfaceHolder.addCallback(new Painter());
-        mSurfaceView.setVisibility(View.VISIBLE);
-        try {
-            Canvas canvas = mSurfaceHolder.lockCanvas();
-            if (canvas != null) {
-                Paint paint = new Paint();
-                paint.setStrokeWidth(2.0f);
-                paint.setColor(Color.RED);
-                canvas.drawText("hello", 50, 50, paint);
-                mSurfaceHolder.unlockCanvasAndPost(canvas);
+        public PainterView(Context c) {
+            super(c);
+
+            Log.i(TAG, "View constructor");
+
+            mPath = new Path();
+            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mCanvas = new Canvas(mBitmap);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Log.i(TAG, "on Draw");
+
+            canvas.drawColor(0xAAAAAAAA);
+
+            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+
+            canvas.drawPath(mPath, mPaint);
+        }
+
+        private float mX, mY;
+        private static final float TOUCH_TOLERANCE = 4;
+
+        private void touch_start(float x, float y) {
+            mPath.reset();
+            mPath.moveTo(x, y);
+            mX = x;
+            mY = y;
+        }
+        private void touch_move(float x, float y) {
+            float dx = Math.abs(x - mX);
+            float dy = Math.abs(y - mY);
+            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+                mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+                mX = x;
+                mY = y;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        private void touch_up() {
+            mPath.lineTo(mX, mY);
+            // commit the path to our offscreen
+            mCanvas.drawPath(mPath, mPaint);
+            // kill this so we don't double draw
+            mPath.reset();
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            float x = event.getX();
+            float y = event.getY();
+            Log.i(TAG, "Point X:" + x + " Point Y:" + y);
+
+            switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touch_start(x, y);
+                invalidate();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                touch_move(x, y);
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                touch_up();
+                invalidate();
+                break;
+            }
+            return true;
+        }
+
+    }
+
+    public void toggle() {
+        mActive = !mActive;
+
+        Log.i(TAG, "Painter active? " + mActive);
+
+        if (mActive) {
+            mPainterView.setVisibility(View.VISIBLE);
+            mPainterView.requestFocus();
+        } else {
+            mPainterView.setVisibility(View.INVISIBLE);
         }
     }
 
-    public void run() {
-        Log.i(TAG, "run");
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.i(TAG, "surface changed");
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.i(TAG, "surface created");
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.i(TAG, "surface destroyed");
+    public static Painter getInstance(Activity activity) {
+        if (mSelf == null)
+        	mSelf = new Painter(activity);
+        return mSelf;
     }
 }

@@ -48,7 +48,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.myfirstactivity_main);
 
         ActionBar actionBar = getActionBar();
-        Log.d("retain", "oncreate actionbar:"+actionBar);
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
@@ -57,7 +56,6 @@ public class MainActivity extends Activity {
         
         if (m_retainedFragment == null) {
         	m_retainedFragment = new RetainedFragment();
-        	Log.d("retain", "create m_retainedFragment:"+m_retainedFragment);
         	fm.beginTransaction().add(m_retainedFragment, "restoreData").commit();
         	if (m_restoreData == null) 
         		m_restoreData = new OnRestoreData();

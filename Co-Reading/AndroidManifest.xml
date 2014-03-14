@@ -17,8 +17,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Eltabview" >
+        
         <activity
             android:name="com.example.co_reading.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,15 +31,6 @@
         <activity
             android:name="com.example.co_reading.Painter"
             android:label="@string/painter_name" >
-        </activity>
-
-        <activity
-            android:name="com.example.co_reading.DisplayMessageActivity"
-            android:label="@string/title_activity_display_message"
-            android:parentActivityName="com.example.co_reading.MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.co_reading.MainActivity" />
         </activity>
 
         <activity

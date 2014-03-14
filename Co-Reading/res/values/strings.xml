@@ -6,6 +6,8 @@
     <string name="init_message">Please Input Something...</string>
     <string name="button_send">Send</string>
     <string name="title_activity_display_message">DisplayMessageActivity</string>
+    
+    <string name="tab_name">New Tab</string>
 
     <string name="action_addtab">AddTab</string>
     <string name="action_bluetooth">Bluetooth</string>

@@ -77,7 +77,7 @@ public class BlueToothManager extends TransceiverImp {
 		
     	if (pairedDevices.size() > 0) {  		
     		for (BluetoothDevice btDevice : pairedDevices) {
-    			m_pairedDevList.put(btDevice.getAddress()+"(Paired)", btDevice);
+    			m_pairedDevList.put(btDevice.getAddress(), btDevice);
     		}
     	}
     	return m_pairedDevList;

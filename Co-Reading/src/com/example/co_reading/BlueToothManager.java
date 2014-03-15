@@ -1,5 +1,6 @@
 package com.example.co_reading;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,7 +11,7 @@ import android.content.Intent;
 
 import com.example.co_reading.util.CacheStringKeyMap;
 
-public class BlueToothManager extends TransceiverImp {
+public class BlueToothManager implements ITransceiverOps {
 	
 	public static final int 	REQUEST_ENABLE_BT = 10;
 	public static final int		REQUEST_DIALOG_BT = 11;
@@ -34,7 +35,14 @@ public class BlueToothManager extends TransceiverImp {
 		return m_instance;
 	}
 
-	@Override
+	/* ITransceiverOps implementation */
+
+	public boolean isSupported() {
+		if (m_BluetoothAdapter == null) 
+			return false;		
+		return true;
+	}
+
 	public boolean open(Activity activity) {
 		if (null != m_BluetoothAdapter) {
 			if (false == m_BluetoothAdapter.isEnabled()) {
@@ -55,12 +63,6 @@ public class BlueToothManager extends TransceiverImp {
 		
 	}
 
-	@Override
-	public boolean isSupported() {
-		if (null == m_BluetoothAdapter) 
-			return false;		
-		return true;
-	}
 	
 	@Override
 	public boolean discovery() {
@@ -70,7 +72,9 @@ public class BlueToothManager extends TransceiverImp {
 		return m_BluetoothAdapter.startDiscovery();
 	}
 	
-	public CacheStringKeyMap<String, BluetoothDevice> getPairedList() {
+	// public CacheStringKeyMap<String, BluetoothDevice> getPairedList() {
+	public Collection<BluetoothDevice> getPairedList() {
+
 		Set<BluetoothDevice> pairedDevices = m_BluetoothAdapter.getBondedDevices();
 		
 		m_pairedDevList.clear();
@@ -80,11 +84,14 @@ public class BlueToothManager extends TransceiverImp {
     			m_pairedDevList.put(btDevice.getAddress(), btDevice);
     		}
     	}
-    	return m_pairedDevList;
+    	//return m_pairedDevList;
+    	return m_pairedDevList.values();
 	}
 	
-	public CacheStringKeyMap<String, BluetoothDevice> getFoundList() {
-		return m_foundDevList;
+	// public CacheStringKeyMap<String, BluetoothDevice> getFoundList() {
+	public Collection<BluetoothDevice> getFoundList() {
+		// return m_foundDevList;
+		return m_foundDevList.values();
 	}
 	
 	public void addToFoundList(BluetoothDevice btDevice) {

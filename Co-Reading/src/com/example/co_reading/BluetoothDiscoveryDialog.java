@@ -3,8 +3,8 @@ package com.example.co_reading;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -14,7 +14,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -26,17 +25,25 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.example.co_reading.util.CacheStringKeyMap;
-
 public class BluetoothDiscoveryDialog extends DialogFragment {
 	
-	private ListView 			m_listView;
-	private View				m_dialogView;
-	private BlueToothManager	m_BlueToothManager = BlueToothManager.getInstance();
+	// private ListView m_listView;
+	private View m_dialogView;
+	private BlueToothManager m_BlueToothManager = BlueToothManager.getInstance();
+	
+	private ITransceiverOps m_ItransceiverOps = null;
+	
+	public void registerITransceiverObserver(ITransceiverOps ops) {
+		if (ops != null)
+			m_ItransceiverOps = ops;
+	}
+	
+	public void removeITransceiverObserver() {
+		m_ItransceiverOps = null;
+	}
 
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 	
-		// FIXME: each touch just found one device now.
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			ArrayAdapter mArrayAdapter = (ArrayAdapter)m_listView.getAdapter();
@@ -74,7 +81,6 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		m_dialogView = inflater.inflate(R.layout.dialog_discoverydevice, null);
 		
-		// list view
 		m_listView = (ListView)m_dialogView.findViewById(R.id.bluetooth_devicelist);
 		m_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -165,7 +171,7 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 				if (true == m_BlueToothManager.discovery()) {
 					m_BlueToothManager.clearFoundList();
 					ProgressBar mProgressBar = (ProgressBar)m_dialogView.findViewById(R.id.progresscircle);
-					mProgressBar.setVisibility(m_listView.VISIBLE);
+					// mProgressBar.setVisibility(m_listView.VISIBLE);
 				}
 			}
 		});
@@ -175,10 +181,13 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 		
 		builder.setView(m_dialogView);
     	
-		CacheStringKeyMap<String, BluetoothDevice> mArrayDevicesData = m_BlueToothManager.getPairedList();
+		// CacheStringKeyMap<String, BluetoothDevice> mArrayDevicesData = m_BlueToothManager.getPairedList();
+		ArrayList<BluetoothDevice> mArrayDevicesData = (ArrayList)m_BlueToothManager.getPairedList();
     	
-		ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mArrayDevicesData.getCachedKeyList());
-    	m_listView.setAdapter(mArrayAdapter);	
+		// ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mArrayDevicesData.getCachedKeyList());
+    	// m_listView.setAdapter(mArrayAdapter);	
+		BluetoothDeviceAdapter mArrayAdapter = new BluetoothDeviceAdapter(getActivity());
+		mArrayAdapter.updateBtDevices(mArrayDeviceData);
 		
 		return builder.create();		
 	}

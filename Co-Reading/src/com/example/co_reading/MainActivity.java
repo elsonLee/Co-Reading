@@ -16,7 +16,7 @@ import android.view.View;
 
 public class MainActivity extends Activity {
 
-    private TransceiverImp	m_TransceiverManager = null;
+    private ITransceiverOps	m_TransceiverManager = null;
     private DialogFragment	m_TransceiverDiscDialog = null;
     private Painter mPainter;
 
@@ -101,17 +101,22 @@ public class MainActivity extends Activity {
 
             return true;
 
-    	case R.id.action_bluetooth:		// TODO: support bluetooth & wifi
-            if (null == m_TransceiverManager || null == m_TransceiverDiscDialog) {
-                m_TransceiverManager = BlueToothManager.getInstance();
-                m_TransceiverDiscDialog = new BluetoothDiscoveryDialog();
+    	case R.id.action_bluetooth:		
+
+    		if (m_TransceiverManager == null) {	// TODO: support bluetooth & wifi
+    			m_TransceiverManager = BlueToothManager.getInstance();
+    			if (m_TransceiverDiscDialog == null) {
+    				m_TransceiverDiscDialog = new BluetoothDiscoveryDialog();
+    			}
+    		}
+
+            if (m_TransceiverManager.isSupported() == false)
+            	return true;
+
+            if (m_TransceiverManager.open(this) == true && m_TransceiverDiscDialog != null) {
+            	m_TransceiverDiscDialog.show(getFragmentManager(), "nothing");
             }
 
-            if (true == m_TransceiverManager.isSupported()) {
-                if (true == m_TransceiverManager.open(this) && null != m_TransceiverDiscDialog) {
-                    m_TransceiverDiscDialog.show(getFragmentManager(), "nothing");
-                }
-            }
             return true;
 
         case R.id.action_painter:
@@ -139,7 +144,7 @@ public class MainActivity extends Activity {
     	switch (requestCode) {
     	case BlueToothManager.REQUEST_ENABLE_BT:
             if (resultCode != RESULT_CANCELED) {
-                if (null != m_TransceiverDiscDialog)
+                if (m_TransceiverDiscDialog != null)
                     m_TransceiverDiscDialog.show(getFragmentManager(), "nothing");
             }
             else

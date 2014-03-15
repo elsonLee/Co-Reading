@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:layout_alignParentLeft="true" />
-            
+    
     </RelativeLayout>
      
     <Button
@@ -66,7 +66,7 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
@@ -76,6 +76,7 @@
         android:background="@drawable/discoverydevice_subtitle_bg"
         >
 
+        <!--
 	    <ListView
 	        android:id="@+id/bluetooth_devicelist"
 	        android:layout_width="match_parent"
@@ -83,7 +84,27 @@
 	        android:layout_alignParentLeft="true"
 	        android:layout_alignParentTop="true" >
 	    </ListView>
+	    -->
+	    
+	    <ImageView 
+	        android:id="@+id/btDevice_image"
+	        android:layout_width="50dp"
+	        android:layout_height="50dp"
+	        android:src="@drawable/ic_search"
+	        />
 
-	</RelativeLayout>
+	    <TextView
+	        android:id="@+id/btDevice_name"
+	        android:layout_width="wrap_content"
+	        android:layout_height="50dp"
+	        />
+
+	    <TextView
+	        android:id="@+id/btDevice_address"
+	        android:layout_width="wrap_content"
+	        android:layout_height="50dp"
+	        />
+
+	</LinearLayout>
 
 </LinearLayout>

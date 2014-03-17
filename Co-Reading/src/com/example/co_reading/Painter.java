@@ -5,6 +5,7 @@ import android.content.Context;
 import android.app.*;
 import android.view.*;
 import android.graphics.*;
+import org.json.*;
 
 public class Painter {
     private final String TAG = "Painter";
@@ -16,6 +17,9 @@ public class Painter {
     private ViewGroup mPainterContainer;
     private Boolean mActive;
 
+    private JSONObject mJsonObj;
+    private int index;
+
     private Painter(Activity activity) {
         Log.i(TAG, "Painter constructor");
 
@@ -25,7 +29,7 @@ public class Painter {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setColor(0x0EFF0000);
+        mPaint.setColor(0xFFFF0000);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -34,6 +38,9 @@ public class Painter {
         mPainterView = new PainterView(activity);
         mPainterContainer = (ViewGroup)activity.findViewById(R.id.painter_container);
         mPainterContainer.addView(mPainterView);
+
+        index = 0;
+        mJsonObj = new JSONObject();
     }
 
     public class PainterView extends View {
@@ -64,7 +71,7 @@ public class Painter {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            Log.i(TAG, "on Draw");
+            //            Log.i(TAG, "on Draw");
 
             canvas.drawColor(0xAAAAAAAA);
 
@@ -103,7 +110,17 @@ public class Painter {
         public boolean onTouchEvent(MotionEvent event) {
             float x = event.getX();
             float y = event.getY();
-            Log.i(TAG, "Point X:" + x + " Point Y:" + y);
+            JSONArray jsonArray = new JSONArray();
+
+            try {
+                jsonArray.put(event.getAction()).put(x).put(y);
+                mJsonObj.putOpt(((Integer)index).toString(), jsonArray);
+                index++;
+                Log.i(TAG, "index:" + index + " Point X:" + x + " Point Y:" + y);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -122,6 +139,49 @@ public class Painter {
             return true;
         }
 
+        public boolean onTouchEvent(int event, float x, float y) {
+            switch (event) {
+            case MotionEvent.ACTION_DOWN:
+                touch_start(x, y);
+                invalidate();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                touch_move(x, y);
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                touch_up();
+                invalidate();
+                break;
+            }
+            return true;
+        }
+
+        public void rePaint(JSONObject obj) {
+            Log.i(TAG, "repaint ...");
+            mCanvas.drawColor(Color.BLACK);
+            mBitmap.eraseColor(Color.BLACK);
+            invalidate();
+
+            for (int index = 0; index < obj.length() / 2; index++) {
+                try {
+                    JSONArray array = obj.getJSONArray(((Integer)index).toString());
+                    double x = (Double)(array.get(1));
+                    double y = (Double)(array.get(2));
+                    onTouchEvent((Integer)(array.get(0)), (float)x, (float)y);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public JSONObject getJsonObj() {
+        return mJsonObj;
+    }
+
+    public void rePaint(JSONObject obj) {
+        mPainterView.rePaint(obj);
     }
 
     public void toggle() {

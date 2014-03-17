@@ -3,7 +3,10 @@ package com.example.co_reading;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,8 +30,11 @@ import android.widget.ProgressBar;
 
 public class BluetoothDiscoveryDialog extends DialogFragment {
 	
-	// private ListView m_listView;
+	private final String TAG = BluetoothDiscoveryDialog.class.getSimpleName();
+	
+	private ListView m_listView;
 	private View m_dialogView;
+	private	BluetoothDeviceAdapter m_BtArrayAdapter;
 	private BlueToothManager m_BlueToothManager = BlueToothManager.getInstance();
 	
 	private ITransceiverOps m_ItransceiverOps = null;
@@ -46,19 +52,20 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 	
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-			ArrayAdapter mArrayAdapter = (ArrayAdapter)m_listView.getAdapter();
+
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				BluetoothDevice btDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				m_BlueToothManager.addToFoundList(btDevice);
-				mArrayAdapter.clear();
-				mArrayAdapter.addAll(m_BlueToothManager.getPairedList().getCachedKeyList().addAll(m_BlueToothManager.getFoundList().getCachedKeyList()));
+				List<BluetoothDevice> mDevList = (List<BluetoothDevice>)m_BlueToothManager.getPairedList();
+				mDevList.addAll((List<BluetoothDevice>)m_BlueToothManager.getFoundList());
+				m_BtArrayAdapter.updateBtDevices(mDevList);
 				
 				ProgressBar mProgressBar = (ProgressBar)m_dialogView.findViewById(R.id.progresscircle);
 				mProgressBar.setVisibility(m_listView.GONE);
 			}
 			else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
 				// pairing
-				Log.d("pair", "pairing response");
+				Log.d(TAG, "pairing response");
 			}
 			else if (BluetoothDevice.ACTION_UUID.equals(action)) {
 				// get uuid
@@ -66,12 +73,11 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 				Parcelable[] uuidExtra = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
 				
 				if (uuidExtra == null) {
-					Log.e("uuid", "UUID == null");
+					Log.e(TAG, "UUID == null");
 				}
 				
-				Log.d("uuid", "uuid: "+uuidExtra.toString());
+				Log.d(TAG, "uuid: "+uuidExtra.toString());
 			}
-			
 		}
 	};
 	
@@ -82,25 +88,14 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 		m_dialogView = inflater.inflate(R.layout.dialog_discoverydevice, null);
 		
 		m_listView = (ListView)m_dialogView.findViewById(R.id.bluetooth_devicelist);
+		m_listView.setAdapter(m_BtArrayAdapter);
 		m_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int pos,
 					long id) {
-				Log.d("click list:", arg0+" "+arg1+" "+pos+" "+id);
-				ArrayAdapter<String> mArrayAdapter = (ArrayAdapter<String>) arg0.getAdapter();
-				String mAddress = mArrayAdapter.getItem(pos);
-				Log.d("click list:", "Addr:"+mAddress);
-				
-				BluetoothDevice clientDev = m_BlueToothManager.getDeviceFromPairedList(mAddress);
-				if (clientDev == null) {
-					clientDev = m_BlueToothManager.getDeviceFromFoundList(mAddress);
-					if (clientDev == null) {
-						return;
-					} else {
-						Log.d("pair", "begin to pair");
-					}
-				}
+				BluetoothDeviceAdapter mArrayAdapter = (BluetoothDeviceAdapter)arg0.getAdapter();
+				BluetoothDevice clientDev = (BluetoothDevice)mArrayAdapter.getItem(pos);
 				
 				/*
 				int mboundState = clientDev.getBondState();
@@ -126,8 +121,11 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 				try {
 					BluetoothSocket btSocket = clientDev.createInsecureRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
 					// BluetoothSocket btSocket = clientDev.createRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
+					// Method m = clientDev.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
+					// BluetoothSocket btSocket = (BluetoothSocket)m.invoke(clientDev, Integer.valueOf(1));
+
 					if (btSocket != null) {
-						Log.d("create channel", "begin to connect");
+						Log.d(TAG, "begin to connect");
 						btSocket.connect();
 						
 						// test for transfer
@@ -149,14 +147,17 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 						
 						tmpOut.write(cmdLeft);
 						tmpOut.write(cmdRight);
-						Log.d("create channel", "end transfer");
+						Log.d(TAG, "end transfer");
 						
 					} else {
-						Log.d("create channel", "get Socket error");
+						Log.d(TAG, "get Socket error");
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (IllegalArgumentException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 			
@@ -182,12 +183,14 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 		builder.setView(m_dialogView);
     	
 		// CacheStringKeyMap<String, BluetoothDevice> mArrayDevicesData = m_BlueToothManager.getPairedList();
-		ArrayList<BluetoothDevice> mArrayDevicesData = (ArrayList)m_BlueToothManager.getPairedList();
+		List<BluetoothDevice> mArrayDevicesData = m_BlueToothManager.getPairedList();
     	
 		// ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mArrayDevicesData.getCachedKeyList());
     	// m_listView.setAdapter(mArrayAdapter);	
-		BluetoothDeviceAdapter mArrayAdapter = new BluetoothDeviceAdapter(getActivity());
-		mArrayAdapter.updateBtDevices(mArrayDeviceData);
+
+		m_BtArrayAdapter = new BluetoothDeviceAdapter(getActivity());
+		m_BtArrayAdapter.updateBtDevices(mArrayDevicesData);
+		m_listView.setAdapter(m_BtArrayAdapter);
 		
 		return builder.create();		
 	}

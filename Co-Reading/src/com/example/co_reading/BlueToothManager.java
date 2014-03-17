@@ -1,6 +1,8 @@
 package com.example.co_reading;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -9,24 +11,27 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 
-import com.example.co_reading.util.CacheStringKeyMap;
-
 public class BlueToothManager implements ITransceiverOps {
 	
-	public static final int 	REQUEST_ENABLE_BT = 10;
-	public static final int		REQUEST_DIALOG_BT = 11;
+	public static final int REQUEST_ENABLE_BT = 10;
+	public static final int	REQUEST_DIALOG_BT = 11;
 	
 	public static UUID	m_UUID = UUID.fromString("04c6093b-0000-1000-8000-00805f9b34fb");
 	
-	private static CacheStringKeyMap<String, BluetoothDevice>		m_pairedDevList;
-	private static CacheStringKeyMap<String, BluetoothDevice>		m_foundDevList;
+	// private static CacheStringKeyMap<String, BluetoothDevice>		m_pairedDevList;
+	// private static CacheStringKeyMap<String, BluetoothDevice>		m_foundDevList;
+	private static ArrayList<BluetoothDevice> m_pairedDevList;
+	private static ArrayList<BluetoothDevice> m_foundDevList;
+	
 	private static BluetoothAdapter	m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	
 	private static BlueToothManager	m_instance;
 	
 	private BlueToothManager(){
-		m_pairedDevList = new CacheStringKeyMap<String, BluetoothDevice>();
-		m_foundDevList = new CacheStringKeyMap<String, BluetoothDevice>();
+		// m_pairedDevList = new CacheStringKeyMap<String, BluetoothDevice>();
+		// m_foundDevList = new CacheStringKeyMap<String, BluetoothDevice>();
+		m_pairedDevList = new ArrayList<BluetoothDevice>();
+		m_foundDevList = new ArrayList<BluetoothDevice>();
 	}
 	
 	public static BlueToothManager getInstance() {
@@ -73,7 +78,7 @@ public class BlueToothManager implements ITransceiverOps {
 	}
 	
 	// public CacheStringKeyMap<String, BluetoothDevice> getPairedList() {
-	public Collection<BluetoothDevice> getPairedList() {
+	public List<BluetoothDevice> getPairedList() {
 
 		Set<BluetoothDevice> pairedDevices = m_BluetoothAdapter.getBondedDevices();
 		
@@ -81,22 +86,24 @@ public class BlueToothManager implements ITransceiverOps {
 		
     	if (pairedDevices.size() > 0) {  		
     		for (BluetoothDevice btDevice : pairedDevices) {
-    			m_pairedDevList.put(btDevice.getAddress(), btDevice);
+    			// m_pairedDevList.put(btDevice.getAddress(), btDevice);
+    			m_pairedDevList.add(btDevice);
     		}
     	}
-    	//return m_pairedDevList;
-    	return m_pairedDevList.values();
+    	// return m_pairedDevList.values();
+    	return m_pairedDevList;
 	}
 	
 	// public CacheStringKeyMap<String, BluetoothDevice> getFoundList() {
-	public Collection<BluetoothDevice> getFoundList() {
-		// return m_foundDevList;
-		return m_foundDevList.values();
+	public List<BluetoothDevice> getFoundList() {
+		// return m_foundDevList.values();
+		return m_foundDevList;
 	}
 	
 	public void addToFoundList(BluetoothDevice btDevice) {
-		if (null != btDevice /* && false == m_foundDevList.contains(btDeviceData) */) {
-			m_foundDevList.put(btDevice.getAddress(), btDevice);
+		if (null != btDevice && m_foundDevList.contains(btDevice) == false) {
+			// m_foundDevList.put(btDevice.getAddress(), btDevice);
+			m_foundDevList.add(btDevice);
 		}
 	}
 	
@@ -105,6 +112,7 @@ public class BlueToothManager implements ITransceiverOps {
 			m_foundDevList.clear();
 	}
 	
+	/*
 	public BluetoothDevice getDeviceFromPairedList(String address) {
 		if (m_pairedDevList.containsKey(address))
 			return m_pairedDevList.get(address);
@@ -118,5 +126,6 @@ public class BlueToothManager implements ITransceiverOps {
 		
 		return null;
 	}
+	*/
 
 }

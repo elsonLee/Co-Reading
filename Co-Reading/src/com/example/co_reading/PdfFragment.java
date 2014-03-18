@@ -18,6 +18,7 @@ import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
 public class PdfFragment extends Fragment implements OnPageChangeListener {	
+	private final String TAG = "PdfFragment";
 	private final int REQUEST_CHOOSER = 1234;	
 	private String m_curPdfUriString = "";
     private Integer m_pageNumber = 1;
@@ -62,7 +63,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 		}
 
         if (mContainerView == null)
-        	mContainerView = new FrameLayout(getActivity());     
+        	mContainerView = new ContainerView(getActivity());     
 	}
 	
 	@Override
@@ -148,6 +149,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		m_pageNumber = page;
+		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
 	}
 	
 	/*

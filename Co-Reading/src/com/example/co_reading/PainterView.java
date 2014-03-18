@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.joanzapata.pdfview.listener.OnPageChangeListener;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -14,7 +16,7 @@ import android.view.View;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class PainterView extends View {
+public class PainterView extends View implements OnPageChangeListener {
 	private final String TAG = "PainterView";
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
@@ -110,6 +112,11 @@ public class PainterView extends View {
         }
         return true;
     }
+    
+	@Override
+	public void onPageChanged(int page, int pageCount) {
+		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+	}
 
     public void rePaint(JSONObject obj) {
         Log.i(TAG, "repaint ...");

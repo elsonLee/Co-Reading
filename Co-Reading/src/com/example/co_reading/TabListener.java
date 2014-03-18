@@ -7,7 +7,7 @@ import android.app.FragmentTransaction;
 import android.util.Log;
 
 public class TabListener implements ActionBar.TabListener {
-	private final String TAG = "listener";
+	private final String TAG = TabListener.class.getSimpleName();
 	private Fragment m_fragment = null;
 
 	public TabListener(Fragment fragment) {

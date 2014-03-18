@@ -17,30 +17,26 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class PdfFragment extends Fragment implements OnPageChangeListener {
-	
-	private static final int REQUEST_CHOOSER = 1234;
-	
+public class PdfFragment extends Fragment implements OnPageChangeListener {	
+	private final int REQUEST_CHOOSER = 1234;	
 	private String m_curPdfUriString = "";
-	
-	// find id by view
-	private static PDFView m_pdfView = null;
-	
     private Integer m_pageNumber = 1;
-    
-	private Painter mPainter;
-	private View mPainterView;
+
 	private static ViewGroup mContainerView;
-    
-    
+	private static PDFView m_pdfView = null;
+	private PainterView mPainterView;
+	   
+	private Painter mPainter;
+      
     @Override
 	public void onStart() {
-    	PainterManager pm = PainterManager.getInstance();
         super.onStart();
-        
+    	PainterViewManager pm = PainterViewManager.getInstance();
+
         backToDisplay();
+        pm.setVisibility(true);
+
         mContainerView.invalidate();
-    	pm.setVisible(pm.isVisible());
     }
     
     @Override
@@ -59,11 +55,11 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 			startActivityForResult(intent, REQUEST_CHOOSER);
 		}
 
-		if (mPainter == null) {
-			mPainter = new Painter(this);
-        	PainterManager.getInstance().add(mPainter);
+		mPainter = Painter.getInstance();
+		if (mPainterView == null) {
+			mPainterView = new PainterView(getActivity());
+			PainterViewManager.getInstance().add(mPainterView);
 		}
-        mPainterView = mPainter.mPainterView;
 
         if (mContainerView == null)
         	mContainerView = new FrameLayout(getActivity());     
@@ -83,7 +79,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 		
 		mContainerView.removeAllViews();
 		mContainerView.addView(m_pdfView);
-        mPainterView.setVisibility(View.INVISIBLE);
+        mPainterView.setVisibility(View.VISIBLE);
 		mContainerView.addView(mPainterView);
 
 		return mContainerView;

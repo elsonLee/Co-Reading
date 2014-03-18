@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-        	PainterManager.getInstance().toggle();
+        	PainterViewManager.getInstance().toggleBypassMode();
             return true;
 
     	case R.id.action_search:

@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-            mPainter.toggle();
+        	PainterManager.getInstance().toggle();
             return true;
 
     	case R.id.action_search:

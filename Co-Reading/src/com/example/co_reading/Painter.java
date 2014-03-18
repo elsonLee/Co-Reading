@@ -13,7 +13,8 @@ public class Painter {
     private Fragment mFragment;
     private Paint mPaint;
     public PainterView mPainterView;
-    private Boolean mActive;
+    
+    private boolean mVisible;
 
     private JSONObject mJsonObj;
     private int index;
@@ -22,7 +23,6 @@ public class Painter {
         Log.i(TAG, "Painter constructor");
 
         mFragment = fragment;
-        mActive = false;
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
@@ -120,6 +120,9 @@ public class Painter {
         }
 
         public boolean onTouchEvent(int event, float x, float y) {
+        	if (!mVisible)
+        		return false;
+
             switch (event) {
             case MotionEvent.ACTION_DOWN:
                 touch_start(x, y);
@@ -164,16 +167,15 @@ public class Painter {
         mPainterView.rePaint(obj);
     }
 
-    public void toggle() {
-        mActive = !mActive;
+    public void setVisible(boolean visible) {
+    	mVisible = visible;
+    	mPainterView.setVisibility(View.VISIBLE);
 
-        Log.i(TAG, "Painter active? " + mActive);
-
-        if (mActive) {
-            mPainterView.setVisibility(View.VISIBLE);
-            mPainterView.requestFocus();
-        } else {
-            mPainterView.setVisibility(View.INVISIBLE);
-        }
+ 
+//        if (visible) {
+//            mPainterView.setVisibility(View.VISIBLE);
+//        } else {
+//            mPainterView.setVisibility(View.INVISIBLE);
+//        }
     }
 }

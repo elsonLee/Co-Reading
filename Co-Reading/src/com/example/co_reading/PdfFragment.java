@@ -35,10 +35,12 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
     
     @Override
 	public void onStart() {
+    	PainterManager pm = PainterManager.getInstance();
         super.onStart();
         
         backToDisplay();
         mContainerView.invalidate();
+    	pm.setVisible(pm.isVisible());
     }
     
     @Override
@@ -57,8 +59,10 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 			startActivityForResult(intent, REQUEST_CHOOSER);
 		}
 
-		if (mPainter == null)
+		if (mPainter == null) {
 			mPainter = new Painter(this);
+        	PainterManager.getInstance().add(mPainter);
+		}
         mPainterView = mPainter.mPainterView;
 
         if (mContainerView == null)
@@ -79,6 +83,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 		
 		mContainerView.removeAllViews();
 		mContainerView.addView(m_pdfView);
+        mPainterView.setVisibility(View.INVISIBLE);
 		mContainerView.addView(mPainterView);
 
 		return mContainerView;

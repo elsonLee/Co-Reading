@@ -32,11 +32,8 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
     @Override
 	public void onStart() {
         super.onStart();
-    	PainterViewManager pm = PainterViewManager.getInstance();
 
         backToDisplay();
-        pm.setVisibility(true);
-
         mContainerView.invalidate();
     }
     
@@ -62,8 +59,7 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 			PainterViewManager.getInstance().add(mPainterView);
 		}
 
-        if (mContainerView == null)
-        	mContainerView = new ContainerView(getActivity());     
+        mContainerView = ContainerView.getInstance(getActivity());     
 	}
 	
 	@Override
@@ -77,12 +73,11 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 		if (m_pdfView == null) {
 			m_pdfView = new PDFView(getActivity(), null);
 		}
-		
-		mContainerView.removeAllViews();
-		mContainerView.addView(m_pdfView);
-        mPainterView.setVisibility(View.VISIBLE);
-		mContainerView.addView(mPainterView);
 
+		mContainerView.removeAllViews();
+		mContainerView.addView(m_pdfView, 0);
+		mContainerView.addView(mPainterView, 1);
+		mContainerView.setVisibility(mContainerView.getVisibility());
 		return mContainerView;
 	}
 	
@@ -150,6 +145,14 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	public void onPageChanged(int page, int pageCount) {
 		m_pageNumber = page;
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+	}
+	
+	public static View getPdfView() {
+		return m_pdfView;
+	}
+	
+	public View getPainterView() {
+		return mPainterView;
 	}
 	
 	/*

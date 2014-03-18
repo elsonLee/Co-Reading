@@ -23,7 +23,6 @@ public class PainterView extends View implements OnPageChangeListener {
     private Path    mPath;
     private Paint   mBitmapPaint;
     private int mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
-    public boolean bypass;
 
     public PainterView(Context c) {
         super(c);
@@ -81,9 +80,6 @@ public class PainterView extends View implements OnPageChangeListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-    	if (bypass)
-    		return false;
-
         float x = event.getX();
         float y = event.getY();
         int action = event.getAction();
@@ -93,9 +89,6 @@ public class PainterView extends View implements OnPageChangeListener {
     }
 
     public boolean onTouchEvent(int event, float x, float y) {
-    	if (bypass)
-    		return false;
-
         switch (event) {
         case MotionEvent.ACTION_DOWN:
             touch_start(x, y);

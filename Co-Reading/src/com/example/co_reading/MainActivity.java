@@ -12,15 +12,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends Activity {
-
+	private final String TAG = "MainActivity";
     private TransceiverImp	m_TransceiverManager = null;
     private DialogFragment	m_TransceiverDiscDialog = null;
-    private Painter mPainter;
 
     private RetainedFragment m_retainedFragment = null;
     private OnRestoreData m_restoreData = null;
+    private boolean mVisible = true;
 
     public class OnRestoreData {
     	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
@@ -114,15 +115,18 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-        	PainterViewManager.getInstance().toggleBypassMode();
+        	ContainerView.getInstance(this).toggleDrawMode();
             return true;
 
     	case R.id.action_search:
+    		mVisible = !mVisible;
+    		if (mVisible)
+    			ContainerView.getInstance(this).setVisibility(View.VISIBLE);
+    		else
+    			ContainerView.getInstance(this).setVisibility(View.INVISIBLE);
             return true;
 
     	case R.id.action_settings:
-            //openSettings();
-            //setting();
             return true;
 
     	default:

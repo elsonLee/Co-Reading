@@ -10,20 +10,18 @@ import org.json.*;
 public class Painter {
     private final String TAG = "Painter";
 
-    private static Painter mSelf;
-    private Activity mActivity;
+    private Fragment mFragment;
     private Paint mPaint;
-    private PainterView mPainterView;
-    private ViewGroup mPainterContainer;
+    public PainterView mPainterView;
     private Boolean mActive;
 
     private JSONObject mJsonObj;
     private int index;
 
-    private Painter(Activity activity) {
+    public Painter(Fragment fragment) {
         Log.i(TAG, "Painter constructor");
 
-        mActivity = activity;
+        mFragment = fragment;
         mActive = false;
 
         mPaint = new Paint();
@@ -35,18 +33,13 @@ public class Painter {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
 
-        mPainterView = new PainterView(activity);
-        mPainterContainer = (ViewGroup)activity.findViewById(R.id.painter_container);
-        mPainterContainer.addView(mPainterView);
+        mPainterView = new PainterView(mFragment.getActivity());
 
         index = 0;
         mJsonObj = new JSONObject();
     }
 
     public class PainterView extends View {
-        private static final float MINP = 0.25f;
-        private static final float MAXP = 0.75f;
-
         private Bitmap  mBitmap;
         private Canvas  mCanvas;
         private Path    mPath;
@@ -71,7 +64,7 @@ public class Painter {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            //            Log.i(TAG, "on Draw");
+            Log.i(TAG, "on Draw");
 
             canvas.drawColor(0xAAAAAAAA);
 
@@ -110,10 +103,11 @@ public class Painter {
         public boolean onTouchEvent(MotionEvent event) {
             float x = event.getX();
             float y = event.getY();
+            int action = event.getAction();
             JSONArray jsonArray = new JSONArray();
 
             try {
-                jsonArray.put(event.getAction()).put(x).put(y);
+                jsonArray.put(action).put(x).put(y);
                 mJsonObj.putOpt(((Integer)index).toString(), jsonArray);
                 index++;
                 Log.i(TAG, "index:" + index + " Point X:" + x + " Point Y:" + y);
@@ -122,21 +116,7 @@ public class Painter {
                 e.printStackTrace();
             }
 
-            switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                invalidate();
-                break;
-            }
-            return true;
+            return onTouchEvent(action, x, y);
         }
 
         public boolean onTouchEvent(int event, float x, float y) {
@@ -195,11 +175,5 @@ public class Painter {
         } else {
             mPainterView.setVisibility(View.INVISIBLE);
         }
-    }
-
-    public static Painter getInstance(Activity activity) {
-        if (mSelf == null)
-        	mSelf = new Painter(activity);
-        return mSelf;
     }
 }

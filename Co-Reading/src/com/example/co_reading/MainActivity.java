@@ -12,8 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import org.json.*;
 
 public class MainActivity extends Activity {
 
@@ -116,14 +114,10 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-            mPainter = Painter.getInstance(this);
             mPainter.toggle();
             return true;
 
     	case R.id.action_search:
-            mPainter = Painter.getInstance(this);
-            JSONObject obj = mPainter.getJsonObj();
-            mPainter.rePaint(obj);
             return true;
 
     	case R.id.action_settings:

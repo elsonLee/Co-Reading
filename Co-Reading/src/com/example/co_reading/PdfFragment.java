@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.joanzapata.pdfview.PDFView;
@@ -27,11 +28,17 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	
     private Integer m_pageNumber = 1;
     
+	private Painter mPainter;
+	private View mPainterView;
+	private static ViewGroup mContainerView;
+    
+    
     @Override
 	public void onStart() {
         super.onStart();
         
         backToDisplay();
+        mContainerView.invalidate();
     }
     
     @Override
@@ -49,6 +56,13 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 					"Select a PDF file");
 			startActivityForResult(intent, REQUEST_CHOOSER);
 		}
+
+		if (mPainter == null)
+			mPainter = new Painter(this);
+        mPainterView = mPainter.mPainterView;
+
+        if (mContainerView == null)
+        	mContainerView = new FrameLayout(getActivity());     
 	}
 	
 	@Override
@@ -63,7 +77,11 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 			m_pdfView = new PDFView(getActivity(), null);
 		}
 		
-		return m_pdfView;
+		mContainerView.removeAllViews();
+		mContainerView.addView(m_pdfView);
+		mContainerView.addView(mPainterView);
+
+		return mContainerView;
 	}
 	
 	@Override

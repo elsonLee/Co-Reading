@@ -3,7 +3,7 @@
 
     <string name="app_name">Co Writing</string>
     <string name="hello_world">Hello world!</string>
-    <string name="init_message">Please Input Something...</string>
+    <string name="init_message">Please Input Something</string>
     <string name="button_send">Send</string>
     <string name="title_activity_display_message">DisplayMessageActivity</string>
     
@@ -17,7 +17,7 @@
     <string name="action_painter">Painter Mode</string>
 
     <string name="bluetooth_discovery">Find Device</string>
-    <string name="bluetooth_scan">Scan...</string>
+    <string name="bluetooth_scan">Scan.</string>
     <string name="bluetooth_listdevice">Available Devices</string>
 
     <!-- file chooser -->

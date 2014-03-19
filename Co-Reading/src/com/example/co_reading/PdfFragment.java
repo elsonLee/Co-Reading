@@ -11,158 +11,87 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.joanzapata.pdfview.PDFView;
-import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class PdfFragment extends Fragment implements OnPageChangeListener {	
+public class PdfFragment extends Fragment {	
 	private final String TAG = "PdfFragment";
 	private final int REQUEST_CHOOSER = 1234;	
-	private String m_curPdfUriString = "";
-    private Integer m_pageNumber = 1;
 
-	private static ViewGroup mContainerView;
-	private static PDFView m_pdfView = null;
-	private PainterView mPainterView;
-	   
-	private Painter mPainter;
-      
-    @Override
-	public void onStart() {
-        super.onStart();
+	private String mCurPdfUriString = "";
+	private ViewGroup mLayout;
+	private File mFile;
 
-        backToDisplay();
-        mContainerView.invalidate();
-    }
-    
-    @Override
-	public void onStop() {
-        super.onStop();        
-    }
-	
+	public ContainerView mContainerView;
+
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
-		
-		if (m_curPdfUriString.isEmpty()) {
+		Log.i(TAG, "onCreate");
+
+		if (mCurPdfUriString.isEmpty()) {
 			Intent getContentIntent = FileUtils.createGetContentIntent();
 			Intent intent = Intent.createChooser(getContentIntent,
 					"Select a PDF file");
 			startActivityForResult(intent, REQUEST_CHOOSER);
 		}
-
-		mPainter = Painter.getInstance();
-		if (mPainterView == null) {
-			mPainterView = new PainterView(getActivity());
-			PainterViewManager.getInstance().add(mPainterView);
-		}
-
-        mContainerView = ContainerView.getInstance(getActivity());     
 	}
+	
+    @Override
+	public void onStart() {
+		Log.i(TAG, "onStart, mFile " + mFile);
+        super.onStart();
+        
+        if (mFile != null) {
+        	mContainerView.loadPdfView(mFile, false);
+			mContainerView.display();
+        }
+    }
+    
+    @Override
+	public void onStop() {
+		Log.i(TAG, "onStop");
+        super.onStop();        
+    }
 	
 	@Override
 	public void onDestroy () {
+		Log.i(TAG, "onDestroy");
 		super.onDestroy();
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 			Bundle savedInstanceState) {
-		if (m_pdfView == null) {
-			m_pdfView = new PDFView(getActivity(), null);
-		}
+		Log.i(TAG, "onCreateView");
 
-		mContainerView.removeAllViews();
-		mContainerView.addView(m_pdfView, 0);
-		mContainerView.addView(mPainterView, 1);
-		mContainerView.setVisibility(mContainerView.getVisibility());
-		return mContainerView;
+		if (mLayout == null) {
+			mLayout = (ViewGroup)inflater.inflate(R.layout.pdf_fragment, null);	
+			mContainerView = (ContainerView)mLayout.getChildAt(0);
+		}
+		return mLayout;
 	}
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.i(TAG, "onActivityResult");
 		switch (requestCode) {
 		case REQUEST_CHOOSER:
 			if (resultCode == Activity.RESULT_OK) {
 				final Uri uri = data.getData();
 				String uriString = uri.toString();
 				if (uri != null && FileUtils.isLocal(FileUtils.getPath(getActivity(), uri))) {
-
-					if (m_pdfView != null) {
-						File file = FileUtils.getFile(getActivity(), Uri.parse(uriString));
-						if (file != null && file.exists()) {
-							Log.d("file", "file:"+file);							
-							display(file, true);
-							m_curPdfUriString = uriString;
+					mFile = FileUtils.getFile(getActivity(), Uri.parse(uriString));
+					if (mFile != null && mFile.exists()) {
+							Log.d(TAG, "file:"+ mFile);
+							mCurPdfUriString = uriString;
 						}
 					}
 				}
-			}
 			break;
 		default:
 			break;
 		}		
 	}
-	
-    void backToDisplay() {
-    	if (m_curPdfUriString.isEmpty() == false) {
-    		File file = FileUtils.getFile(getActivity(), Uri.parse(m_curPdfUriString));
-    		display(file, false);
-    	}
-    }
 
-  /*
-    public void about() {
-        if (!displaying(ABOUT_FILE))
-            display(ABOUT_FILE, true);
-    }
-    */
-
-    /*
-    private void display(String assetFileName, boolean jumpToFirstPage) {
-        if (jumpToFirstPage) m_pageNumber = 1;
-        // setTitle(m_pdfName = assetFileName);
-        
-        m_pdfView.fromAsset(assetFileName)
-                .defaultPage(m_pageNumber)
-                .onPageChange(this)
-                .load();
-    }
-    */
-    
-    private void display(File file, boolean jumpToFirstPage) {
-    	if (jumpToFirstPage) m_pageNumber = 1;
-    	
-    	m_pdfView.fromFile(file)
-    		.defaultPage(m_pageNumber)
-    		.onPageChange(this)
-    		.load();    	
-    }
-
-	@Override
-	public void onPageChanged(int page, int pageCount) {
-		m_pageNumber = page;
-		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
-	}
-	
-	public static View getPdfView() {
-		return m_pdfView;
-	}
-	
-	public View getPainterView() {
-		return mPainterView;
-	}
-	
-	/*
-    @Override
-    public void onBackPressed() {
-        if (ABOUT_FILE.equals(m_pdfName)) {
-            display(SAMPLE_FILE, true);
-        } else {
-            super.onBackPressed();
-        }
-    }
-    */
 }

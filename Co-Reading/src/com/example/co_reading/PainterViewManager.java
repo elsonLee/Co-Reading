@@ -1,7 +1,6 @@
 package com.example.co_reading;
 
 import java.util.ArrayList;
-import android.view.View;
 
 public class PainterViewManager {
 	private static PainterViewManager mManager;

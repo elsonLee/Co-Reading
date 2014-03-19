@@ -1,70 +1,86 @@
 package com.example.co_reading;
+
+import java.io.File;
+
+import com.joanzapata.pdfview.PDFView;
+import com.joanzapata.pdfview.listener.OnPageChangeListener;
+
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.app.Activity;
+import android.widget.RelativeLayout;
+import android.content.Context;
+import android.util.AttributeSet;
 import android.util.Log;
 
-public class ContainerView extends FrameLayout {
-	private Activity mActivity;
+public class ContainerView extends RelativeLayout implements OnPageChangeListener {
 	private final String TAG = "ContainerView";
-	private static ContainerView mSelf;
-	private boolean mDrawMode = false;
-	private int mVisibility = View.VISIBLE;
 
-	ContainerView(Activity ctx) {
+	private boolean mDrawMode = false;
+	
+	private int mPageNum = 1;
+	private File mFile;
+	private PDFView mPdfView;
+	private PainterView mPainterView;
+
+	public ContainerView(Context ctx) {
 		super(ctx);
-		mActivity = ctx;
+		mPainterView = new PainterView(ctx);
 	}
 	
-	public static ContainerView getInstance(Activity ctx) {
-		if (mSelf == null)
-			mSelf = new ContainerView(ctx);
-		return mSelf;
+	public ContainerView(Context ctx, AttributeSet attrs) {
+		super(ctx, attrs);
+		mPainterView = new PainterView(ctx);
+	}
+	
+	public ContainerView(Context ctx, AttributeSet attrs, int defStyle) {
+		super(ctx, attrs, defStyle);
+		mPainterView = new PainterView(ctx);
+	}
+
+	public boolean loadPdfView(File file, boolean jumpToFirstPage) {
+		if (jumpToFirstPage) mPageNum = 1;
+		mFile = file;
+		
+		mPdfView = new PDFView(getContext(), null);
+
+	   	mPdfView.fromFile(file).defaultPage(mPageNum).onPageChange(this).load();
+	   	
+	   	return true;
+	}
+	
+	public void replacePainterView(PainterView painter) {
+		mPainterView = painter;
+	}
+
+	public void display() {
+		removeAllViews();
+		if (mPdfView != null)
+			addView(mPdfView);
+		addView(mPainterView);
+		setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public boolean dispatchTouchEvent (MotionEvent ev) {		
-		View v0, v1;
-		
-		v0 = getChildAt(0);
-		v1 = getChildAt(1);
+	public void onPageChanged(int page, int pageCount) {
+		mPageNum = page;
+		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+	}
 
-		if (v0 != null && v1 != null) {
-			if (!mDrawMode)
-				v0.dispatchTouchEvent(ev);
-			else
-				v1.dispatchTouchEvent(ev);
-		} else {
-			Log.i(TAG, "both view is null");
-		}
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {		
+		if (mDrawMode)
+			mPainterView.dispatchTouchEvent(ev);
+		else
+			mPdfView.dispatchTouchEvent(ev);
 
 		return true;
 	}
-	
+
 	public void setDrawMode(boolean draw) {
 		mDrawMode = draw;
 	}
 
 	public void toggleDrawMode() {
 		mDrawMode = !mDrawMode;
-	}
-	
-	public void setVisibility(int visibility) {
-		mVisibility = visibility;
-		View v = getChildAt(1);
-
-// in case we pass touch event to invisible view
-		if (mVisibility == View.INVISIBLE)
-			mDrawMode = false;
-
-		if (v != null)
-			v.setVisibility(visibility);
-		else
-			Log.i(TAG, "painter view is null");
-	}
-
-	public int getVisibility() {
-		return mVisibility;
 	}
 }

@@ -13,11 +13,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
 
 public class MainActivity extends Activity {
-
-	private final String TAG = MainActivity.class.getSimpleName();
+    private final String TAG = MainActivity.class.getSimpleName();
 
     private ITransceiverOps	m_TransceiverManager = null;
 
@@ -27,7 +27,6 @@ public class MainActivity extends Activity {
 
     private RetainedFragment m_retainedFragment = null;
     private OnRestoreData m_restoreData = null;
-    private boolean mVisible = true;
 
     public class OnRestoreData {
     	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
@@ -52,7 +51,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.myfirstactivity_main);
+        setContentView(R.layout.main_layout);
+        
+        RelativeLayout fragment_container = (RelativeLayout)findViewById(R.id.fragment_container);
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -108,8 +109,10 @@ public class MainActivity extends Activity {
             ActionBar.Tab newTab = null;
             ActionBar actionBar = getActionBar();
 
+            PdfFragment fragment = new PdfFragment();
             newTab = actionBar.newTab().setText("newTab");
-            newTab.setTabListener(new TabListener(new PdfFragment()));
+            newTab.setTabListener(new TabListener(fragment));
+            newTab.setTag(fragment);
 
             actionBar.addTab(newTab);
             m_restoreData.addToTabList(newTab);
@@ -138,15 +141,11 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-        	ContainerView.getInstance(this).toggleDrawMode();
+        	PdfFragment frag = (PdfFragment)getActionBar().getSelectedTab().getTag();
+        	frag.mContainerView.toggleDrawMode();
             return true;
 
     	case R.id.action_search:
-    		mVisible = !mVisible;
-    		if (mVisible)
-    			ContainerView.getInstance(this).setVisibility(View.VISIBLE);
-    		else
-    			ContainerView.getInstance(this).setVisibility(View.INVISIBLE);
             return true;
 
     	case R.id.action_settings:

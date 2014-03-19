@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ShareActionProvider;
 
 public class MainActivity extends Activity {
 
@@ -21,6 +22,8 @@ public class MainActivity extends Activity {
     private ITransceiverOps	m_TransceiverManager = null;
 
     private DialogFragment	m_TransceiverDiscDialog = null;
+
+    private ShareActionProvider mShareActionProvider = null;
 
     private RetainedFragment m_retainedFragment = null;
     private OnRestoreData m_restoreData = null;
@@ -83,7 +86,19 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	getMenuInflater().inflate(R.menu.main_activity_actions, menu);
+    	
+    	MenuItem shareItem = menu.findItem(R.id.action_share);
+    	mShareActionProvider = (ShareActionProvider)
+    			shareItem.getActionProvider();
+    	mShareActionProvider.setShareIntent(getDefaultIntent());
+    	
     	return super.onCreateOptionsMenu(menu);
+    }
+    
+    private Intent getDefaultIntent() {
+    	Intent intent = new Intent(Intent.ACTION_SEND);
+    	intent.setType("image/*");
+    	return intent;
     }
 
     @Override

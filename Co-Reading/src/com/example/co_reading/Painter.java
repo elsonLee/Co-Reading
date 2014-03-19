@@ -1,145 +1,35 @@
 package com.example.co_reading;
 
 import android.util.Log;
-import android.content.Context;
-import android.app.*;
-import android.view.*;
 import android.graphics.*;
 
+//TODO: set paint's color etc ...
 public class Painter {
     private final String TAG = "Painter";
 
-    private static Painter mSelf;
-    private Activity mActivity;
     private Paint mPaint;
-    private PainterView mPainterView;
-    private ViewGroup mPainterContainer;
-    private Boolean mActive;
+    private static Painter mSelf;
 
-    private Painter(Activity activity) {
+    private Painter() {
         Log.i(TAG, "Painter constructor");
-
-        mActivity = activity;
-        mActive = false;
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setColor(0x0EFF0000);
+        mPaint.setColor(0xFFFF0000);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
-
-        mPainterView = new PainterView(activity);
-        mPainterContainer = (ViewGroup)activity.findViewById(R.id.painter_container);
-        mPainterContainer.addView(mPainterView);
+    }
+    
+    public static Paint getPaint() {
+    	return getInstance().mPaint;
     }
 
-    public class PainterView extends View {
-        private static final float MINP = 0.25f;
-        private static final float MAXP = 0.75f;
-
-        private Bitmap  mBitmap;
-        private Canvas  mCanvas;
-        private Path    mPath;
-        private Paint   mBitmapPaint;
-
-        public PainterView(Context c) {
-            super(c);
-
-            Log.i(TAG, "View constructor");
-
-            mPath = new Path();
-            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
-            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mCanvas = new Canvas(mBitmap);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            Log.i(TAG, "on Draw");
-
-            canvas.drawColor(0xAAAAAAAA);
-
-            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-
-            canvas.drawPath(mPath, mPaint);
-        }
-
-        private float mX, mY;
-        private static final float TOUCH_TOLERANCE = 4;
-
-        private void touch_start(float x, float y) {
-            mPath.reset();
-            mPath.moveTo(x, y);
-            mX = x;
-            mY = y;
-        }
-        private void touch_move(float x, float y) {
-            float dx = Math.abs(x - mX);
-            float dy = Math.abs(y - mY);
-            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-                mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
-                mX = x;
-                mY = y;
-            }
-        }
-        private void touch_up() {
-            mPath.lineTo(mX, mY);
-            // commit the path to our offscreen
-            mCanvas.drawPath(mPath, mPaint);
-            // kill this so we don't double draw
-            mPath.reset();
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            float x = event.getX();
-            float y = event.getY();
-            Log.i(TAG, "Point X:" + x + " Point Y:" + y);
-
-            switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                invalidate();
-                break;
-            }
-            return true;
-        }
-
-    }
-
-    public void toggle() {
-        mActive = !mActive;
-
-        Log.i(TAG, "Painter active? " + mActive);
-
-        if (mActive) {
-            mPainterView.setVisibility(View.VISIBLE);
-            mPainterView.requestFocus();
-        } else {
-            mPainterView.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    public static Painter getInstance(Activity activity) {
-        if (mSelf == null)
-        	mSelf = new Painter(activity);
-        return mSelf;
+    public static Painter getInstance() {
+    	if (mSelf == null)
+    		mSelf = new Painter();
+    	return mSelf;
     }
 }

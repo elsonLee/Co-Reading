@@ -11,27 +11,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class PdfFragment extends Fragment implements OnPageChangeListener {
-	
-	private static final int REQUEST_CHOOSER = 1234;
-	
+public class PdfFragment extends Fragment implements OnPageChangeListener {	
+	private final String TAG = "PdfFragment";
+	private final int REQUEST_CHOOSER = 1234;	
 	private String m_curPdfUriString = "";
-	
-	// find id by view
-	private static PDFView m_pdfView = null;
-	
     private Integer m_pageNumber = 1;
-    
+
+	private static ViewGroup mContainerView;
+	private static PDFView m_pdfView = null;
+	private PainterView mPainterView;
+	   
+	private Painter mPainter;
+      
     @Override
 	public void onStart() {
         super.onStart();
-        
+
         backToDisplay();
+        mContainerView.invalidate();
     }
     
     @Override
@@ -49,6 +52,14 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 					"Select a PDF file");
 			startActivityForResult(intent, REQUEST_CHOOSER);
 		}
+
+		mPainter = Painter.getInstance();
+		if (mPainterView == null) {
+			mPainterView = new PainterView(getActivity());
+			PainterViewManager.getInstance().add(mPainterView);
+		}
+
+        mContainerView = ContainerView.getInstance(getActivity());     
 	}
 	
 	@Override
@@ -62,8 +73,12 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 		if (m_pdfView == null) {
 			m_pdfView = new PDFView(getActivity(), null);
 		}
-		
-		return m_pdfView;
+
+		mContainerView.removeAllViews();
+		mContainerView.addView(m_pdfView, 0);
+		mContainerView.addView(mPainterView, 1);
+		mContainerView.setVisibility(mContainerView.getVisibility());
+		return mContainerView;
 	}
 	
 	@Override
@@ -129,6 +144,15 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		m_pageNumber = page;
+		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+	}
+	
+	public static View getPdfView() {
+		return m_pdfView;
+	}
+	
+	public View getPainterView() {
+		return mPainterView;
 	}
 	
 	/*

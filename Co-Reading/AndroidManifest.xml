@@ -39,6 +39,20 @@
             android:name="com.example.co_reading.Painter"
             android:label="@string/painter_name" >
         </activity>
+        
+        <activity
+            android:name="com.example.co_reading.BluetoothDiscoveryDialog"
+            android:label="@string/bluetooth" >
+            <intent-filter>
+                <!-- 
+                <action android:name="com.example.co_reading.ACTION_BTDIALOG" />
+                <category android:name="android.intent.category.DEFAULT" />
+                -->
+                <action android:name="android.intent.action.ACTION_SEND" />
+                <data android:mimeType="image/*"/>
+
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"

@@ -16,6 +16,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_painter">Painter Mode</string>
 
+    <string name="bluetooth">bluetooth</string>
     <string name="bluetooth_discovery">Find Device</string>
     <string name="bluetooth_scan">Scan.</string>
     <string name="bluetooth_listdevice">Available Devices</string>

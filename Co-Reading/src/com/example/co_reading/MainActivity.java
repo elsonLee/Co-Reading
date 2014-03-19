@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
 
@@ -97,6 +96,7 @@ public class MainActivity extends Activity {
     }
     
     private Intent getDefaultIntent() {
+    	// Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
     	Intent intent = new Intent(Intent.ACTION_SEND);
     	intent.setType("image/*");
     	return intent;
@@ -127,7 +127,11 @@ public class MainActivity extends Activity {
     		if (m_TransceiverManager == null) {	// TODO: support bluetooth & wifi
     			m_TransceiverManager = BlueToothManager.getInstance();
     			if (m_TransceiverDiscDialog == null) {
-    				m_TransceiverDiscDialog = new BluetoothDiscoveryDialog();
+    				// m_TransceiverDiscDialog = new BluetoothDiscoveryDialog();
+    				// Intent intent = new Intent();
+    				// intent.setAction(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
+    				Intent intent = new Intent(this, BluetoothDiscoveryDialog.class);
+    				startActivity(intent);
     			}
     		}
 

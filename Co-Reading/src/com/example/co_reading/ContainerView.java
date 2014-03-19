@@ -41,9 +41,7 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 		if (jumpToFirstPage) mPageNum = 1;
 		mFile = file;
 		
-		if (mPdfView == null) {
-			mPdfView = new PDFView(getContext(), null);
-		}
+		mPdfView = new PDFView(getContext(), null);
 
 	   	mPdfView.fromFile(file).defaultPage(mPageNum).onPageChange(this).load();
 	   	

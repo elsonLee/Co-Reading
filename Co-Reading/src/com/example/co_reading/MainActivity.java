@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
 
         case R.id.action_painter:
         	PdfFragment frag = (PdfFragment)getActionBar().getSelectedTab().getTag();
-        	frag.mContainerView.setDrawMode(true);
+        	frag.mContainerView.toggleDrawMode();
             return true;
 
     	case R.id.action_search:

@@ -39,7 +39,7 @@ public class PdfFragment extends Fragment {
 	
     @Override
 	public void onStart() {
-		Log.i(TAG, "onStart");
+		Log.i(TAG, "onStart, mFile " + mFile);
         super.onStart();
         
         if (mFile != null) {

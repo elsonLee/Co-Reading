@@ -111,6 +111,18 @@ public class BlueToothManager implements ITransceiverOps {
 		if (null != m_foundDevList)
 			m_foundDevList.clear();
 	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	/*
 	public BluetoothDevice getDeviceFromPairedList(String address) {
@@ -127,5 +139,7 @@ public class BlueToothManager implements ITransceiverOps {
 		return null;
 	}
 	*/
+	
+	
 
 }

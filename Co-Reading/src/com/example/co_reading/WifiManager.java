@@ -8,7 +8,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.Bundle;
 
-public class WifiActivity extends Activity {
+/*
+public class WifiManager implements ITransceiverOps {
 	
 	private WifiP2pManager mManager;
 	
@@ -18,6 +19,11 @@ public class WifiActivity extends Activity {
 	
 	private IntentFilter mIntentFilter;
 	
+	private WifiManager() {
+		
+		
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -33,20 +39,36 @@ public class WifiActivity extends Activity {
 		mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 	}
 	
-	@Override
-	protected void onResume() {
-		super.onResume();
+	public void onResume() {
 		registerReceiver(mReceiver, mIntentFilter);
 	}
 	
-	@Override
-	protected void onPause() {
-		super.onPause();
+	public void onPause() {
 		unregisterReceiver(mReceiver);
 	}
-	
-	
-	
-	
 
+	@Override
+	public boolean isSupported() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean open(Activity activity) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void close(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean discovery() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
+*/

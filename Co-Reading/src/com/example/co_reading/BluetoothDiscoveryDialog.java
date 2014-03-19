@@ -1,15 +1,12 @@
 package com.example.co_reading;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -93,68 +90,15 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 				BluetoothDeviceAdapter mArrayAdapter = (BluetoothDeviceAdapter)arg0.getAdapter();
 				BluetoothDevice clientDev = (BluetoothDevice)mArrayAdapter.getItem(pos);
 				
-				/*
-				int mboundState = clientDev.getBondState();
-				switch (mboundState) {
-				case BluetoothDevice.BOND_NONE:
-					return;
-				case BluetoothDevice.BOND_BONDING:
-					while(clientDev.getBondState() != BluetoothDevice.BOND_BONDED);
-					// no break
-				case BluetoothDevice.BOND_BONDED:
-					Log.d("Bt", "bonded");
-					break;					
-				default:
-					return;
-				}
-				
-				if (clientDev.fetchUuidsWithSdp() == false) {
-					Log.d("fetch uuid", "fetch failed");
-					return;
-				}
-				*/
-				
 				try {
-					BluetoothSocket btSocket = clientDev.createInsecureRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
-					// BluetoothSocket btSocket = clientDev.createRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
-					// Method m = clientDev.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
-					// BluetoothSocket btSocket = (BluetoothSocket)m.invoke(clientDev, Integer.valueOf(1));
-
-					if (btSocket != null) {
-						Log.d(TAG, "begin to connect");
-						btSocket.connect();
-						
-						// test for transfer
-						InputStream tmpIn = null;
-						OutputStream tmpOut = null;
-						try {
-							tmpIn = btSocket.getInputStream();
-							tmpOut = btSocket.getOutputStream();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						
-						int EXIT_CMD = -1;
-						int KEY_RIGHT =1;
-						int KEY_LEFT = 2;
-						byte cmdRight = (byte) KEY_RIGHT;
-						byte cmdLeft = (byte) KEY_LEFT;
-						byte cmdExit = (byte) EXIT_CMD;
-						
-						tmpOut.write(cmdLeft);
-						tmpOut.write(cmdRight);
-						Log.d(TAG, "end transfer");
-						
-					} else {
-						Log.d(TAG, "get Socket error");
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					BtConnectClient client = new BtConnectClient(clientDev);
 				} catch (IllegalArgumentException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}						
 			}
 			
 		});
@@ -178,12 +122,8 @@ public class BluetoothDiscoveryDialog extends DialogFragment {
 		
 		builder.setView(m_dialogView);
     	
-		// CacheStringKeyMap<String, BluetoothDevice> mArrayDevicesData = m_BlueToothManager.getPairedList();
 		List<BluetoothDevice> mArrayDevicesData = m_BlueToothManager.getPairedList();
     	
-		// ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, mArrayDevicesData.getCachedKeyList());
-    	// m_listView.setAdapter(mArrayAdapter);	
-
 		m_BtArrayAdapter = new BluetoothDeviceAdapter(getActivity());
 		m_BtArrayAdapter.updateBtDevices(mArrayDevicesData);
 		m_listView.setAdapter(m_BtArrayAdapter);

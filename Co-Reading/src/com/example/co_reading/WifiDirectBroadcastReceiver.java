@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 
+/*
 public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 	
 	private WifiP2pManager mManager;
@@ -49,3 +50,4 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 	}
 
 }
+*/

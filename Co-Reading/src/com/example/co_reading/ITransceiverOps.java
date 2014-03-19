@@ -11,6 +11,9 @@ public interface ITransceiverOps {
 	void close(Activity activity);
 	boolean discovery();
 	
+	void onResume();
+	void onPause();
+	
 	/*
 	 * connect...
 	 */

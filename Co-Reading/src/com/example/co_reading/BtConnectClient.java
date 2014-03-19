@@ -4,44 +4,49 @@ import java.io.IOException;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
-public class BtConnectClient implements Runnable {
+public class BtConnectClient {
 	
-	private final BluetoothDevice mDevice;
-	private final BluetoothSocket mSocket;
+	private String TAG = BtConnectClient.class.getSimpleName();
 	
-	public BtConnectClient(BluetoothDevice device) {
+	private BluetoothDevice mDevice = null;
+	private BluetoothSocket mSocket = null;
+	private BtConnectThread mWorkThread = null;
+	
+	public BtConnectClient(BluetoothDevice device) throws IOException {
 		
 		BluetoothSocket tmpSocket = null;
 		mDevice = device;
 		
 		try {
-			tmpSocket = mDevice.createRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
-		} catch (IOException e) {
-			
+			tmpSocket = mDevice.createInsecureRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
 		}
 		
-		mSocket = tmpSocket;
-	}
-	
-	@Override
-	public void run() {
-		
-		// cancel discovery
-		
-		try {
-			mSocket.connect();
-		} catch (IOException e) {
-			e.printStackTrace();
-			
+		if (tmpSocket != null) {
+			mSocket = tmpSocket;
 			try {
-				mSocket.close();
-			} catch (IOException closeException) {
-				
+				mSocket.connect();
+			} catch (IOException e) {
+				try {
+					Log.d(TAG, "connect failed");
+					mSocket.close();
+				} catch (IOException e1) {
+					throw new IOException();
+				}
+				throw new IOException();
 			}
 		}
-		
-		// manageConnected Socket
+
+		mWorkThread = new BtConnectThread(mSocket);
+		mWorkThread.start();
+	}
+	
+	public void write(byte[] bytes) {
+		mWorkThread.write(bytes);
 	}
 	
 	public void cancel() {
@@ -51,4 +56,6 @@ public class BtConnectClient implements Runnable {
 			e.printStackTrace();
 		}
 	}
+
+
 }

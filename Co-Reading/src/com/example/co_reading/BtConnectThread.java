@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 public class BtConnectThread extends Thread {
 	
@@ -28,6 +29,7 @@ public class BtConnectThread extends Thread {
 		}
 	}
 	
+	@Override
 	public void run() {
 		
 		byte[] buffer = new byte[1024];
@@ -35,9 +37,11 @@ public class BtConnectThread extends Thread {
 		
 		while (true) {
 			try {
+				Log.d(TAG,  "begin reading");
 				bytes = mInStream.read(buffer);
+				Log.d(TAG, new String(buffer));
 				// handle
-				Thread.yield();
+				// Thread.yield();
 			} catch (IOException e) {
 				break;
 			}

@@ -19,7 +19,6 @@ public class MainActivity extends Activity {
 	private final String TAG = MainActivity.class.getSimpleName();
 
     private ITransceiverOps	m_TransceiverManager = null;
-    private TransceiverImp	m_TransceiverManager = null;
 
     private DialogFragment	m_TransceiverDiscDialog = null;
 

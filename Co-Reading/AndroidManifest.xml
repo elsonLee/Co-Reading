@@ -29,11 +29,6 @@
         </activity>
 
         <activity
-            android:name="com.example.co_reading.Painter"
-            android:label="@string/painter_name" >
-        </activity>
-
-        <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:enabled="@bool/use_activity"
             android:exported="true"

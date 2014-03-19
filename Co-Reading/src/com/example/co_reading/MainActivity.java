@@ -12,16 +12,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.RelativeLayout;
 
 public class MainActivity extends Activity {
-	private final String TAG = "MainActivity";
     private TransceiverImp	m_TransceiverManager = null;
     private DialogFragment	m_TransceiverDiscDialog = null;
 
     private RetainedFragment m_retainedFragment = null;
     private OnRestoreData m_restoreData = null;
-    private boolean mVisible = true;
 
     public class OnRestoreData {
     	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
@@ -46,7 +44,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.myfirstactivity_main);
+        setContentView(R.layout.main_layout);
+        
+        RelativeLayout fragment_container = (RelativeLayout)findViewById(R.id.fragment_container);
+        ContainerView.getInstance(this);
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -115,15 +116,10 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-        	ContainerView.getInstance(this).toggleDrawMode();
+        	ContainerView.getInstance().toggleDrawMode();
             return true;
 
     	case R.id.action_search:
-    		mVisible = !mVisible;
-    		if (mVisible)
-    			ContainerView.getInstance(this).setVisibility(View.VISIBLE);
-    		else
-    			ContainerView.getInstance(this).setVisibility(View.INVISIBLE);
             return true;
 
     	case R.id.action_settings:

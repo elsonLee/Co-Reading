@@ -1,26 +1,83 @@
 package com.example.co_reading;
+
+import java.io.File;
+
+import com.joanzapata.pdfview.PDFView;
+import com.joanzapata.pdfview.listener.OnPageChangeListener;
+
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.app.Activity;
+import android.widget.RelativeLayout;
+import android.app.Fragment;
+import android.content.Context;
 import android.util.Log;
 
-public class ContainerView extends FrameLayout {
-	private Activity mActivity;
+public class ContainerView extends RelativeLayout implements OnPageChangeListener {
 	private final String TAG = "ContainerView";
 	private static ContainerView mSelf;
+	private Fragment mFragment; // which fragment we are attached?
+
 	private boolean mDrawMode = false;
 	private int mVisibility = View.VISIBLE;
-
-	ContainerView(Activity ctx) {
-		super(ctx);
-		mActivity = ctx;
-	}
 	
-	public static ContainerView getInstance(Activity ctx) {
+	private int mPageNum;
+	private File mFile;
+	private PDFView mPdfView;
+	private PainterView mPainterView;
+	private Context mContext;
+
+	ContainerView(Context ctx) {
+		super(ctx);
+		mContext = ctx;
+	}
+
+	public static ContainerView getInstance(Context ctx) {
 		if (mSelf == null)
 			mSelf = new ContainerView(ctx);
 		return mSelf;
+	}
+	
+	public static ContainerView getInstance() {
+		return mSelf;
+	}
+
+	public void setContext(Fragment fragment) {
+		mFragment = fragment;
+	}
+
+	public boolean loadPdfView(File file, boolean jumpToFirstPage) {
+		if (jumpToFirstPage) mPageNum = 1;
+		mFile = file;
+		
+		if (mPdfView == null) {
+			mPdfView = new PDFView(mFragment.getActivity(), null);
+		}
+
+	   	mPdfView.fromFile(file)
+	   	.defaultPage(mPageNum)
+		.onPageChange(this)
+		.load();
+	   	
+	   	display();
+	   	
+	   	return true;
+	}
+	
+	public void replacePainterView(PainterView painter) {
+		mPainterView = painter;
+	}
+
+	public void display() {
+		removeAllViews();
+		addView(mPdfView, 0);
+		addView(mPainterView, 1);
+		setVisibility(mVisibility);
+	}
+
+	@Override
+	public void onPageChanged(int page, int pageCount) {
+		mPageNum = page;
+		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
 	}
 
 	@Override

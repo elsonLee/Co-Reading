@@ -47,7 +47,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_layout);
         
         RelativeLayout fragment_container = (RelativeLayout)findViewById(R.id.fragment_container);
-        ContainerView.getInstance(this);
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -91,8 +90,10 @@ public class MainActivity extends Activity {
             ActionBar.Tab newTab = null;
             ActionBar actionBar = getActionBar();
 
+            PdfFragment fragment = new PdfFragment();
             newTab = actionBar.newTab().setText("newTab");
-            newTab.setTabListener(new TabListener(new PdfFragment()));
+            newTab.setTabListener(new TabListener(fragment));
+            newTab.setTag(fragment);
 
             actionBar.addTab(newTab);
             m_restoreData.addToTabList(newTab);
@@ -116,7 +117,8 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-        	ContainerView.getInstance().toggleDrawMode();
+        	PdfFragment frag = (PdfFragment)getActionBar().getSelectedTab().getTag();
+        	frag.mContainerView.setDrawMode(true);
             return true;
 
     	case R.id.action_search:

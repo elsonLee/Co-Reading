@@ -8,41 +8,33 @@ import com.joanzapata.pdfview.listener.OnPageChangeListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.app.Fragment;
 import android.content.Context;
+import android.util.AttributeSet;
 import android.util.Log;
 
 public class ContainerView extends RelativeLayout implements OnPageChangeListener {
 	private final String TAG = "ContainerView";
-	private static ContainerView mSelf;
-	private Fragment mFragment; // which fragment we are attached?
 
 	private boolean mDrawMode = false;
-	private int mVisibility = View.VISIBLE;
 	
-	private int mPageNum;
+	private int mPageNum = 1;
 	private File mFile;
 	private PDFView mPdfView;
 	private PainterView mPainterView;
-	private Context mContext;
 
-	ContainerView(Context ctx) {
+	public ContainerView(Context ctx) {
 		super(ctx);
-		mContext = ctx;
-	}
-
-	public static ContainerView getInstance(Context ctx) {
-		if (mSelf == null)
-			mSelf = new ContainerView(ctx);
-		return mSelf;
+		mPainterView = new PainterView(ctx);
 	}
 	
-	public static ContainerView getInstance() {
-		return mSelf;
+	public ContainerView(Context ctx, AttributeSet attrs) {
+		super(ctx, attrs);
+		mPainterView = new PainterView(ctx);
 	}
-
-	public void setContext(Fragment fragment) {
-		mFragment = fragment;
+	
+	public ContainerView(Context ctx, AttributeSet attrs, int defStyle) {
+		super(ctx, attrs, defStyle);
+		mPainterView = new PainterView(ctx);
 	}
 
 	public boolean loadPdfView(File file, boolean jumpToFirstPage) {
@@ -50,15 +42,10 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 		mFile = file;
 		
 		if (mPdfView == null) {
-			mPdfView = new PDFView(mFragment.getActivity(), null);
+			mPdfView = new PDFView(getContext(), null);
 		}
 
-	   	mPdfView.fromFile(file)
-	   	.defaultPage(mPageNum)
-		.onPageChange(this)
-		.load();
-	   	
-	   	display();
+	   	mPdfView.fromFile(file).defaultPage(mPageNum).onPageChange(this).load();
 	   	
 	   	return true;
 	}
@@ -69,9 +56,10 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 
 	public void display() {
 		removeAllViews();
-		addView(mPdfView, 0);
-		addView(mPainterView, 1);
-		setVisibility(mVisibility);
+		if (mPdfView != null)
+			addView(mPdfView);
+		addView(mPainterView);
+		setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -81,47 +69,20 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 	}
 
 	@Override
-	public boolean dispatchTouchEvent (MotionEvent ev) {		
-		View v0, v1;
-		
-		v0 = getChildAt(0);
-		v1 = getChildAt(1);
-
-		if (v0 != null && v1 != null) {
-			if (!mDrawMode)
-				v0.dispatchTouchEvent(ev);
-			else
-				v1.dispatchTouchEvent(ev);
-		} else {
-			Log.i(TAG, "both view is null");
-		}
+	public boolean dispatchTouchEvent(MotionEvent ev) {		
+		if (mDrawMode)
+			mPainterView.dispatchTouchEvent(ev);
+		else
+			mPdfView.dispatchTouchEvent(ev);
 
 		return true;
 	}
-	
+
 	public void setDrawMode(boolean draw) {
 		mDrawMode = draw;
 	}
 
 	public void toggleDrawMode() {
 		mDrawMode = !mDrawMode;
-	}
-	
-	public void setVisibility(int visibility) {
-		mVisibility = visibility;
-		View v = getChildAt(1);
-
-// in case we pass touch event to invisible view
-		if (mVisibility == View.INVISIBLE)
-			mDrawMode = false;
-
-		if (v != null)
-			v.setVisibility(visibility);
-		else
-			Log.i(TAG, "painter view is null");
-	}
-
-	public int getVisibility() {
-		return mVisibility;
 	}
 }

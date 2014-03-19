@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
@@ -20,17 +19,15 @@ public class PdfFragment extends Fragment {
 	private final int REQUEST_CHOOSER = 1234;	
 
 	private String mCurPdfUriString = "";
+	private ViewGroup mLayout;
+	private File mFile;
 
-	private ContainerView mContainerView;
-	private PainterView mPainterView;
+	public ContainerView mContainerView;
 
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
-
-        mContainerView = ContainerView.getInstance();
-		mContainerView.setContext(this);
 
 		if (mCurPdfUriString.isEmpty()) {
 			Intent getContentIntent = FileUtils.createGetContentIntent();
@@ -44,6 +41,11 @@ public class PdfFragment extends Fragment {
 	public void onStart() {
 		Log.i(TAG, "onStart");
         super.onStart();
+        
+        if (mFile != null) {
+        	mContainerView.loadPdfView(mFile, false);
+			mContainerView.display();
+        }
     }
     
     @Override
@@ -63,13 +65,11 @@ public class PdfFragment extends Fragment {
 			Bundle savedInstanceState) {
 		Log.i(TAG, "onCreateView");
 
-		if (mPainterView == null) {
-			mPainterView = new PainterView(getActivity());
-			PainterViewManager.getInstance().add(mPainterView);
-			mContainerView.replacePainterView(mPainterView);
+		if (mLayout == null) {
+			mLayout = (ViewGroup)inflater.inflate(R.layout.pdf_fragment, null);	
+			mContainerView = (ContainerView)mLayout.getChildAt(0);
 		}
-
-		return mContainerView;
+		return mLayout;
 	}
 	
 	@Override
@@ -81,10 +81,9 @@ public class PdfFragment extends Fragment {
 				final Uri uri = data.getData();
 				String uriString = uri.toString();
 				if (uri != null && FileUtils.isLocal(FileUtils.getPath(getActivity(), uri))) {
-					File file = FileUtils.getFile(getActivity(), Uri.parse(uriString));
-					if (file != null && file.exists()) {
-							Log.d(TAG, "file:"+file);
-							mContainerView.loadPdfView(file, true);
+					mFile = FileUtils.getFile(getActivity(), Uri.parse(uriString));
+					if (mFile != null && mFile.exists()) {
+							Log.d(TAG, "file:"+ mFile);
 							mCurPdfUriString = uriString;
 						}
 					}

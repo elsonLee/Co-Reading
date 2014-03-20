@@ -8,7 +8,7 @@
    			android:id="@+id/btDevice_image"
         	android:layout_width="50dp"
         	android:layout_height="50dp"
-        	android:src="@drawable/ic_search" />
+        	android:src="@drawable/mobile" />
     
 		<LinearLayout 
 		    android:layout_width="match_parent"
@@ -20,12 +20,16 @@
 	        	android:id="@+id/btDevice_name"
 	        	android:layout_width="wrap_content"
 	        	android:layout_height="wrap_content"
+	        	android:textColor="#888888"
+	        	android:textSize="16sp"
 	        	/>
 
 	    	<TextView
 	        	android:id="@+id/btDevice_address"
 	        	android:layout_width="wrap_content"
 	        	android:layout_height="wrap_content"
+	        	android:textColor="#888888"
+	        	android:textSize="16sp"
 	        	/>
 		</LinearLayout>
 		
@@ -33,6 +37,8 @@
 	        android:id="@+id/btDevice_status"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
+	        android:textColor="#888888"
+	        android:textSize="16sp"
 	        />
 		
     </TableRow>

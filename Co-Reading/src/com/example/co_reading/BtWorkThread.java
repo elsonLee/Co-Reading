@@ -7,9 +7,10 @@ import java.io.OutputStream;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-public class BtConnectThread extends Thread {
+/** BtWorkThread is used by Server & client */
+public class BtWorkThread extends Thread {
 	
-	private final String TAG = BtConnectThread.class.getSimpleName();
+	private final String TAG = BtWorkThread.class.getSimpleName();
 	
 	private BluetoothSocket mSocket = null;
 	
@@ -17,7 +18,7 @@ public class BtConnectThread extends Thread {
 	
 	private OutputStream mOutStream = null;
 	
-	public BtConnectThread(BluetoothSocket socket) {
+	public BtWorkThread(BluetoothSocket socket) {
 
 		mSocket = socket;
 		

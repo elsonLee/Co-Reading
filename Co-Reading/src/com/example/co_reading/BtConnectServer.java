@@ -8,16 +8,17 @@ import android.bluetooth.BluetoothSocket;
 
 public class BtConnectServer extends Thread {
 	
-    private final BluetoothServerSocket mmServerSocket;
+    private final BluetoothServerSocket mServerSocket;
     private final String NAME = "Co-Reading";
     
     public BtConnectServer() {
-        BluetoothServerSocket tmp = null;
+        BluetoothServerSocket tmpSocket = null;
         try {
             // MY_UUID is the app's UUID string, also used by the client code
-            tmp = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord(NAME, BlueToothManager.m_UUID );
+            tmpSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord(NAME, BlueToothManager.m_UUID );
         } catch (IOException e) { }
-        mmServerSocket = tmp;
+
+        mServerSocket = tmpSocket;
     }
  
     @Override
@@ -26,7 +27,7 @@ public class BtConnectServer extends Thread {
         // Keep listening until exception occurs or a socket is returned
         while (true) {
             try {
-                socket = mmServerSocket.accept();
+                socket = mServerSocket.accept();
             } catch (IOException e) {
                 break;
             }
@@ -35,9 +36,8 @@ public class BtConnectServer extends Thread {
                 // Do work to manage the connection (in a separate thread)
                 // manageConnectedSocket(socket);
                 try {
-					mmServerSocket.close();
+					mServerSocket.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
                 break;
@@ -48,7 +48,7 @@ public class BtConnectServer extends Thread {
     /** Will cancel the listening socket, and cause the thread to finish */
     public void cancel() {
         try {
-            mmServerSocket.close();
+            mServerSocket.close();
         } catch (IOException e) { }
     }
 

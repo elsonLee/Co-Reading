@@ -1,5 +1,7 @@
 package com.example.co_reading;
 
+import java.io.IOException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,6 +105,22 @@ public class PainterView extends View implements OnPageChangeListener {
             invalidate();
             break;
         }
+        
+        /* just for test */
+        BtConnectClient client = null;
+		try {
+			client = BlueToothManager.getInstance().getClient(null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        if (client != null) {
+        	byte[] tmpByte = new byte[1];
+        	tmpByte[0] = (byte)event;
+        	client.write(tmpByte);
+        }
+        
         return true;
     }
     

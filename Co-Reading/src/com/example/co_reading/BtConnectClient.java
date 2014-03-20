@@ -12,7 +12,7 @@ public class BtConnectClient {
 	
 	private BluetoothDevice mDevice = null;
 	private BluetoothSocket mSocket = null;
-	private BtConnectThread mWorkThread = null;
+	private BtWorkThread mWorkThread = null;
 	
 	public BtConnectClient(BluetoothDevice device) throws IOException {
 		
@@ -21,9 +21,8 @@ public class BtConnectClient {
 		
 		try {
 			tmpSocket = mDevice.createInsecureRfcommSocketToServiceRecord(BlueToothManager.m_UUID);
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		} catch (IOException e) {
+			throw new IOException();
 		}
 		
 		if (tmpSocket != null) {
@@ -32,7 +31,6 @@ public class BtConnectClient {
 				mSocket.connect();
 			} catch (IOException e) {
 				try {
-					Log.d(TAG, "connect failed");
 					mSocket.close();
 				} catch (IOException e1) {
 					throw new IOException();
@@ -41,7 +39,7 @@ public class BtConnectClient {
 			}
 		}
 
-		mWorkThread = new BtConnectThread(mSocket);
+		mWorkThread = new BtWorkThread(mSocket);
 		mWorkThread.start();
 	}
 	

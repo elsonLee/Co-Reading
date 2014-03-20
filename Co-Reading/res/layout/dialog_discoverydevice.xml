@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:orientation="vertical" 
     android:background="@drawable/discoverydevice_bg"
-    >
+    android:orientation="vertical" >
     
+    <!--
     <RelativeLayout 
         android:id="@+id/discoverydevice_title_layout"
         android:layout_width="fill_parent"
@@ -14,32 +14,38 @@
         
         <TextView
             android:id="@+id/discoverydevice_title"
-            android:text="@string/bluetooth_discovery"
-            android:textSize="20sp"
-            android:textColor="#888888"
-            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:layout_margin="20dp"
-            android:layout_alignParentLeft="true" />
+            android:text="@string/bluetooth_discovery"
+            android:textColor="#888888"
+            android:textSize="20sp"
+            android:textStyle="bold" />
     
     </RelativeLayout>
+    -->
      
     <Button
         android:id="@+id/discoverydevice_scanbutton"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" 
-		android:background="@drawable/discoverydevice_bg" 
-        android:text="@string/bluetooth_scan" 
-        android:textColor="#ffffff"
-        />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/discoverydevice_bg"
+        android:text="@string/bluetooth_scan"
+        android:textColor="#ffffff" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:background="@drawable/discoverydevice_subtitle_bg" >
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/discoverydevice_subtitle_bg"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp" >
 
         <TextView
             android:id="@+id/textView1"
@@ -47,8 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="20dp"
             android:text="@string/bluetooth_listdevice"
             android:textColor="#888888"
             android:textStyle="bold" />
@@ -58,17 +63,21 @@
             style="@android:style/Widget.ProgressBar.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="200dp"
-            android:layout_toRightOf="@+id/textView1"
-            android:visibility="visible"
-            />
+            android:indeterminate="true"
+            android:paddingRight="20dp"
+            android:visibility="visible" />
+
     </RelativeLayout>
     
     <ListView
-	        android:id="@+id/bluetooth_devicelist"
-	        android:layout_width="match_parent"
-	        android:layout_height="200dp" >
+        android:id="@+id/bluetooth_devicelist"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_margin="10dp"
+        android:scrollbarStyle="insideOverlay" >
 	</ListView>
 
 </LinearLayout>

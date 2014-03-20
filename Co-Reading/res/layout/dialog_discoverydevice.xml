@@ -5,6 +5,7 @@
     android:background="@drawable/discoverydevice_bg"
     android:orientation="vertical" >
     
+    <!--
     <RelativeLayout 
         android:id="@+id/discoverydevice_title_layout"
         android:layout_width="fill_parent"
@@ -24,6 +25,7 @@
             android:textStyle="bold" />
     
     </RelativeLayout>
+    -->
      
     <Button
         android:id="@+id/discoverydevice_scanbutton"

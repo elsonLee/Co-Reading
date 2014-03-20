@@ -10,22 +10,22 @@ public class TabListener implements ActionBar.TabListener {
 
 	private final String TAG = TabListener.class.getSimpleName();
 
-	private Fragment m_fragment = null;
+	private Fragment mFragment = null;
 
 	public TabListener(Fragment fragment) {
-		m_fragment = fragment;
+		mFragment = fragment;
 	}
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		Log.i(TAG, "onTabSelected");
-		ft.replace(R.id.fragment_container, m_fragment);
+		ft.replace(R.id.fragment_container, mFragment);
 	}
 	
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 		Log.i(TAG, "onTabUnselected");
-		ft.remove(m_fragment);
+		ft.remove(mFragment);
 	}
 	
 	@Override

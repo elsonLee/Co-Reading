@@ -3,32 +3,49 @@
    	xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item android:id="@+id/action_addtab"
-        android:icon="@drawable/ic_menu_copy_holo_dark"
+        android:icon="@android:drawable/ic_menu_add"
         android:title="@string/action_addtab"
-        android:showAsAction="ifRoom" />
-
-    <item android:id="@+id/action_bluetooth"
-        android:icon="@drawable/ic_menu_share_holo_dark"
-        android:title="@string/action_bluetooth"
-        android:showAsAction="ifRoom" />
-    
-    <item android:id="@+id/action_share"
-        android:title="@string/action_share"
-        android:showAsAction="ifRoom"
-        android:actionProviderClass="android.widget.ShareActionProvider" />
+        android:showAsAction="always" />
 
     <item android:id="@+id/action_painter"
-        android:icon="@drawable/spinner_ab_disabled_eltabview"
+        android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/action_painter"
         android:showAsAction="always" />
 
     <item android:id="@+id/action_search"
-        android:icon="@drawable/ic_menu_search_holo_dark"
+        android:icon="@android:drawable/ic_menu_search"
         android:title="@string/action_search"
         android:showAsAction="ifRoom" />
 
+    <!-- 
+    <item android:id="@+id/action_bluetooth"
+        android:icon="@drawable/ic_menu_share_holo_dark"
+        android:title="@string/action_bluetooth"
+        android:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_share"
+        android:title="@string/action_share"
+        android:showAsAction="ifRoom"
+        android:actionProviderClass="android.widget.ShareActionProvider" />
+    -->
+    
+    <item android:id="@+id/connect_menu"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/connect_menu"
+        android:showAsAction="ifRoom" >
+        <menu >
+            <item android:id="@+id/bt_connect"
+                android:icon="@android:drawable/ic_menu_sort_by_size"
+                android:onClick="onSort" />
+
+            <item android:id="@+id/wifi_connect"
+                android:icon="@android:drawable/ic_menu_sort_alphabetically"
+                android:onClick="onSort" />
+        </menu>
+    </item>
+
     <item android:id="@+id/action_settings"
-        android:icon="@drawable/ic_menu_moreoverflow_normal_holo_dark"
+        android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/action_settings"
         android:showAsAction="ifRoom" />
 </menu>

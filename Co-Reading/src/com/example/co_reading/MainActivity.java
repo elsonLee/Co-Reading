@@ -5,27 +5,24 @@ import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.RelativeLayout;
-import android.widget.ShareActionProvider;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
+
     private final String TAG = MainActivity.class.getSimpleName();
 
-    private ITransceiverOps	m_TransceiverManager = null;
+    private RetainedFragment mRetainedFragment = null;
 
-    private DialogFragment	m_TransceiverDiscDialog = null;
-
-    private ShareActionProvider mShareActionProvider = null;
-
-    private RetainedFragment m_retainedFragment = null;
-    private OnRestoreData m_restoreData = null;
+    private OnRestoreData mRestoreData = null;
+    
+    /** don't remove */
+    private ITransceiverOps mTransceiverManager = null;
 
     public class OnRestoreData {
     	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
@@ -52,33 +49,31 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
         
-        RelativeLayout fragment_container = (RelativeLayout)findViewById(R.id.fragment_container);
-
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         FragmentManager fm = getFragmentManager();
-        m_retainedFragment = (RetainedFragment) fm.findFragmentByTag("restoreData");
+        mRetainedFragment = (RetainedFragment) fm.findFragmentByTag("restoreData");
 
-        if (m_retainedFragment == null) {
-            m_retainedFragment = new RetainedFragment();
-            fm.beginTransaction().add(m_retainedFragment, "restoreData").commit();
-            if (m_restoreData == null)
-                m_restoreData = new OnRestoreData();
-            m_retainedFragment.setData(m_restoreData);
+        if (mRetainedFragment == null) {
+            mRetainedFragment = new RetainedFragment();
+            fm.beginTransaction().add(mRetainedFragment, "restoreData").commit();
+            if (mRestoreData == null)
+                mRestoreData = new OnRestoreData();
+            mRetainedFragment.setData(mRestoreData);
         } else {
-            m_restoreData = m_retainedFragment.getData();
+            mRestoreData = mRetainedFragment.getData();
             ActionBar mactionBar = getActionBar();
-            m_restoreData.restoreNavigationTab(mactionBar);
+            mRestoreData.restoreNavigationTab(mactionBar);
         }
     }
 
     @Override
     protected void onDestroy() {
     	ActionBar actionBar = getActionBar();
-    	m_restoreData.m_curTabPos = actionBar.getSelectedNavigationIndex();
-    	m_retainedFragment.setData(m_restoreData);
+    	mRestoreData.m_curTabPos = actionBar.getSelectedNavigationIndex();
+    	mRetainedFragment.setData(mRestoreData);
 
     	super.onDestroy();
     }
@@ -87,24 +82,16 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
     	getMenuInflater().inflate(R.menu.main_activity_actions, menu);
     	
-    	MenuItem shareItem = menu.findItem(R.id.action_share);
-    	mShareActionProvider = (ShareActionProvider)
-    			shareItem.getActionProvider();
-    	mShareActionProvider.setShareIntent(getDefaultIntent());
-    	
     	return super.onCreateOptionsMenu(menu);
     }
     
-    private Intent getDefaultIntent() {
-    	// Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
-    	Intent intent = new Intent(Intent.ACTION_SEND);
-    	intent.setType("image/*");
-    	return intent;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	
+    	Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+    	
     	switch (item.getItemId()) {
+
     	case R.id.action_addtab:
             ActionBar.Tab newTab = null;
             ActionBar actionBar = getActionBar();
@@ -115,32 +102,10 @@ public class MainActivity extends Activity {
             newTab.setTag(fragment);
 
             actionBar.addTab(newTab);
-            m_restoreData.addToTabList(newTab);
+            mRestoreData.addToTabList(newTab);
 
             if (actionBar.getNavigationItemCount() > 1)
                 actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
-
-            return true;
-
-    	case R.id.action_bluetooth:		
-
-    		if (m_TransceiverManager == null) {	// TODO: support bluetooth & wifi
-    			m_TransceiverManager = BlueToothManager.getInstance();
-    			if (m_TransceiverDiscDialog == null) {
-    				// m_TransceiverDiscDialog = new BluetoothDiscoveryDialog();
-    				// Intent intent = new Intent();
-    				// intent.setAction(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
-    				Intent intent = new Intent(this, BluetoothDiscoveryDialog.class);
-    				startActivity(intent);
-    			}
-    		}
-
-            if (m_TransceiverManager.isSupported() == false)
-            	return true;
-
-            if (m_TransceiverManager.open(this) == true && m_TransceiverDiscDialog != null) {
-            	m_TransceiverDiscDialog.show(getFragmentManager(), "nothing");
-            }
 
             return true;
 
@@ -160,20 +125,26 @@ public class MainActivity extends Activity {
     	}
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	switch (requestCode) {
-    	case BlueToothManager.REQUEST_ENABLE_BT:
-            if (resultCode != RESULT_CANCELED) {
-                if (m_TransceiverDiscDialog != null)
-                    m_TransceiverDiscDialog.show(getFragmentManager(), "nothing");
-            }
-            else
-                Log.d("onActivityResult", "REQUEST_ENABLE_BT failed!");
-            break;
-    	default:
-            break;
-    	}
+    public void onSort(MenuItem item) {
+    	// invalidateOptionsMenu();
 
+    	switch (item.getItemId()) {
+
+    	/** Bluetooth connect */
+    	case R.id.bt_connect:
+    		mTransceiverManager = BlueToothManager.getInstance();
+
+    		Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
+    		if (intent.resolveActivity(getPackageManager()) == null) {
+    			Log.e(TAG, "has no corresponding intent");
+    			return;
+    		}
+    		startActivity(intent);
+
+    		break;
+
+    	default:
+    		break;
+    	}
     }
 }

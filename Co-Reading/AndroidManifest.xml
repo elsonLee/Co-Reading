@@ -42,14 +42,17 @@
         
         <activity
             android:name="com.example.co_reading.BluetoothDiscoveryDialog"
+            android:theme="@android:style/Theme.Holo.Dialog"
             android:label="@string/bluetooth" >
             <intent-filter>
-                <!-- 
                 <action android:name="com.example.co_reading.ACTION_BTDIALOG" />
+                <!-- category must set! -->
                 <category android:name="android.intent.category.DEFAULT" />
-                -->
+                <!-- 
                 <action android:name="android.intent.action.ACTION_SEND" />
                 <data android:mimeType="image/*"/>
+                <data android:mimeType="image/*"/>
+                -->
 
             </intent-filter>
         </activity>

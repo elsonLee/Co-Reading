@@ -15,7 +15,9 @@ import android.view.ViewGroup;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 public class PdfFragment extends Fragment {	
-	private final String TAG = "PdfFragment";
+
+	private final String TAG = PdfFragment.class.getSimpleName();
+
 	private final int REQUEST_CHOOSER = 1234;	
 
 	private String mCurPdfUriString = "";
@@ -63,6 +65,7 @@ public class PdfFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 			Bundle savedInstanceState) {
+
 		Log.i(TAG, "onCreateView");
 
 		if (mLayout == null) {

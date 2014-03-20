@@ -8,6 +8,8 @@
     <string name="title_activity_display_message">DisplayMessageActivity</string>
     
     <string name="tab_name">New Tab</string>
+    <string name="pdf_visibility">PDF Layer</string>
+    <string name="painter_visibility">Painter Layer</string>
 
     <string name="action_addtab">AddTab</string>
     <string name="action_bluetooth">Bluetooth</string>

@@ -21,19 +21,9 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 	private File mFile;
 	private PDFView mPdfView;
 	private PainterView mPainterView;
-
-	public ContainerView(Context ctx) {
-		super(ctx);
-		mPainterView = new PainterView(ctx);
-	}
 	
 	public ContainerView(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs);
-		mPainterView = new PainterView(ctx);
-	}
-	
-	public ContainerView(Context ctx, AttributeSet attrs, int defStyle) {
-		super(ctx, attrs, defStyle);
 		mPainterView = new PainterView(ctx);
 	}
 
@@ -82,5 +72,17 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 
 	public void toggleDrawMode() {
 		mDrawMode = !mDrawMode;
+	}
+	
+	public void setVisibility(int id, int visibility) {
+		switch (id) {
+		default:
+		case 0:
+			if (mPdfView != null)
+				mPdfView.setVisibility(visibility);
+		case 1:
+			if (mPainterView != null)
+				mPainterView.setVisibility(visibility);
+		}
 	}
 }

@@ -12,8 +12,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
+import android.widget.Switch;
+import android.widget.CheckBox;
 
 public class MainActivity extends Activity {
     private final String TAG = MainActivity.class.getSimpleName();
@@ -145,8 +148,6 @@ public class MainActivity extends Activity {
             return true;
 
         case R.id.action_painter:
-        	PdfFragment frag = (PdfFragment)getActionBar().getSelectedTab().getTag();
-        	frag.mContainerView.toggleDrawMode();
             return true;
 
     	case R.id.action_search:
@@ -175,5 +176,36 @@ public class MainActivity extends Activity {
             break;
     	}
 
+    }
+    
+    public void onChangeDrawMode(View view) {
+        boolean on = ((Switch) view).isChecked(); 
+    	ActionBar ab = getActionBar();
+
+        Log.i(TAG, on ? "Draw Mode" : "Read  Mode");
+        for (int index = 0; index < ab.getTabCount(); index++) {
+        	PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
+        	frag.mContainerView.setDrawMode(on);
+        }
+    }
+    
+    public void onVisibilityCheckboxClicked(View view) {
+        boolean checked = ((CheckBox) view).isChecked();
+    	ActionBar ab = getActionBar();
+    	int visibility;
+    	
+    	int id = view.getId();
+    	if (checked)
+    		visibility = View.VISIBLE;
+    	else
+    		visibility = View.INVISIBLE;
+
+        for (int index = 0; index < ab.getTabCount(); index++) {
+        	PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
+        	if (id == R.id.checkbox_pdf_view)
+        		frag.mContainerView.setVisibility(0, visibility);
+        	else
+        		frag.mContainerView.setVisibility(1, visibility);
+        }
     }
 }

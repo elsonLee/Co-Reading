@@ -21,6 +21,11 @@
     <string name="bluetooth_discovery">Discovery Device</string>
     <string name="bluetooth_scan">Scan&#8230;</string>
     <string name="bluetooth_listdevice">Available Devices</string>
+    <string name="bluetooth_createconnect">Create Connect&#8230;</string>
+    <string name="bluetooth_waitconncet">Waiting someone add in&#8230;</string>
+    
+    <string name="bluetooth_client">client</string>
+    <string name="bluetooth_server">server</string>
 
     <!-- file chooser -->
     <string name="chooser_nofile">No File</string>

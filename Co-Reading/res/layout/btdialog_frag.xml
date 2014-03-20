@@ -1,33 +1,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-	android:orientation="vertical" >
-	
-    <LinearLayout 
+    android:orientation="vertical" >
+
+    <LinearLayout
         android:id="@+id/discoverydevice_title_layout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/discoverydevice_title_bg" >
-        
+        android:background="@drawable/discoverydevice_title_bg"
+        android:orientation="horizontal" >
+
         <TextView
             android:id="@+id/discoverydevice_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
             android:layout_margin="20dp"
             android:text="@string/bluetooth_discovery"
             android:textColor="#888888"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
-    
+        
+        <Switch
+            android:id="@+id/bluetooth_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" 
+            android:textOn="@string/bluetooth_client"
+            android:textOff="@string/bluetooth_server"
+            android:onClick="onClickToggle"
+            android:checked="true"
+            />
+        
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/dialog_container"
-    	android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-     </RelativeLayout>
+	<RelativeLayout
+	    android:id="@+id/dialog_container"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" >
+    </RelativeLayout>
 
 </LinearLayout>

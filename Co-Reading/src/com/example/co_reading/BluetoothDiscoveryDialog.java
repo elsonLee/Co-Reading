@@ -6,7 +6,9 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.Switch;
 
 public class BluetoothDiscoveryDialog extends Activity {
 	
@@ -26,11 +28,21 @@ public class BluetoothDiscoveryDialog extends Activity {
 		setContentView(R.layout.btdialog_frag);
 	}
 	
-	void openDiscoveryDialog() {
+	void openDiscoveryDialog(Fragment fragment) {
 		if (getFragmentManager().findFragmentByTag("btdialog") == null) {
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			Fragment dialogFrag = new BluetoothDiscoveryDialogFrag();
+			Fragment dialogFrag = fragment;
 			ft.add(R.id.dialog_container, dialogFrag, "btdialog");
+			ft.commit();
+		}
+	}
+	
+	void replaceDiscoveryDialog(Fragment fragment) {
+		if (getFragmentManager().findFragmentByTag("btdialog") == null) {
+			openDiscoveryDialog(fragment);
+		} else {
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.replace(R.id.dialog_container, fragment, "btdialog");
 			ft.commit();
 		}
 	}
@@ -49,7 +61,8 @@ public class BluetoothDiscoveryDialog extends Activity {
 		super.onResume();
 		
 		if (mBluetoothManager.open(this) == true) {
-			openDiscoveryDialog();
+			Fragment fragment = new BluetoothDiscoveryDialogFrag();
+			openDiscoveryDialog(fragment);
 		}
 	}
 	
@@ -65,7 +78,8 @@ public class BluetoothDiscoveryDialog extends Activity {
 
     	case BlueToothManager.REQUEST_ENABLE_BT:
             if (resultCode != RESULT_CANCELED) {
-            	openDiscoveryDialog();
+            	Fragment fragment = new BluetoothDiscoveryDialogFrag();
+            	openDiscoveryDialog(fragment);
             }
             else
                 Log.e(TAG, "REQUEST_ENABLE_BT failed!");
@@ -73,6 +87,18 @@ public class BluetoothDiscoveryDialog extends Activity {
     	default:
             break;
     	}
+    }
+    
+    public void onClickToggle(View view) {
+    	boolean isClient = ((Switch) view).isChecked();
+    	
+        Fragment fragment = null;
+    	if (isClient == true) {
+    		fragment = new BluetoothDiscoveryDialogFrag();
+    	} else {
+    		
+    	}
 
+        openDiscoveryDialog(fragment);
     }
 }

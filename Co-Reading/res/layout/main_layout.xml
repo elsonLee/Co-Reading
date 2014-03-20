@@ -16,15 +16,15 @@
         android:id="@+id/draw_mode_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
         android:gravity="bottom"
         android:onClick="onChangeDrawMode"
         android:textOff="Read"
         android:textOn="Draw" />
 
 
-    <CheckBox
+<!--     <CheckBox
             android:id="@+id/checkbox_pdf_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,5 +41,5 @@
             android:layout_below="@+id/checkbox_pdf_view"
             android:onClick="onVisibilityCheckboxClicked"
             android:text="@string/painter_visibility" />
-
+ -->
 </RelativeLayout>

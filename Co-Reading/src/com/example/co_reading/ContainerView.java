@@ -18,7 +18,6 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 	private boolean mDrawMode = false;
 	
 	private int mPageNum = 1;
-	private File mFile;
 	private PDFView mPdfView;
 	private PainterView mPainterView;
 	
@@ -29,8 +28,7 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 
 	public boolean loadPdfView(File file, boolean jumpToFirstPage) {
 		if (jumpToFirstPage) mPageNum = 1;
-		mFile = file;
-		
+
 		mPdfView = new PDFView(getContext(), null);
 
 	   	mPdfView.fromFile(file).defaultPage(mPageNum).onPageChange(this).load();

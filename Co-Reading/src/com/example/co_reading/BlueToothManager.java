@@ -26,6 +26,7 @@ public class BlueToothManager implements ITransceiverOps {
 	private static BlueToothManager	m_instance;
 	
 	private static BtConnectClient mClient = null;
+	private static BtConnectServer mServer = null;
 	
 	private BlueToothManager(){
 		m_pairedDevList = new ArrayList<BluetoothDevice>();
@@ -39,11 +40,20 @@ public class BlueToothManager implements ITransceiverOps {
 	}
 	
 	public BtConnectClient getClient(BluetoothDevice btDevice) throws IOException {
-		if (btDevice != null && mClient == null) {
+		if (btDevice != null && mClient == null && mServer == null) {
 			mClient = new BtConnectClient(btDevice);
 		}
 
 		return mClient;
+	}
+
+	public BtConnectServer getServer() throws IOException {
+		if (mServer == null && mClient == null) {
+			mServer = new BtConnectServer();
+			mServer.run();
+		}
+
+		return mServer;
 	}
 
 	/* ITransceiverOps implementation */

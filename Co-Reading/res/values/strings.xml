@@ -26,6 +26,9 @@
     
     <string name="bluetooth_client">client</string>
     <string name="bluetooth_server">server</string>
+    
+    <!-- bluetooth test -->
+    <string name="bluetooth_send12">Send 12</string>
 
     <!-- file chooser -->
     <string name="chooser_nofile">No File</string>

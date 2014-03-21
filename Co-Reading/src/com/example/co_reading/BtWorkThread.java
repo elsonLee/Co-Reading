@@ -40,9 +40,21 @@ public class BtWorkThread extends Thread {
 			try {
 				Log.d(TAG,  "begin reading");
 				bytes = mInStream.read(buffer);
-				Log.d(TAG, new String(buffer));
+
+				/* test for bluetooth receive */
+//				if (buffer[0] == (byte)12) {
+//					BtConnectServer server= BlueToothManager.getInstance().getServer();
+//					if (server != null) {
+//						byte[] tmpByte = new byte[1];
+//						tmpByte[0] = 34;
+//						server.write(tmpByte);
+//					}
+//				}
+
+				Log.d(TAG, "Receive: " + buffer[0]);
 				// handle
 				// Thread.yield();
+				
 			} catch (IOException e) {
 				break;
 			}

@@ -106,20 +106,7 @@ public class PainterView extends View implements OnPageChangeListener {
             break;
         }
         
-        /* just for test */
-        BtConnectClient client = null;
-		try {
-			client = BlueToothManager.getInstance().getClient(null);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-        if (client != null) {
-        	byte[] tmpByte = new byte[1];
-        	tmpByte[0] = (byte)event;
-        	client.write(tmpByte);
-        }
         
         return true;
     }

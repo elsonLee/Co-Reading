@@ -20,6 +20,8 @@ public class BtDialogFragContainer extends Activity {
 	
 	public static final String ACTION_BTDIALOG = "com.example.co_reading.ACTION_BTDIALOG";
 	
+	private Fragment mCurFrag = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,26 +30,19 @@ public class BtDialogFragContainer extends Activity {
 		setContentView(R.layout.bt_dialog_frag_container);
 	}
 	
-	void openDiscoveryDialog(Fragment fragment) {
+	void addDialogFrag(Fragment fragment) {
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
+
 		if (getFragmentManager().findFragmentByTag("btdialog") == null) {
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			Fragment dialogFrag = fragment;
-			ft.add(R.id.dialog_container, dialogFrag, "btdialog");
-			ft.commit();
-		}
-	}
-	
-	void replaceDiscoveryDialog(Fragment fragment) {
-		if (getFragmentManager().findFragmentByTag("btdialog") == null) {
-			openDiscoveryDialog(fragment);
+			ft.add(R.id.dialog_container, fragment, "btdialog");
 		} else {
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.replace(R.id.dialog_container, fragment, "btdialog");
-			ft.commit();
 		}
+
+		ft.commit();
 	}
 	
-	void closeDiscoveryDialog() {
+	void removeDialogFrag() {
 		Fragment btDialog = getFragmentManager().findFragmentByTag("btdialog");
 		if (btDialog != null) {
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -61,15 +56,17 @@ public class BtDialogFragContainer extends Activity {
 		super.onResume();
 		
 		if (mBluetoothManager.open(this) == true) {
-			Fragment fragment = new BtClientDialogFrag();
-			openDiscoveryDialog(fragment);
+			if (mCurFrag == null) {
+				mCurFrag = new BtClientDialogFrag();
+			}
+			addDialogFrag(mCurFrag);
 		}
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		closeDiscoveryDialog();
+		removeDialogFrag();
 	}
 	
     @Override
@@ -78,8 +75,10 @@ public class BtDialogFragContainer extends Activity {
 
     	case BlueToothManager.REQUEST_ENABLE_BT:
             if (resultCode != RESULT_CANCELED) {
-            	Fragment fragment = new BtClientDialogFrag();
-            	openDiscoveryDialog(fragment);
+            	if (mCurFrag == null) {
+            		mCurFrag = new BtClientDialogFrag();
+            	}
+            	addDialogFrag(mCurFrag);
             }
             else
                 Log.e(TAG, "REQUEST_ENABLE_BT failed!");
@@ -92,13 +91,14 @@ public class BtDialogFragContainer extends Activity {
     public void onClickToggle(View view) {
     	boolean isClient = ((Switch) view).isChecked();
     	
+    	// FIXME: should cache
         Fragment fragment = null;
     	if (isClient == true) {
     		fragment = new BtClientDialogFrag();
     	} else {
-    		// fragment = new Blue
+    		fragment = new BtServerDialogFrag();
     	}
 
-        openDiscoveryDialog(fragment);
+        addDialogFrag(fragment);
     }
 }

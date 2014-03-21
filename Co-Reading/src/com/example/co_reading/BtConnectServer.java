@@ -5,10 +5,15 @@ import java.io.IOException;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
-public class BtConnectServer extends Thread {
+public class BtConnectServer implements Runnable {
+	
+	private final String TAG = BtConnectServer.class.getSimpleName();
 	
     private final BluetoothServerSocket mServerSocket;
+    private BluetoothSocket mSocket = null;
+    private BtWorkThread mWorkThread = null;
     private final String NAME = "Co-Reading";
     
     public BtConnectServer() {
@@ -43,7 +48,18 @@ public class BtConnectServer extends Thread {
                 break;
             }
         }
+        
+        mSocket = socket;
+
+		mWorkThread = new BtWorkThread(mSocket);
+		mWorkThread.start();
+		
+		Log.i(TAG, "Server Accepted!");
     }
+    
+	public void write(byte[] bytes) {
+		mWorkThread.write(bytes);
+	}
  
     /** Will cancel the listening socket, and cause the thread to finish */
     public void cancel() {
@@ -51,6 +67,4 @@ public class BtConnectServer extends Thread {
             mServerSocket.close();
         } catch (IOException e) { }
     }
-
-
 }

@@ -41,7 +41,7 @@
         </activity>
         
         <activity
-            android:name="com.example.co_reading.BluetoothDiscoveryDialog"
+            android:name="com.example.co_reading.BtDialogFragContainer"
             android:theme="@android:style/Theme.Holo.Dialog"
             android:label="@string/bluetooth" >
             <intent-filter>

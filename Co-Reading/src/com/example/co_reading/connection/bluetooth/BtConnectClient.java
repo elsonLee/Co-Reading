@@ -1,10 +1,9 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth;
 
 import java.io.IOException;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 public class BtConnectClient {
 	

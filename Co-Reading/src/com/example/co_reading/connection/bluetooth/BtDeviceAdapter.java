@@ -1,17 +1,18 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth;
 
 import java.util.Collections;
 import java.util.List;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.co_reading.R;
 
 public class BtDeviceAdapter extends BaseAdapter {
 	

@@ -1,4 +1,4 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -9,6 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Switch;
+
+import com.example.co_reading.R;
+import com.example.co_reading.connection.bluetooth.BlueToothManager;
 
 public class BtDialogFragContainer extends Activity {
 	

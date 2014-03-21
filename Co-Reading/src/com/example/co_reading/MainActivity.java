@@ -15,6 +15,9 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.co_reading.connection.ITransceiverOps;
+import com.example.co_reading.connection.bluetooth.BlueToothManager;
+
 public class MainActivity extends Activity {
 
     private final String TAG = MainActivity.class.getSimpleName();
@@ -135,7 +138,7 @@ public class MainActivity extends Activity {
     		mTransceiverManager = BlueToothManager.getInstance();
 
     		// Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
-    		Intent intent = new Intent(this, com.example.co_reading.BtDialogFragContainer.class);
+    		Intent intent = new Intent(this, com.example.co_reading.connection.bluetooth.ui.BtDialogFragContainer.class);
     		if (intent.resolveActivity(getPackageManager()) == null) {
     			Log.e(TAG, "has no corresponding intent");
     			return;

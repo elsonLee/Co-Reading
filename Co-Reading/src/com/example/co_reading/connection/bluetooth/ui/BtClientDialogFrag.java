@@ -1,4 +1,4 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth.ui;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +20,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.example.co_reading.R;
+import com.example.co_reading.connection.ITransceiverOps;
+import com.example.co_reading.connection.bluetooth.BlueToothManager;
+import com.example.co_reading.connection.bluetooth.BtDeviceAdapter;
 
 public class BtClientDialogFrag extends Fragment {
 

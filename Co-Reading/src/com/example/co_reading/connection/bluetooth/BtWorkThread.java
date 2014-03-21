@@ -1,4 +1,4 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;

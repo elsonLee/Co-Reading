@@ -1,4 +1,4 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+
+import com.example.co_reading.connection.ITransceiverOps;
 
 public class BlueToothManager implements ITransceiverOps {
 	

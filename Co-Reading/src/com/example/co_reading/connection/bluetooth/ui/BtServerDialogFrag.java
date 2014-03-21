@@ -1,25 +1,20 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.bluetooth.ui;
 
 import java.io.IOException;
-import java.util.List;
 
 import android.app.Fragment;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+
+import com.example.co_reading.R;
+import com.example.co_reading.connection.ITransceiverOps;
+import com.example.co_reading.connection.bluetooth.BlueToothManager;
+import com.example.co_reading.connection.bluetooth.BtDeviceAdapter;
 
 public class BtServerDialogFrag extends Fragment {
 

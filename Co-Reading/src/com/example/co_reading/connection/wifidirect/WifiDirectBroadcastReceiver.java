@@ -1,11 +1,5 @@
-package com.example.co_reading;
+package com.example.co_reading.connection.wifidirect;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
 
 /*
 public class WifiDirectBroadcastReceiver extends BroadcastReceiver {

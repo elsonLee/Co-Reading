@@ -21,26 +21,26 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class BluetoothDiscoveryDialogFrag extends Fragment {
+public class BtClientDialogFrag extends Fragment {
 
-	private final String TAG = BluetoothDiscoveryDialogFrag.class
+	private final String TAG = BtClientDialogFrag.class
 			.getSimpleName();
 
-	private ListView m_listView;
-	private View m_dialogView;
-	private BluetoothDeviceAdapter m_BtArrayAdapter;
-	private BlueToothManager m_BlueToothManager = BlueToothManager
+	private ListView mListView;
+	private View mDialogView;
+	private BtDeviceAdapter mBtArrayAdapter;
+	private BlueToothManager mBlueToothManager = BlueToothManager
 			.getInstance();
 
-	private ITransceiverOps m_ItransceiverOps = null;
+	private ITransceiverOps mItransceiverOps = null;
 
 	public void registerITransceiverObserver(ITransceiverOps ops) {
 		if (ops != null)
-			m_ItransceiverOps = ops;
+			mItransceiverOps = ops;
 	}
 
 	public void removeITransceiverObserver() {
-		m_ItransceiverOps = null;
+		mItransceiverOps = null;
 	}
 
 	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -51,16 +51,16 @@ public class BluetoothDiscoveryDialogFrag extends Fragment {
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				BluetoothDevice btDevice = intent
 						.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-				m_BlueToothManager.addToFoundList(btDevice);
-				List<BluetoothDevice> mDevList = (List<BluetoothDevice>) m_BlueToothManager
+				mBlueToothManager.addToFoundList(btDevice);
+				List<BluetoothDevice> mDevList = (List<BluetoothDevice>) mBlueToothManager
 						.getPairedList();
-				mDevList.addAll((List<BluetoothDevice>) m_BlueToothManager
+				mDevList.addAll((List<BluetoothDevice>) mBlueToothManager
 						.getFoundList());
-				m_BtArrayAdapter.updateBtDevices(mDevList);
+				mBtArrayAdapter.updateBtDevices(mDevList);
 
-				ProgressBar mProgressBar = (ProgressBar) m_dialogView
+				ProgressBar mProgressBar = (ProgressBar) mDialogView
 						.findViewById(R.id.progresscircle);
-				mProgressBar.setVisibility(m_listView.GONE);
+				mProgressBar.setVisibility(mListView.GONE);
 
 			} else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED
 					.equals(action)) {
@@ -95,19 +95,19 @@ public class BluetoothDiscoveryDialogFrag extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 			Bundle savedInstanceState) {
 
-		m_dialogView = inflater.inflate(R.layout.dialog_discoverydevice,
+		mDialogView = inflater.inflate(R.layout.bt_client_dialog_frag,
 				null);
 
-		m_listView = (ListView) m_dialogView
+		mListView = (ListView) mDialogView
 				.findViewById(R.id.bluetooth_devicelist);
-		m_listView.setAdapter(m_BtArrayAdapter);
+		mListView.setAdapter(mBtArrayAdapter);
 
-		m_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 					@Override
 					public void onItemClick(AdapterView<?> arg0, View arg1,
 							int pos, long id) {
-						BluetoothDeviceAdapter mArrayAdapter = (BluetoothDeviceAdapter) arg0
+						BtDeviceAdapter mArrayAdapter = (BtDeviceAdapter) arg0
 								.getAdapter();
 						BluetoothDevice clientDev = (BluetoothDevice) mArrayAdapter
 								.getItem(pos);
@@ -115,7 +115,7 @@ public class BluetoothDiscoveryDialogFrag extends Fragment {
 						try {
 							/* don't need client instance here */
 							Log.i(TAG, "clientDev: " + clientDev);
-							m_BlueToothManager.getClient(clientDev);
+							mBlueToothManager.getClient(clientDev);
 
 						} catch (IllegalArgumentException e1) {
 							e1.printStackTrace();
@@ -127,29 +127,29 @@ public class BluetoothDiscoveryDialogFrag extends Fragment {
 				});
 
 		// button listener
-		Button mScanButton = (Button) m_dialogView
+		Button mScanButton = (Button) mDialogView
 				.findViewById(R.id.discoverydevice_scanbutton);
 		mScanButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				if (m_BlueToothManager.discovery() == true) {
-					m_BlueToothManager.clearFoundList();
-					ProgressBar mProgressBar = (ProgressBar) m_dialogView
+				if (mBlueToothManager.discovery() == true) {
+					mBlueToothManager.clearFoundList();
+					ProgressBar mProgressBar = (ProgressBar) mDialogView
 							.findViewById(R.id.progresscircle);
 					// mProgressBar.setVisibility(m_listView.VISIBLE);
 				}
 			}
 		});
 
-		List<BluetoothDevice> mArrayDevicesData = m_BlueToothManager
+		List<BluetoothDevice> mArrayDevicesData = mBlueToothManager
 				.getPairedList();
 
-		m_BtArrayAdapter = new BluetoothDeviceAdapter(getActivity());
-		m_BtArrayAdapter.updateBtDevices(mArrayDevicesData);
-		m_listView.setAdapter(m_BtArrayAdapter);
+		mBtArrayAdapter = new BtDeviceAdapter(getActivity());
+		mBtArrayAdapter.updateBtDevices(mArrayDevicesData);
+		mListView.setAdapter(mBtArrayAdapter);
 
-		return m_dialogView;
+		return mDialogView;
 	}
 	
 	@Override

@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Switch;
 
-public class BluetoothDiscoveryDialog extends Activity {
+public class BtDialogFragContainer extends Activity {
 	
-	private final String TAG = BluetoothDiscoveryDialog.class
+	private final String TAG = BtDialogFragContainer.class
 			.getSimpleName();
 	
 	private BlueToothManager mBluetoothManager = BlueToothManager
@@ -25,7 +25,7 @@ public class BluetoothDiscoveryDialog extends Activity {
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.btdialog_frag);
+		setContentView(R.layout.bt_dialog_frag_container);
 	}
 	
 	void openDiscoveryDialog(Fragment fragment) {
@@ -61,7 +61,7 @@ public class BluetoothDiscoveryDialog extends Activity {
 		super.onResume();
 		
 		if (mBluetoothManager.open(this) == true) {
-			Fragment fragment = new BluetoothDiscoveryDialogFrag();
+			Fragment fragment = new BtClientDialogFrag();
 			openDiscoveryDialog(fragment);
 		}
 	}
@@ -78,7 +78,7 @@ public class BluetoothDiscoveryDialog extends Activity {
 
     	case BlueToothManager.REQUEST_ENABLE_BT:
             if (resultCode != RESULT_CANCELED) {
-            	Fragment fragment = new BluetoothDiscoveryDialogFrag();
+            	Fragment fragment = new BtClientDialogFrag();
             	openDiscoveryDialog(fragment);
             }
             else
@@ -94,9 +94,9 @@ public class BluetoothDiscoveryDialog extends Activity {
     	
         Fragment fragment = null;
     	if (isClient == true) {
-    		fragment = new BluetoothDiscoveryDialogFrag();
+    		fragment = new BtClientDialogFrag();
     	} else {
-    		
+    		// fragment = new Blue
     	}
 
         openDiscoveryDialog(fragment);

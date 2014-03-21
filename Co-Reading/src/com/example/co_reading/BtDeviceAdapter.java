@@ -13,31 +13,31 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class BluetoothDeviceAdapter extends BaseAdapter {
+public class BtDeviceAdapter extends BaseAdapter {
 	
-	private String TAG = BluetoothDeviceAdapter.class.getSimpleName();
+	private String TAG = BtDeviceAdapter.class.getSimpleName();
 	
-	private List<BluetoothDevice> m_btDeviceList = Collections.emptyList();
+	private List<BluetoothDevice> mBtDeviceList = Collections.emptyList();
 	
-	private final Context m_context;
+	private final Context mContext;
 	
-	public BluetoothDeviceAdapter(Context context) {
-		m_context = context;
+	public BtDeviceAdapter(Context context) {
+		mContext = context;
 	}
 	
 	public void updateBtDevices(List<BluetoothDevice> btDeviceList) {
-		m_btDeviceList = btDeviceList;
+		mBtDeviceList = btDeviceList;
 		notifyDataSetChanged();
 	}
 
 	@Override
 	public int getCount() {
-		return m_btDeviceList.size();
+		return mBtDeviceList.size();
 	}
 
 	@Override
 	public BluetoothDevice getItem(int position) {
-		return m_btDeviceList.get(position);
+		return mBtDeviceList.get(position);
 	}
 
 	@Override
@@ -46,16 +46,16 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 	}
 	
 	private static class ViewHolder {
-		public final ImageView m_btDeviceImageView;
-		public final TextView m_btDeviceNameView;
-		public final TextView m_btDeviceAddressView;
-		public final TextView m_btDeivceStatusView;
+		public final ImageView mBtDeviceImageView;
+		public final TextView mBtDeviceNameView;
+		public final TextView mBtDeviceAddressView;
+		public final TextView mBtDeivceStatusView;
 		
 		public ViewHolder(ImageView imageView, TextView nameView, TextView addrView, TextView statusView) {
-			m_btDeviceImageView = imageView;
-			m_btDeviceNameView = nameView;
-			m_btDeviceAddressView = addrView;
-			m_btDeivceStatusView = statusView;
+			mBtDeviceImageView = imageView;
+			mBtDeviceNameView = nameView;
+			mBtDeviceAddressView = addrView;
+			mBtDeivceStatusView = statusView;
 		}
 	}
 
@@ -68,8 +68,8 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 		TextView btDeviceStatusView;
 		
 		if (convertView == null) {
-			convertView = LayoutInflater.from(m_context)
-					.inflate(R.layout.btdevice_list, parent, false);
+			convertView = LayoutInflater.from(mContext)
+					.inflate(R.layout.bt_dialog_listview_row, parent, false);
 
 			btDeviceImageView = (ImageView)convertView.findViewById(R.id.btDevice_image);
 			btDeviceNameView = (TextView)convertView.findViewById(R.id.btDevice_name);
@@ -79,10 +79,10 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 			convertView.setTag(new ViewHolder(btDeviceImageView, btDeviceNameView, btDeviceAddressView, btDeviceStatusView));
 		} else {
 			ViewHolder viewHolder = (ViewHolder)convertView.getTag();
-			btDeviceImageView = viewHolder.m_btDeviceImageView;
-			btDeviceNameView = viewHolder.m_btDeviceNameView;
-			btDeviceAddressView = viewHolder.m_btDeviceAddressView;
-			btDeviceStatusView = viewHolder.m_btDeivceStatusView; 
+			btDeviceImageView = viewHolder.mBtDeviceImageView;
+			btDeviceNameView = viewHolder.mBtDeviceNameView;
+			btDeviceAddressView = viewHolder.mBtDeviceAddressView;
+			btDeviceStatusView = viewHolder.mBtDeivceStatusView; 
 		}
 		
 		BluetoothDevice btDevice = getItem(position);

@@ -69,7 +69,7 @@ public class PdfFragment extends Fragment {
 		Log.i(TAG, "onCreateView");
 
 		if (mLayout == null) {
-			mLayout = (ViewGroup)inflater.inflate(R.layout.pdf_fragment, null);	
+			mLayout = (ViewGroup)inflater.inflate(R.layout.pdfview_frag, null);	
 			mContainerView = (ContainerView)mLayout.getChildAt(0);
 		}
 		return mLayout;

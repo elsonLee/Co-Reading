@@ -135,7 +135,7 @@ public class MainActivity extends Activity {
     		mTransceiverManager = BlueToothManager.getInstance();
 
     		// Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
-    		Intent intent = new Intent(this, com.example.co_reading.BluetoothDiscoveryDialog.class);
+    		Intent intent = new Intent(this, com.example.co_reading.BtDialogFragContainer.class);
     		if (intent.resolveActivity(getPackageManager()) == null) {
     			Log.e(TAG, "has no corresponding intent");
     			return;

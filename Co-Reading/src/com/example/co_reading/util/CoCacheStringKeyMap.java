@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CacheStringKeyMap<String, V> extends HashMap<String, V> {
+public class CoCacheStringKeyMap<String, V> extends HashMap<String, V> {
 	private List<String>	m_keyCacheList = new ArrayList<String>();
 	
 	public List<String> getCachedKeyList() {

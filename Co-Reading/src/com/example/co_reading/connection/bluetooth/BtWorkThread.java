@@ -7,8 +7,10 @@ import java.io.OutputStream;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import com.example.co_reading.connection.EndPoint;
+
 /** BtWorkThread is used by Server & client */
-public class BtWorkThread extends Thread {
+public class BtWorkThread extends BtConnection implements EndPoint {
 	
 	private final String TAG = BtWorkThread.class.getSimpleName();
 	
@@ -76,6 +78,24 @@ public class BtWorkThread extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void start() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

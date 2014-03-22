@@ -34,14 +34,15 @@ public class FileEventTranciver extends EventTranciver {
     }
 
     public void flush() {
-    	if (mContainer.size() == 0)
+    	if (mContainer.getElemNum() == 0)
     		return;
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();  
             ObjectOutputStream oos = new ObjectOutputStream(baos);  
             oos.writeObject(mContainer);  
-  
+            mContainer.removeAll();
+
             String touchBase64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);  
             FileOutputStream fos = new FileOutputStream(mFile, true);
             fos.write(touchBase64.getBytes());
@@ -81,6 +82,7 @@ public class FileEventTranciver extends EventTranciver {
 			if (readed == -1)
 				Log.i(TAG, "EOF detected");            
 			fis.close();
+			mFile.delete();
 	    	String msg = "Readed " + readed + " Bytes";
 	    	Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     	} catch (IOException e) {

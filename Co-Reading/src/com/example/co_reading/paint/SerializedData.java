@@ -28,11 +28,11 @@ public class SerializedData implements Serializable {
         mList.add(d);
 	}
 	
-	public int size() {
+	public int getElemNum() {
 		return mList.size();
 	}
 	
-	public int getElemNum() {
-		return mList.size();
+	public void removeAll() {
+		mList.clear();
 	}
 }

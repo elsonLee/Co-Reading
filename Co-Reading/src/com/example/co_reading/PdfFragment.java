@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.co_reading.paint.ViewManager;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 public class PdfFragment extends Fragment {	
@@ -24,7 +25,7 @@ public class PdfFragment extends Fragment {
 	private ViewGroup mLayout;
 	private File mFile;
 
-	public ContainerView mContainerView;
+	public ViewManager mViewManager;
 
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
@@ -45,8 +46,8 @@ public class PdfFragment extends Fragment {
         super.onStart();
         
         if (mFile != null) {
-        	mContainerView.loadPdfView(mFile, false);
-			mContainerView.display();
+        	mViewManager.loadPdfView(mFile, false);
+        	mViewManager.show();
         }
     }
     
@@ -70,7 +71,7 @@ public class PdfFragment extends Fragment {
 
 		if (mLayout == null) {
 			mLayout = (ViewGroup)inflater.inflate(R.layout.pdfview_frag, null);	
-			mContainerView = (ContainerView)mLayout.getChildAt(0);
+			mViewManager = (ViewManager)mLayout.getChildAt(0);
 		}
 		return mLayout;
 	}

@@ -1,4 +1,4 @@
-package com.example.co_reading;
+package com.example.co_reading.paint;
 
 import java.io.File;
 
@@ -12,22 +12,22 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 
-public class ContainerView extends RelativeLayout implements OnPageChangeListener {
+public class ViewManager extends RelativeLayout implements OnPageChangeListener {
 	private final String TAG = "ContainerView";
 
 	private boolean mDrawMode = false;
-	
 	private int mPageNum = 1;
 	private PDFView mPdfView;
-	private PainterView mPainterView;
+	private Painting mPainting;
 	
-	public ContainerView(Context ctx, AttributeSet attrs) {
+	public ViewManager(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs);
-		mPainterView = new PainterView(ctx);
+		mPainting = new Painting(ctx);
 	}
 
 	public boolean loadPdfView(File file, boolean jumpToFirstPage) {
-		if (jumpToFirstPage) mPageNum = 1;
+		if (jumpToFirstPage)
+			mPageNum = 1;
 
 		mPdfView = new PDFView(getContext(), null);
 
@@ -35,30 +35,28 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 	   	
 	   	return true;
 	}
-	
-	public void replacePainterView(PainterView painter) {
-		mPainterView = painter;
-	}
 
-	public void display() {
+	public void show() {
 		removeAllViews();
 		if (mPdfView != null)
 			addView(mPdfView);
-		addView(mPainterView);
+		addView(mPainting);
 		setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void onPageChanged(int page, int pageCount) {
+		Log.d(TAG, "page:" + page + " pageCount:" + pageCount);
+
 		mPageNum = page;
-		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
-		mPainterView.onPageChanged(page, pageCount);
+		if (mPainting instanceof OnPageChangeListener)
+			mPainting.onPageChanged(page, pageCount);
 	}
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {		
 		if (mDrawMode)
-			mPainterView.dispatchTouchEvent(ev);
+			mPainting.dispatchTouchEvent(ev);
 		else
 			mPdfView.dispatchTouchEvent(ev);
 
@@ -72,16 +70,8 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 	public void toggleDrawMode() {
 		mDrawMode = !mDrawMode;
 	}
-	
-	public void setVisibility(int id, int visibility) {
-		switch (id) {
-		default:
-		case 0:
-			if (mPdfView != null)
-				mPdfView.setVisibility(visibility);
-		case 1:
-			if (mPainterView != null)
-				mPainterView.setVisibility(visibility);
-		}
+
+	public void setPaintingVisibility(int visibility) {
+		mPainting.setVisibility(visibility);
 	}
 }

@@ -1,31 +1,34 @@
-package com.example.co_reading;
+package com.example.co_reading.paint;
 
 import android.view.MotionEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PainterMetadata implements Serializable {
-	/**
-	 * 
-	 */
+public class SerializedData implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public static class Data implements Serializable {
+
+	public static class Elem implements Serializable {
+		private static final long serialVersionUID = 2L;
 		public int event = 0x55;
 		public float x = 0xaa;
 		public float y = 0xaa;
 	}
-	public ArrayList<Data> mList;
 
+	public ArrayList<Elem> mList;
 	
-	PainterMetadata() {
-		mList = new ArrayList<Data>();
+	SerializedData() {
+		mList = new ArrayList<Elem>();
 	}
 	
 	public void add(MotionEvent ev) {
-		Data d = new Data();
+		Elem d = new Elem();
         d.x = ev.getX();
         d.y = ev.getY();
         d.event = ev.getAction();
         mList.add(d);
+	}
+	
+	public int getElemNum() {
+		return mList.size();
 	}
 }

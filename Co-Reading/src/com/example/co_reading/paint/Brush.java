@@ -1,17 +1,16 @@
-package com.example.co_reading;
+package com.example.co_reading.paint;
 
 import android.util.Log;
 import android.graphics.*;
 
-//TODO: set paint's color etc ...
-public class Painter {
-    private final String TAG = "Painter";
+public class Brush {
+    private final String TAG = "Brush";
 
     private Paint mPaint;
-    private static Painter mSelf;
+    private static Brush mSelf;
 
-    private Painter() {
-        Log.i(TAG, "Painter constructor");
+    protected Brush() {
+        Log.v(TAG, "Painter constructor");
 
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
@@ -22,14 +21,14 @@ public class Painter {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
     }
-    
+
     public static Paint getPaint() {
     	return getInstance().mPaint;
     }
 
-    public static Painter getInstance() {
+    public static Brush getInstance() {
     	if (mSelf == null)
-    		mSelf = new Painter();
+    		mSelf = new Brush();
     	return mSelf;
     }
 }

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <com.example.co_reading.ContainerView
+    <com.example.co_reading.paint.ViewManager
         android:id="@+id/container_view"
     	android:layout_width="match_parent"
     	android:layout_height="match_parent"

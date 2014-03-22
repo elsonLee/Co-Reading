@@ -1,40 +1,28 @@
-package com.example.co_reading;
-
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.joanzapata.pdfview.listener.OnPageChangeListener;
+package com.example.co_reading.paint;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
+import android.graphics.*;
 import android.view.View;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class PainterView extends View implements OnPageChangeListener {
-	private final String TAG = "PainterView";
+import com.joanzapata.pdfview.listener.OnPageChangeListener;
+
+public class Painting extends View implements OnPageChangeListener {
+	private final String TAG = "Painting";
+
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
     private Path    mPath;
     private Paint   mBitmapPaint;
-    private Context mContext;
-    private int mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
-    PainterSaver mPainterSaver;
+    private int 	mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
+    EventDispatcher mDispatcher;
+    private int		counter;
 
-    public PainterView(Context c) {
+    public Painting(Context c) {
         super(c);
 
         Log.i(TAG, "View constructor");
-
-        mContext = c;
-        mPainterSaver = new PainterSaver(mContext);
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     }
@@ -49,13 +37,11 @@ public class PainterView extends View implements OnPageChangeListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.i(TAG, "on Draw");
+        Log.v(TAG, "on Draw");
 
         canvas.drawColor(mColor);
-
         canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-
-        canvas.drawPath(mPath, Painter.getPaint());
+        canvas.drawPath(mPath, Brush.getPaint());
     }
 
     private float mX, mY;
@@ -67,6 +53,7 @@ public class PainterView extends View implements OnPageChangeListener {
         mX = x;
         mY = y;
     }
+
     private void touch_move(float x, float y) {
         float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
@@ -76,25 +63,29 @@ public class PainterView extends View implements OnPageChangeListener {
             mY = y;
         }
     }
+
     private void touch_up() {
         mPath.lineTo(mX, mY);
         // commit the path to our offscreen
-        mCanvas.drawPath(mPath, Painter.getPaint());
+        mCanvas.drawPath(mPath, Brush.getPaint());
         // kill this so we don't double draw
         mPath.reset();
     }
-    
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
         int action = event.getAction();
-        
-        mPainterSaver.addObject(event);
+   
+        if (mDispatcher == null)
+            mDispatcher =  EventDispatcher.getDispatcher(getContext(), DISPATCH_TYPE.FILE_DISPATCHER);
+        if (counter++ < 100)
+        	mDispatcher.addObject(event);
+        if (counter == 100) {
+        	mDispatcher.flush();
+        }
 
-        //TODO: Save motion event here
         return onTouchEvent(action, x, y);
     }
 
@@ -111,36 +102,25 @@ public class PainterView extends View implements OnPageChangeListener {
         case MotionEvent.ACTION_UP:
             touch_up();
             invalidate();
-            mPainterSaver.commit();
             break;
         }      
         return true;
     }
-    
+   
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
-		PainterMetadata pmd = mPainterSaver.getObject();
-		if (pmd != null)
-			for (PainterMetadata.Data d : pmd.mList)
-				Log.i(TAG, "get event:" + d.event + " x:" + d.x + " y:" + d.y);
+		
+		int index = 0;
+		if (mDispatcher != null) {
+			SerializedData data = mDispatcher.getObject();
+			if (data != null)
+				for (SerializedData.Elem d : data.mList) {
+					Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
+					index++;
+				}
+			counter = 0;
+			mDispatcher = null;
+		}
 	}
-
-    public void rePaint(JSONObject obj) {
-        Log.i(TAG, "repaint ...");
-        mCanvas.drawColor(Color.BLACK);
-        mBitmap.eraseColor(Color.BLACK);
-        invalidate();
-
-        for (int index = 0; index < obj.length() / 2; index++) {
-            try {
-                JSONArray array = obj.getJSONArray(((Integer)index).toString());
-                double x = (Double)(array.get(1));
-                double y = (Double)(array.get(2));
-                onTouchEvent((Integer)(array.get(0)), (float)x, (float)y);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

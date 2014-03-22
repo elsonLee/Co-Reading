@@ -27,7 +27,8 @@ public class MainActivity extends Activity {
     private OnRestoreData mRestoreData = null;
     
     /** don't remove */
-    private ITransceiverOps mTransceiverManager = null;
+    @SuppressWarnings("unused")
+	private ITransceiverOps mTransceiverManager = null;
 
     public class OnRestoreData {
     	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
@@ -159,28 +160,7 @@ public class MainActivity extends Activity {
         Log.i(TAG, on ? "Draw Mode" : "Read  Mode");
         for (int index = 0; index < ab.getTabCount(); index++) {
         	PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
-        	frag.mContainerView.setDrawMode(on);
+        	frag.mViewManager.setDrawMode(on);
         }
     }
-  
-// wenpin: looks very ugly, maybe I'll use it later.
-//    public void onVisibilityCheckboxClicked(View view) {
-//        boolean checked = ((CheckBox) view).isChecked();
-//    	ActionBar ab = getActionBar();
-//    	int visibility;
-//    	
-//    	int id = view.getId();
-//    	if (checked)
-//    		visibility = View.VISIBLE;
-//    	else
-//    		visibility = View.INVISIBLE;
-//
-//        for (int index = 0; index < ab.getTabCount(); index++) {
-//        	PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
-//        	if (id == R.id.checkbox_pdf_view)
-//        		frag.mContainerView.setVisibility(0, visibility);
-//        	else
-//        		frag.mContainerView.setVisibility(1, visibility);
-//        }
-//    }
 }

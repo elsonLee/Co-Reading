@@ -36,7 +36,7 @@
         </activity>
 
         <activity
-            android:name="com.example.co_reading.Painter"
+            android:name="com.example.co_reading.paint.Brush"
             android:label="@string/painter_name" >
         </activity>
         

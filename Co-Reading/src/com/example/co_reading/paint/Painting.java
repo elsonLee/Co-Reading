@@ -17,7 +17,6 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
     private Paint   mBitmapPaint;
     private int 	mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
     EventTranciver mTranciver;
-    private int		counter;
 
     public Painting(Context c) {
         super(c);
@@ -80,11 +79,7 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
    
         if (mTranciver == null)
             mTranciver =  EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
-        if (counter++ < 100)
-        	mTranciver.addObject(event);
-        if (counter == 100) {
-        	mTranciver.flush();
-        }
+        mTranciver.addObject(event);
 
         return onTouchEvent(action, x, y);
     }
@@ -110,7 +105,9 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
-
+        if (mTranciver == null)
+            mTranciver = EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
+		mTranciver.flush();
 	}
 	
 	@Override
@@ -122,7 +119,6 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
 				Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
 				index++;
 			}
-			counter = 0;
 			mTranciver = null;
 			System.gc();
 		}

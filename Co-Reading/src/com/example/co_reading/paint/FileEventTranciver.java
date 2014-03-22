@@ -12,10 +12,10 @@ import android.widget.Toast;
 import android.util.Log;
 
 public class FileEventTranciver extends EventTranciver {
-	private final String TAG = "EventDispatcher";
+	private final String TAG = "FileEventTranciver";
 	private Context mContext;
 
-	private final String FILENAME = "EventDispatcher";
+	private final String FILENAME = "FileEventTranciver";
 	private File mFile;
 	private Timer mTimer;
 
@@ -25,18 +25,19 @@ public class FileEventTranciver extends EventTranciver {
 		mFile = new File(mContext.getFilesDir(), FILENAME);
 		mFile.delete();
 		mTimer = new Timer();
+		mContainer = new SerializedData();
 		Log.i(TAG, FILENAME + " size:" + mFile.length());
 	}
 
     public void addObject(MotionEvent ev) {
-    	if (mContainer == null)
-    		mContainer = new SerializedData();
-    		
     	mContainer.add(ev);
     }
 
     public void flush() {
-        try {  
+    	if (mContainer.size() == 0)
+    		return;
+
+        try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();  
             ObjectOutputStream oos = new ObjectOutputStream(baos);  
             oos.writeObject(mContainer);  

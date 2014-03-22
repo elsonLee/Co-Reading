@@ -28,6 +28,10 @@ public class SerializedData implements Serializable {
         mList.add(d);
 	}
 	
+	public int size() {
+		return mList.size();
+	}
+	
 	public int getElemNum() {
 		return mList.size();
 	}

@@ -1,28 +1,33 @@
 package com.example.co_reading.paint;
 
 import java.io.*;
-
+import java.util.TimerTask;
+import java.util.Timer;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.Base64;
 import android.view.MotionEvent;
 import android.widget.Toast;
 import android.util.Log;
 
-public class FileEventDispatcher extends EventDispatcher {
+public class FileEventTranciver extends EventTranciver {
 	private final String TAG = "EventDispatcher";
 	private Context mContext;
 
 	private final String FILENAME = "EventDispatcher";
 	private File mFile;
+	private Timer mTimer;
 
-	FileEventDispatcher(Context c) {
+	FileEventTranciver(Context c, IDataArrivedListener listener) {
+		super(listener);
 		mContext = c;
 		mFile = new File(mContext.getFilesDir(), FILENAME);
 		mFile.delete();
+		mTimer = new Timer();
 		Log.i(TAG, FILENAME + " size:" + mFile.length());
 	}
-	
+
     public void addObject(MotionEvent ev) {
     	if (mContainer == null)
     		mContainer = new SerializedData();
@@ -44,12 +49,19 @@ public class FileEventDispatcher extends EventDispatcher {
 
             Log.i(TAG, "file size:" + mFile.length());
             fos.close();
+           	mTimer.schedule(new TimerTask() {
+           		public void run() {
+           			Looper.prepare();
+           			FileEventTranciver.this.waitForData();
+           			Looper.loop();
+           		}
+           	}, 3*1000);
         } catch (IOException e) {  
             e.printStackTrace();
         }
     }
-
-    public SerializedData getObject() {
+    
+    private void waitForData() {
     	SerializedData data = null;
     	FileInputStream fis = null;
 
@@ -57,7 +69,7 @@ public class FileEventDispatcher extends EventDispatcher {
             fis = new FileInputStream(mFile);
     	} catch (FileNotFoundException e) {
     		Log.i(TAG, "file not found for read");
-    		return null;
+    		return;
     	}
     	
     	int len = (int)(mFile.length());
@@ -82,9 +94,9 @@ public class FileEventDispatcher extends EventDispatcher {
             data = (SerializedData)ois.readObject();
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return;
         }
-   
-        return data;
+        mListener.onDataArrived(data);
     }
+
 }

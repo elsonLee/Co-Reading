@@ -8,7 +8,7 @@ import android.view.MotionEvent;
 
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class Painting extends View implements OnPageChangeListener {
+public class Painting extends View implements OnPageChangeListener, IDataArrivedListener{
 	private final String TAG = "Painting";
 
     private Bitmap  mBitmap;
@@ -16,7 +16,7 @@ public class Painting extends View implements OnPageChangeListener {
     private Path    mPath;
     private Paint   mBitmapPaint;
     private int 	mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
-    EventDispatcher mDispatcher;
+    EventTranciver mTranciver;
     private int		counter;
 
     public Painting(Context c) {
@@ -78,12 +78,12 @@ public class Painting extends View implements OnPageChangeListener {
         float y = event.getY();
         int action = event.getAction();
    
-        if (mDispatcher == null)
-            mDispatcher =  EventDispatcher.getDispatcher(getContext(), DISPATCH_TYPE.FILE_DISPATCHER);
+        if (mTranciver == null)
+            mTranciver =  EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
         if (counter++ < 100)
-        	mDispatcher.addObject(event);
+        	mTranciver.addObject(event);
         if (counter == 100) {
-        	mDispatcher.flush();
+        	mTranciver.flush();
         }
 
         return onTouchEvent(action, x, y);
@@ -110,17 +110,21 @@ public class Painting extends View implements OnPageChangeListener {
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
-		
+
+	}
+	
+	@Override
+	public void onDataArrived(SerializedData data) {
 		int index = 0;
-		if (mDispatcher != null) {
-			SerializedData data = mDispatcher.getObject();
-			if (data != null)
-				for (SerializedData.Elem d : data.mList) {
-					Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
-					index++;
-				}
+		Log.i(TAG, "new data arrived");
+		if (mTranciver != null) {
+			for (SerializedData.Elem d : data.mList) {
+				Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
+				index++;
+			}
 			counter = 0;
-			mDispatcher = null;
+			mTranciver = null;
+			System.gc();
 		}
 	}
 }

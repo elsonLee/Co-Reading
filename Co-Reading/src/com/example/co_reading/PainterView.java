@@ -1,6 +1,6 @@
 package com.example.co_reading;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,13 +24,17 @@ public class PainterView extends View implements OnPageChangeListener {
     private Canvas  mCanvas;
     private Path    mPath;
     private Paint   mBitmapPaint;
+    private Context mContext;
     private int mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
+    PainterSaver mPainterSaver;
 
     public PainterView(Context c) {
         super(c);
 
         Log.i(TAG, "View constructor");
 
+        mContext = c;
+        mPainterSaver = new PainterSaver(mContext);
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     }
@@ -79,12 +83,16 @@ public class PainterView extends View implements OnPageChangeListener {
         // kill this so we don't double draw
         mPath.reset();
     }
+    
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
         int action = event.getAction();
+        
+        mPainterSaver.addObject(event);
 
         //TODO: Save motion event here
         return onTouchEvent(action, x, y);
@@ -103,17 +111,19 @@ public class PainterView extends View implements OnPageChangeListener {
         case MotionEvent.ACTION_UP:
             touch_up();
             invalidate();
+            mPainterSaver.commit();
             break;
-        }
-        
-
-        
+        }      
         return true;
     }
     
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+		PainterMetadata pmd = mPainterSaver.getObject();
+		if (pmd != null)
+			for (PainterMetadata.Data d : pmd.mList)
+				Log.i(TAG, "get event:" + d.event + " x:" + d.x + " y:" + d.y);
 	}
 
     public void rePaint(JSONObject obj) {

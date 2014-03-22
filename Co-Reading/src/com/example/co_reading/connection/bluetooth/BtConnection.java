@@ -88,8 +88,12 @@ public class BtConnection {
 			int lenLength = getLenLength();
 			if (mReadBuffer.remaining() < lenLength) {
 				mReadBuffer.compact();
+				try {
 				int byteRead = mInStream.read(mReadBuffer.getBuffer(), 
 						mReadBuffer.position(), mReadBuffer.capacity());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				
 			}
 			

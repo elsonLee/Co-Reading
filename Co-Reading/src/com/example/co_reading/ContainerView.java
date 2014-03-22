@@ -52,6 +52,7 @@ public class ContainerView extends RelativeLayout implements OnPageChangeListene
 	public void onPageChanged(int page, int pageCount) {
 		mPageNum = page;
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+		mPainterView.onPageChanged(page, pageCount);
 	}
 
 	@Override

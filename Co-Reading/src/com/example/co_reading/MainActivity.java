@@ -163,4 +163,8 @@ public class MainActivity extends Activity {
         	frag.mViewManager.setDrawMode(on);
         }
     }
+    
+    public void onSend(View view) {
+
+    }
 }

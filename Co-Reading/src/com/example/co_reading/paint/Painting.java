@@ -17,32 +17,36 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
     private Path    mPath;
     private Paint   mBitmapPaint;
     private int 	mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
-    EventTranciver	mTranciver;
+    private EventTranciver	mTranciver;
     private Handler mHandler;
-    SerializedData 	mData; //TODO: need lock to protect
+    private SerializedData 	mData;
+    private Byte[]  mDataLock;
     
     public Painting(Context c) {
         super(c);
 
         Log.i(TAG, "View constructor");
         mHandler = new UIUpdateHandler(this);
+        mDataLock = new Byte[0];
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     }
 
-    public  void handle_ui_update() {
+    public void handle_ui_update() {
 		int index = 0;
 		Log.i(TAG, "updating UI");
-		if (mTranciver != null && mData != null) {
-			for (SerializedData.Elem d : mData.mList) {
-				Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
-				index++;
-				onTouchEvent(d.event, d.x, d.y);
+		synchronized(mDataLock) {
+			if (mTranciver != null && mData != null) {
+				for (SerializedData.Elem d : mData.mList) {
+					Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
+					index++;
+					onTouchEvent(d.event, d.x, d.y);
+				}
+				mTranciver = null;
+				System.gc();
 			}
-			mTranciver = null;
-			System.gc();
+			mData = null;
 		}
-		mData = null;
     }
 
     @Override
@@ -125,17 +129,22 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
 		mBitmap.eraseColor(Color.TRANSPARENT);
-
-        if (mTranciver == null)
-            mTranciver = EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
-		mTranciver.flush();
 	}
 
 	@Override
 	public void onDataArrived(SerializedData data) {
-		mData = data;
+		synchronized(mDataLock) {
+			mData = data;
+		}
+
 		mHandler.sendEmptyMessage(EventTranciver.UPDATE_UI);
 		Log.i(TAG, "new data arrived");
-
+	}
+	
+	public void onSend() {
+		Log.i(TAG, "on send");
+	    if (mTranciver == null)
+            mTranciver = EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
+	    mTranciver.flush();	
 	}
 }

@@ -5,15 +5,15 @@ import java.io.IOException;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-public class BtConnectClient {
+public class BtClient {
 	
-	private String TAG = BtConnectClient.class.getSimpleName();
+	private String TAG = BtClient.class.getSimpleName();
 	
 	private BluetoothDevice mDevice = null;
 	private BluetoothSocket mSocket = null;
 	private BtWorkThread mWorkThread = null;
 	
-	public BtConnectClient(BluetoothDevice device) throws IOException {
+	public BtClient(BluetoothDevice device) throws IOException {
 		
 		BluetoothSocket tmpSocket = null;
 		mDevice = device;

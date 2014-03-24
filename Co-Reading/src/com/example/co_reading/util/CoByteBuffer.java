@@ -44,10 +44,17 @@ public class CoByteBuffer {
 		return mLimit;
 	}
 	
+	/** get position */
 	public int position() {
 		return mPosition;
 	}
+
+	/** set position */
+	public void position(int pos) {
+		mPosition = pos;
+	}
 	
+	/** get capacity */
 	public int capacity() {
 		return mCapacity;
 	}
@@ -94,6 +101,7 @@ public class CoByteBuffer {
 		return data;
 	}
 	
+	/** position limit could be read */
 	public CoByteBuffer flip() {
 		mLimit = mPosition-1;
 		mPosition = 0;

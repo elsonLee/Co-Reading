@@ -1,7 +1,6 @@
 package com.example.co_reading.connection.bluetooth;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.bluetooth.BluetoothSocket;
@@ -9,6 +8,8 @@ import android.util.Log;
 
 import com.example.co_reading.connection.Listener;
 import com.example.co_reading.util.CoByteBuffer;
+import com.example.co_reading.util.CoInputStream;
+import com.example.co_reading.util.CoOutputStream;
 
 public class BtConnection {
 	
@@ -18,13 +19,15 @@ public class BtConnection {
 	
 	private CoByteBuffer mWriteBuffer = null, mReadBuffer = null;
 
-	private InputStream mInStream = null;
+	private CoInputStream mInStream = null;
 	
-	private OutputStream mOutStream = null;
+	private CoOutputStream mOutStream = null;
 	
 	private Listener[] mListeners = {};
 	
 	private Object mListenerLock = new Object();
+	
+	private Object mWriteLock = new Object();
 	
 	private int mCurObjLength;
 	
@@ -34,8 +37,8 @@ public class BtConnection {
 		mCurObjLength = 0;
 		mSocket = socket;
 		try {
-			mInStream = mSocket.getInputStream();
-			mOutStream = mSocket.getOutputStream();
+			mInStream = new CoInputStream(mSocket.getInputStream());
+			mOutStream = new CoOutputStream(mSocket.getOutputStream());
 		} catch (IOException e) {
 			Log.e(TAG, "get Input/Output Sream error");
 			return;
@@ -80,42 +83,94 @@ public class BtConnection {
 		return buffer.getInt();	 // header: length
 	}
 	
-	public Object readObj() {
+	public Object readObj() throws Exception {
 		
 		/* get current object length */
 		if (mCurObjLength == 0) {
 			
-			int lenLength = getLenLength();
+			int lenLength = getLenLength();		// FIXME: determined by serialization method
 			if (mReadBuffer.remaining() < lenLength) {
 				mReadBuffer.compact();
 				try {
-				int byteRead = mInStream.read(mReadBuffer.getBuffer(), 
-						mReadBuffer.position(), mReadBuffer.capacity());
+					int byteRead = mInStream.read(mReadBuffer);
+					mReadBuffer.flip();
+					if (byteRead == -1) throw new IOException("Connection is closed");
+					
+					// still no data satisfy
+					if (mReadBuffer.remaining() < lenLength) return null;
+
 				} catch (IOException e) {
-					e.printStackTrace();
+					Log.e(TAG, "read to buffer error");
 				}
-				
 			}
 			
+			// get package length
+			mCurObjLength = mReadBuffer.getInt();	// FIXME: determined by serialization method
 			
+			if (mCurObjLength <= 0) throw new Exception("Invalid object length: " + mCurObjLength);
+			if (mCurObjLength > mReadBuffer.capacity())
+				throw new Exception("Unable to read object larger than read buffer: " + mCurObjLength);
 		}
 		
-	
-		return null;
+		// get package
+		int length = mCurObjLength;
+		if (mReadBuffer.remaining() < length) {
+			mReadBuffer.compact();
+			int byteRead = mInStream.read(mReadBuffer);
+			mReadBuffer.flip();
+			if (byteRead == -1) throw new IOException("Connection is closed");
+			
+			if (mReadBuffer.remaining() < length) return null;
+		}
+		
+		mCurObjLength = 0;
+		
+		//int startPosition = mReadBuffer.position();
+		//int oldLimit = mReadBuffer.limit();
+		//mReadBuffer.limit();
+		Object object = null;	// FIXME
+		{
+			// TODO: serialization mReadBuffer
+		}
+		
+		return object;
 	}
 	
-	public void send(byte[] sendData) {
-		if (sendData == null)
-			throw new IllegalArgumentException("sendData is null");
+	private void writeToSocket() {
 		
-		try {
-			mOutStream.write(sendData);
-		} catch (IOException e) {
-			Log.e(TAG, "Send data error");
-			close();
+		CoByteBuffer buffer = mWriteBuffer;
+		buffer.flip();
+		
+		while (buffer.hasRemaining()) {
+			try {
+				mOutStream.write(mWriteBuffer);
+			} catch (IOException e) {
+				Log.e(TAG, "Write to Socket error");
+			}
 		}
-
-		return;
+	}
+	
+	// public void send(byte[] sendData) {
+	public int send(Object object) {
+		
+		synchronized (mWriteLock) {
+			int start = mWriteBuffer.position();
+			int lenLength = this.getLenLength();	// FIXME: should be get through serialization method
+			
+			// serialization.write(mWriteBuffer, object);	// TODO
+			
+			int end = mWriteBuffer.position();
+			
+			// write data length
+			mWriteBuffer.position(start);
+			// serialization.writeLength(mWriteBuffer, end - lenLength - start);	// TODO
+			mWriteBuffer.position(end);
+			
+			
+			writeToSocket();
+			
+			return end - start;
+		}
 	}
 	
 	public void addListener (Listener listener) {

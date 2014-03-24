@@ -3,27 +3,46 @@ package com.example.co_reading.paint;
 import android.content.Context;
 import android.graphics.*;
 import android.view.View;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
 public class Painting extends View implements OnPageChangeListener, IDataArrivedListener{
-	private final String TAG = "Painting";
+	private static final String TAG = "Painting";
 
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
     private Path    mPath;
     private Paint   mBitmapPaint;
     private int 	mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
-    EventTranciver mTranciver;
-
+    EventTranciver	mTranciver;
+    private Handler mHandler;
+    SerializedData 	mData; //TODO: need lock to protect
+    
     public Painting(Context c) {
         super(c);
 
         Log.i(TAG, "View constructor");
+        mHandler = new UIUpdateHandler(this);
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+    }
+
+    public  void handle_ui_update() {
+		int index = 0;
+		Log.i(TAG, "updating UI");
+		if (mTranciver != null && mData != null) {
+			for (SerializedData.Elem d : mData.mList) {
+				Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
+				index++;
+				onTouchEvent(d.event, d.x, d.y);
+			}
+			mTranciver = null;
+			System.gc();
+		}
+		mData = null;
     }
 
     @Override
@@ -105,22 +124,18 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
+		mBitmap.eraseColor(Color.TRANSPARENT);
+
         if (mTranciver == null)
             mTranciver = EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
 		mTranciver.flush();
 	}
-	
+
 	@Override
 	public void onDataArrived(SerializedData data) {
-		int index = 0;
+		mData = data;
+		mHandler.sendEmptyMessage(EventTranciver.UPDATE_UI);
 		Log.i(TAG, "new data arrived");
-		if (mTranciver != null) {
-			for (SerializedData.Elem d : data.mList) {
-				Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
-				index++;
-			}
-			mTranciver = null;
-			System.gc();
-		}
+
 	}
 }

@@ -4,18 +4,32 @@ import java.io.IOException;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
-public class BtClient {
+import com.example.co_reading.connection.EndPoint;
+import com.example.co_reading.util.BinarySerialization;
+import com.example.co_reading.util.ISerialization;
+
+public class BtClient extends BtConnection implements EndPoint {
 	
 	private String TAG = BtClient.class.getSimpleName();
 	
 	private BluetoothDevice mDevice = null;
+
+	private final ISerialization mSerialization;
+
 	private BluetoothSocket mSocket = null;
-	private BtWorkThread mWorkThread = null;
+
+	private Thread mWorkThread = null;
 	
 	public BtClient(BluetoothDevice device) throws IOException {
+		this(device, new BinarySerialization());
+	}
+	
+	public BtClient(BluetoothDevice device, ISerialization serialization) throws IOException {
 		
 		BluetoothSocket tmpSocket = null;
+		
 		mDevice = device;
 		
 		try {
@@ -37,13 +51,11 @@ public class BtClient {
 				throw new IOException();
 			}
 		}
+		
+		mSerialization = serialization;
+		
+		Initialize(mSocket, mSerialization);
 
-		mWorkThread = new BtWorkThread(mSocket);
-		mWorkThread.start();
-	}
-	
-	public void write(byte[] bytes) {
-		mWorkThread.write(bytes);
 	}
 	
 	public void cancel() {
@@ -52,6 +64,46 @@ public class BtClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void update() {
+		
+		while (true) {
+			Object obj = null;
+			try {
+				obj = readObj();
+			} catch (Exception e) {
+				Log.e(TAG, "read object error");
+			}
+
+			if (obj != null) {
+				notifyReceived(obj);
+			}
+		}
+
+	}
+
+	@Override
+	public void run() {
+		update();
+	}
+
+	@Override
+	public void start() {
+
+		if (mWorkThread != null) {
+			return;
+		}
+		
+		mWorkThread = new Thread(this, "Client");
+		mWorkThread.setDaemon(true);
+		mWorkThread.start();
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+		
 	}
 
 

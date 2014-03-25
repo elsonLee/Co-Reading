@@ -1,15 +1,14 @@
 package com.example.co_reading.util;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
+
 public interface ISerialization {
 	
-	public void write(CoByteBuffer buffer, Object object);
+	public void initialize(InputStream inputStream, OutputStream outputStream);
 	
-	public Object read(CoByteBuffer buffer);
+	public Object read();
 	
-	public int getLengLength();
-	
-	public void writeLength(CoByteBuffer buffer, int length);
-	
-	public int readLength(CoByteBuffer buffer);
-
+	public void write(Object object);
 }

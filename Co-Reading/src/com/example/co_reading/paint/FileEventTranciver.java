@@ -74,7 +74,7 @@ public class FileEventTranciver extends EventTranciver {
     		return;
     	}
     	
-    	int len = (int)(mFile.length());
+    	int len = (int)(mFile.length()-2);
     	byte[] buf = new byte[len];
 
     	try {
@@ -97,6 +97,7 @@ public class FileEventTranciver extends EventTranciver {
             data = (SerializedData)ois.readObject();
         } catch (Exception e) {
             e.printStackTrace();
+        	Log.e(TAG, "received error");
             return;
         }
         mListener.onDataArrived(data);

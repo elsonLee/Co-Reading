@@ -14,7 +14,9 @@ public class CoInputStream {
 	}
 	
     public int read(CoByteBuffer buffer) throws IOException {
-        return mInputStream.read(buffer.getBuffer(), buffer.position(), buffer.limit()-buffer.position()+1);
+        int readBytes = mInputStream.read(buffer.getBuffer(), buffer.position(), buffer.limit()-buffer.position()+1);
+        buffer.updateWrite(readBytes);
+        return readBytes;
     }
 
 }

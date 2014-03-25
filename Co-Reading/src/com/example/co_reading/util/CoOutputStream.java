@@ -15,6 +15,7 @@ public class CoOutputStream extends OutputStream {
 
 	public void write(CoByteBuffer buffer) throws IOException {
 		mOutputStream.write(buffer.getBuffer(), 0, buffer.limit()+1);
+		buffer.updateRead(buffer.limit()+1);
 	}
 
 	@Override

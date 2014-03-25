@@ -21,14 +21,5 @@
         android:onClick="onChangeDrawMode"
         android:textOff="Read"
         android:textOn="Draw" />
-    
-    <Button
-        android:id="@+id/flush_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/draw_mode_switch"
-        android:onClick="onSend"
-        android:text="@string/send" />
 
 </RelativeLayout>

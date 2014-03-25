@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.co_reading.connection.ITransceiverOps;
 import com.example.co_reading.connection.bluetooth.BlueToothManager;
+import com.example.co_reading.painting.PaintingView;
 
 public class MainActivity extends Activity {
 
@@ -25,6 +26,8 @@ public class MainActivity extends Activity {
     private RetainedFragment mRetainedFragment = null;
 
     private OnRestoreData mRestoreData = null;
+    
+    private boolean mDrawMode = false;
     
     /** don't remove */
     @SuppressWarnings("unused")
@@ -103,6 +106,8 @@ public class MainActivity extends Activity {
             ActionBar actionBar = getActionBar();
 
             PdfFragment fragment = new PdfFragment();
+        	fragment.setDrawMode(mDrawMode);
+
             newTab = actionBar.newTab().setText("newTab");
             newTab.setTabListener(new TabListener(fragment));
             newTab.setTag(fragment);
@@ -156,11 +161,11 @@ public class MainActivity extends Activity {
     public void onChangeDrawMode(View view) {
         boolean on = ((Switch) view).isChecked(); 
     	ActionBar ab = getActionBar();
-
+    	mDrawMode = on;
         Log.i(TAG, on ? "Draw Mode" : "Read  Mode");
         for (int index = 0; index < ab.getTabCount(); index++) {
         	PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
-        	frag.mViewManager.setDrawMode(on);
+        	frag.setDrawMode(on);
         }
     }
     

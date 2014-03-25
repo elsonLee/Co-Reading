@@ -8,6 +8,7 @@
     <string name="connect_menu">connect menu</string>
     
     <string name="tab_name">New Tab</string>
+    <string name="send">send</string>
     <string name="pdf_visibility">PDF Layer</string>
     <string name="painter_visibility">Painter Layer</string>
 

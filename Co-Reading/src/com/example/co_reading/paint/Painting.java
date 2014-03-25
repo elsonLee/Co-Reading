@@ -3,27 +3,71 @@ package com.example.co_reading.paint;
 import android.content.Context;
 import android.graphics.*;
 import android.view.View;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
 public class Painting extends View implements OnPageChangeListener, IDataArrivedListener{
-	private final String TAG = "Painting";
+	private static final String TAG = "Painting";
 
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
     private Path    mPath;
     private Paint   mBitmapPaint;
     private int 	mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
-    EventTranciver mTranciver;
-
+    private EventTranciver	mTranciver;
+    private Handler mHandler;
+    private SerializedData 	mData;
+    private Byte[]  mDataLock;
+    
     public Painting(Context c) {
         super(c);
 
         Log.i(TAG, "View constructor");
+        mHandler = new UIUpdateHandler(this);
+        mDataLock = new Byte[0];
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+    }
+
+    public void handle_ui_update() {
+		int index = 0;
+		Log.i(TAG, "updating UI");
+		synchronized(mDataLock) {
+			if (mTranciver != null && mData != null) {
+				for (SerializedData.Elem d : mData.mList) {
+					Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
+					index++;
+					onTouchEvent(d.event, d.x, d.y);
+				}
+				mTranciver = null;
+				System.gc();
+			}
+			mData = null;
+		}
+    }
+    
+    static class UIUpdateHandler extends Handler {
+    	private Painting mPainting;
+    	
+    	UIUpdateHandler(Painting p) {
+    		mPainting = p;
+    	}
+
+        @Override
+        public void handleMessage(Message msg) {
+    	    switch (msg.what) {
+    	        case (EventTranciver.UPDATE_UI): {
+    	        	mPainting.handle_ui_update();
+    	            break;
+    	        }
+    	        default:
+    	            break;
+    	    }
+        }
     }
 
     @Override
@@ -105,22 +149,23 @@ public class Painting extends View implements OnPageChangeListener, IDataArrived
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.i(TAG, "page:" + page + " pageCount:" + pageCount);
-        if (mTranciver == null)
-            mTranciver = EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
-		mTranciver.flush();
+		mBitmap.eraseColor(Color.TRANSPARENT);
 	}
-	
+
 	@Override
 	public void onDataArrived(SerializedData data) {
-		int index = 0;
-		Log.i(TAG, "new data arrived");
-		if (mTranciver != null) {
-			for (SerializedData.Elem d : data.mList) {
-				Log.i(TAG, "get event[" + index + "]:" + d.event + " x:" + d.x + " y:" + d.y);
-				index++;
-			}
-			mTranciver = null;
-			System.gc();
+		synchronized(mDataLock) {
+			mData = data;
 		}
+
+		mHandler.sendEmptyMessage(EventTranciver.UPDATE_UI);
+		Log.i(TAG, "new data arrived");
+	}
+	
+	public void onSend() {
+		Log.i(TAG, "on send");
+	    if (mTranciver == null)
+            mTranciver = EventTranciver.getDispatcher(getContext(), this, DISPATCH_TYPE.FILE_TRANCIVER);
+	    mTranciver.flush();	
 	}
 }

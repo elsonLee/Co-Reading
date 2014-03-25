@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.co_reading.connection.ITransceiverOps;
 import com.example.co_reading.connection.bluetooth.BlueToothManager;
+import com.example.co_reading.painting.PaintingView;
 
 public class MainActivity extends Activity {
 
@@ -25,10 +26,12 @@ public class MainActivity extends Activity {
     private RetainedFragment mRetainedFragment = null;
 
     private OnRestoreData mRestoreData = null;
-    
+
+    private boolean mDrawMode = false;
+
     /** don't remove */
     @SuppressWarnings("unused")
-	private ITransceiverOps mTransceiverManager = null;
+    private ITransceiverOps mTransceiverManager = null;
 
     public class OnRestoreData {
     	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
@@ -54,7 +57,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
-        
+
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -87,15 +90,15 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	getMenuInflater().inflate(R.menu.main_actionbar_menu, menu);
-    	
+
     	return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	
+
     	Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-    	
+
     	switch (item.getItemId()) {
 
     	case R.id.action_addtab:
@@ -103,6 +106,8 @@ public class MainActivity extends Activity {
             ActionBar actionBar = getActionBar();
 
             PdfFragment fragment = new PdfFragment();
+            fragment.setDrawMode(mDrawMode);
+
             newTab = actionBar.newTab().setText("newTab");
             newTab.setTabListener(new TabListener(fragment));
             newTab.setTag(fragment);
@@ -134,33 +139,33 @@ public class MainActivity extends Activity {
 
     	switch (item.getItemId()) {
 
-    	/** Bluetooth connect */
+            /** Bluetooth connect */
     	case R.id.bt_connect:
-    		mTransceiverManager = BlueToothManager.getInstance();
+            mTransceiverManager = BlueToothManager.getInstance();
 
-    		// Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
-    		Intent intent = new Intent(this, com.example.co_reading.connection.bluetooth.ui.BtDialogFragContainer.class);
-    		if (intent.resolveActivity(getPackageManager()) == null) {
-    			Log.e(TAG, "has no corresponding intent");
-    			return;
-    		}
-    		startActivity(intent);
+            // Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
+            Intent intent = new Intent(this, com.example.co_reading.connection.bluetooth.ui.BtDialogFragContainer.class);
+            if (intent.resolveActivity(getPackageManager()) == null) {
+                Log.e(TAG, "has no corresponding intent");
+                return;
+            }
+            startActivity(intent);
 
-    		break;
+            break;
 
     	default:
-    		break;
+            break;
     	}
     }
-    
-    public void onChangeDrawMode(View view) {
-        boolean on = ((Switch) view).isChecked(); 
-    	ActionBar ab = getActionBar();
 
+    public void onChangeDrawMode(View view) {
+        boolean on = ((Switch) view).isChecked();
+    	ActionBar ab = getActionBar();
+    	mDrawMode = on;
         Log.i(TAG, on ? "Draw Mode" : "Read  Mode");
         for (int index = 0; index < ab.getTabCount(); index++) {
-        	PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
-        	frag.mViewManager.setDrawMode(on);
+            PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
+            frag.setDrawMode(on);
         }
     }
 }

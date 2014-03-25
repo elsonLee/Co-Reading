@@ -12,20 +12,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.co_reading.paint.ViewManager;
+import com.example.co_reading.painting.PaintingView;
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class PdfFragment extends Fragment {	
+public class PdfFragment extends Fragment implements OnPageChangeListener {	
 
 	private final String TAG = PdfFragment.class.getSimpleName();
 
 	private final int REQUEST_CHOOSER = 1234;	
 
 	private String mCurPdfUriString = "";
-	private ViewGroup mLayout;
 	private File mFile;
+	private int defaultPage = 1;
+	private int curPage;
+	
+	private boolean mDrawMode;
 
-	public ViewManager mViewManager;
+	public PaintingView mPaintingView;
 
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
@@ -44,10 +48,11 @@ public class PdfFragment extends Fragment {
 	public void onStart() {
 		Log.i(TAG, "onStart, mFile " + mFile);
         super.onStart();
-        
+        /**
+         * PDFView need explicitly reloaded each time
+         */
         if (mFile != null) {
-        	mViewManager.loadPdfView(mFile, false);
-        	mViewManager.show();
+        	mPaintingView.fromFile(mFile).defaultPage(curPage).onPageChange(this).load();
         }
     }
     
@@ -69,11 +74,9 @@ public class PdfFragment extends Fragment {
 
 		Log.i(TAG, "onCreateView");
 
-		if (mLayout == null) {
-			mLayout = (ViewGroup)inflater.inflate(R.layout.pdfview_frag, null);	
-			mViewManager = (ViewManager)mLayout.getChildAt(0);
-		}
-		return mLayout;
+        mPaintingView = (PaintingView)inflater.inflate(R.layout.pdfview_frag, null);
+		setDrawMode(mDrawMode);
+		return mPaintingView;
 	}
 	
 	@Override
@@ -89,6 +92,8 @@ public class PdfFragment extends Fragment {
 					if (mFile != null && mFile.exists()) {
 							Log.d(TAG, "file:"+ mFile);
 							mCurPdfUriString = uriString;
+							curPage = defaultPage;
+				        	mPaintingView.fromFile(mFile).defaultPage(defaultPage).onPageChange(this).load();
 						}
 					}
 				}
@@ -98,4 +103,15 @@ public class PdfFragment extends Fragment {
 		}		
 	}
 
+	@Override
+	public void onPageChanged(int page, int pageCount) {
+		Log.d(TAG, "page:" + page + " pageCount:" + pageCount);
+		curPage = page;
+	}
+	
+	public void setDrawMode(boolean on) {
+		mDrawMode = on;
+		if (mPaintingView != null)
+			mPaintingView.setDrawMode(on);
+	}
 }

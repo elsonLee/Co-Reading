@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-
     </RelativeLayout>
 
     <Switch
@@ -22,24 +21,5 @@
         android:onClick="onChangeDrawMode"
         android:textOff="Read"
         android:textOn="Draw" />
-
-<!--     <CheckBox
-            android:id="@+id/checkbox_pdf_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/draw_mode_switch"
-            android:onClick="onVisibilityCheckboxClicked"
-            android:text="@string/pdf_visibility" />
-
-    <CheckBox
-            android:id="@+id/checkbox_painter_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/checkbox_pdf_view"
-            android:onClick="onVisibilityCheckboxClicked"
-            android:text="@string/painter_visibility" />
- -->
 
 </RelativeLayout>

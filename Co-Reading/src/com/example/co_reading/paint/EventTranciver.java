@@ -13,6 +13,8 @@ enum DISPATCH_TYPE {
 public abstract class EventTranciver {
 	SerializedData mContainer;
 	IDataArrivedListener mListener;
+	
+	public static final int UPDATE_UI = 0;
 
 	EventTranciver(IDataArrivedListener listener) {
 		mListener = listener;

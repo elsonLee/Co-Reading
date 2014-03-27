@@ -1,5 +1,9 @@
 package com.example.co_reading;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +19,13 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.co_reading.connection.Client;
 import com.example.co_reading.connection.ITransceiverOps;
+import com.example.co_reading.connection.Server;
 import com.example.co_reading.connection.bluetooth.BlueToothManager;
-import com.example.co_reading.painting.PaintingView;
+import com.example.co_reading.connection.pipe.PipeClient;
+import com.example.co_reading.connection.pipe.PipeServer;
+import com.example.co_reading.util.Packet;
 
 public class MainActivity extends Activity {
 
@@ -28,6 +36,14 @@ public class MainActivity extends Activity {
     private OnRestoreData mRestoreData = null;
 
     private boolean mDrawMode = false;
+    
+    static {
+    	System.loadLibrary("gen_pipe");
+    }
+    
+    // first: read, second: write
+    public native FileDescriptor[] createpipe(); 
+    public native void closefd(FileDescriptor fdesc); 
 
     /** don't remove */
     @SuppressWarnings("unused")
@@ -76,6 +92,52 @@ public class MainActivity extends Activity {
             ActionBar mactionBar = getActionBar();
             mRestoreData.restoreNavigationTab(mactionBar);
         }
+        
+        /* test for network */
+        /*
+        FileDescriptor[] fd1 = createpipe(); 
+        FileDescriptor[] fd2 = createpipe(); 
+        
+        Log.d(TAG, "file: "+fd1[0]+" "+fd1[1]);
+        Log.d(TAG, "file: "+fd2[0]+" "+fd2[1]);
+        
+        FileInputStream fileReadStream1 = new FileInputStream(fd1[0]);
+        FileOutputStream fileWriteStream1 = new FileOutputStream(fd1[1]);
+        FileInputStream fileReadStream2 = new FileInputStream(fd2[0]);
+        FileOutputStream fileWriteStream2 = new FileOutputStream(fd2[1]);
+
+        Client client = null;
+        Server server = null;
+        try {
+			client = new PipeClient();
+			client.Initialize(fileReadStream1, fileWriteStream2);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+        try {
+			server = new PipeServer();
+			server.Initialize(fileReadStream2, fileWriteStream1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        client.start();
+        server.start();
+        
+        server.send(new Packet(2));
+        client.send(new Packet(1));
+        server.send(new Packet(20));
+        client.send(new Packet(10));
+        client.send(new Packet(100));
+        */
+
+        /*
+        closefd(fd1[0]);
+        closefd(fd1[1]);
+        closefd(fd2[0]);
+        closefd(fd2[1]);
+        */
     }
 
     @Override

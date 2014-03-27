@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -12,8 +13,10 @@ import android.view.MotionEvent;
 
 import com.example.co_reading.painting.Brush;
 import com.joanzapata.pdfview.*;
+import com.joanzapata.pdfview.listener.*;
 
-public class PaintingView extends PDFView {
+public class PaintingView extends PDFView 
+						implements OnLoadCompleteListener, OnDrawListener {
     private static final String TAG = PaintingView.class.getSimpleName();
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
@@ -21,31 +24,38 @@ public class PaintingView extends PDFView {
     private Paint   mBitmapPaint;
     private int	    mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
     private boolean mDrawMode;
+    private boolean mLoadComplete = false;
+    private int 	mCurPage;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
 
+        dragPinchManager = new CoDragPinchManager(this);
+    }
+    
+    public void loadComplete(int nbPages) {
+    	int w = Math.round(getOptimalPageWidth());
+    	int h = Math.round(getOptimalPageHeight());
+
+        Log.i(TAG, "--> width:" + w + " height:" + h);
+        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-        dragPinchManager = new CoDragPinchManager(this);
+        mLoadComplete = true;
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         Log.v(TAG, "on Draw");
         super.onDraw(canvas);
-        canvas.drawColor(mColor);
-        canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-        canvas.drawPath(mPath, Brush.getPaint());
-    }
+     }
 
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
@@ -68,7 +78,7 @@ public class PaintingView extends PDFView {
     }
 
     private void touch_up() {
-        mPath.lineTo(mX, mY);
+    	mPath.lineTo(mX, mY);
         // commit the path to our offscreen
         mCanvas.drawPath(mPath, Brush.getPaint());
         // kill this so we don't double draw
@@ -104,6 +114,27 @@ public class PaintingView extends PDFView {
             break;
         }
         return true;
+    }
+    
+   	@Override
+	public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {
+		Log.i(TAG, "on Draw Listener, width:" + pageWidth
+					+ " height:" + pageHeight);
+		
+		float zoom = getZoom();
+
+		if (mLoadComplete) {
+			canvas.save();
+			canvas.scale(zoom, zoom);
+        	canvas.drawColor(mColor);
+        	canvas.drawPath(mPath, Brush.getPaint());
+            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+            canvas.restore();
+        }
+	}
+    
+    public void onPageChanged(int pageNum) {
+    	mCurPage = pageNum;
     }
 
     public void setDrawMode(boolean on) {

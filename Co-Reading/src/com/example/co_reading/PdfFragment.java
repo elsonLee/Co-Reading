@@ -5,6 +5,9 @@ import java.io.File;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,9 +17,10 @@ import android.view.ViewGroup;
 
 import com.example.co_reading.painting.PaintingView;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.joanzapata.pdfview.listener.OnPageChangeListener;
+import com.joanzapata.pdfview.listener.*;
 
-public class PdfFragment extends Fragment implements OnPageChangeListener {	
+public class PdfFragment extends Fragment 
+		implements OnPageChangeListener {	
 
 	private final String TAG = PdfFragment.class.getSimpleName();
 
@@ -52,7 +56,9 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
          * PDFView need explicitly reloaded each time
          */
         if (mFile != null) {
-        	mPaintingView.fromFile(mFile).defaultPage(curPage).onPageChange(this).load();
+        	mPaintingView.fromFile(mFile).defaultPage(curPage)
+        					.onPageChange(this).onDrawListener(mPaintingView)
+        					.onLoad(mPaintingView).enableSwipe(true).load();
         }
     }
     
@@ -93,7 +99,6 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 							Log.d(TAG, "file:"+ mFile);
 							mCurPdfUriString = uriString;
 							curPage = defaultPage;
-				        	mPaintingView.fromFile(mFile).defaultPage(defaultPage).onPageChange(this).load();
 						}
 					}
 				}
@@ -102,11 +107,12 @@ public class PdfFragment extends Fragment implements OnPageChangeListener {
 			break;
 		}		
 	}
-
+	
 	@Override
 	public void onPageChanged(int page, int pageCount) {
 		Log.d(TAG, "page:" + page + " pageCount:" + pageCount);
 		curPage = page;
+		mPaintingView.onPageChanged(page);
 	}
 	
 	public void setDrawMode(boolean on) {

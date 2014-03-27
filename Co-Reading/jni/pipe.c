@@ -30,7 +30,7 @@ for (i = 0; i < len; i++) {
 */
 
 jobjectArray
-Java_com_example_pipe_MainActivity_createpipe(
+Java_com_example_co_1reading_MainActivity_createpipe(
         JNIEnv*  env,
         jobject  this )
 {
@@ -75,10 +75,11 @@ Java_com_example_pipe_MainActivity_createpipe(
 }
 
 void
-Java_com_example_pipe_MainActivity_closefd(
+Java_com_example_co_1reading_MainActivity_closefd(
         JNIEnv*  env,
         jobject  this,
-        jobject  filedesc) {
+        jobject  filedesc)
+{
 
 	jclass class_fdesc;
 	jfieldID field_id;

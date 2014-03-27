@@ -26,6 +26,12 @@ public class PaintingView extends PDFView
     private boolean mDrawMode;
     private boolean mLoadComplete = false;
     private int 	mCurPage;
+    private float   mXoffset;
+    private float   mYoffset;
+    private int     mPageWidth;
+    private int     mPageHeight;
+    private float   mOptimalRatio;
+    private Matrix  mViewMatrix;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
@@ -34,11 +40,12 @@ public class PaintingView extends PDFView
     }
     
     public void loadComplete(int nbPages) {
-    	int w = Math.round(getOptimalPageWidth());
-    	int h = Math.round(getOptimalPageHeight());
+    	mPageWidth = getPageWidth();
+    	mPageHeight = getPageHeight();
+    	mOptimalRatio = getOptimalPageWidth()/mPageWidth;
 
-        Log.i(TAG, "--> width:" + w + " height:" + h);
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Log.i(TAG, "--> page width:" + mPageWidth + "page height:" + mPageHeight + " ratio:" + mOptimalRatio);
+        mBitmap = Bitmap.createBitmap(mPageWidth, mPageHeight, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -49,6 +56,8 @@ public class PaintingView extends PDFView
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
+
+    	mOptimalRatio = getOptimalPageWidth()/mPageWidth;
     }
 
     @Override
@@ -95,6 +104,12 @@ public class PaintingView extends PDFView
         float y = event.getY();
         int action = event.getAction();
 
+        x -= mXoffset;
+        y -= mYoffset;
+        
+        x = toRealScale(x) / mOptimalRatio;
+        y = toRealScale(y) / mOptimalRatio;
+
         return onTouchEvent(action, x, y);
     }
 
@@ -117,23 +132,23 @@ public class PaintingView extends PDFView
     }
     
    	@Override
-	public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {
-		Log.i(TAG, "on Draw Listener, width:" + pageWidth
-					+ " height:" + pageHeight);
-		
-		float zoom = getZoom();
+	public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {	
+		mXoffset = getCurrentXOffset() + (mCurPage - 1) * pageWidth;
+		mYoffset = getCurrentYOffset();
+		float zoom = getZoom() * mOptimalRatio;
 
 		if (mLoadComplete) {
 			canvas.save();
 			canvas.scale(zoom, zoom);
         	canvas.drawColor(mColor);
         	canvas.drawPath(mPath, Brush.getPaint());
-            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+            canvas.drawBitmap(mBitmap, getMatrix(), mBitmapPaint);
             canvas.restore();
         }
 	}
     
     public void onPageChanged(int pageNum) {
+    	Log.i(TAG, "current page:" + pageNum);
     	mCurPage = pageNum;
     }
 

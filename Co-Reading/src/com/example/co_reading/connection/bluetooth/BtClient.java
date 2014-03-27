@@ -1,16 +1,18 @@
 package com.example.co_reading.connection.bluetooth;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
-import com.example.co_reading.connection.EndPoint;
+import com.example.co_reading.connection.Client;
 import com.example.co_reading.util.BinarySerialization;
 import com.example.co_reading.util.ISerialization;
 
-public class BtClient extends BtConnection implements EndPoint {
+//public class BtClient extends BtConnection implements EndPoint {
+public class BtClient extends Client {
 	
 	private String TAG = BtClient.class.getSimpleName();
 	
@@ -54,8 +56,9 @@ public class BtClient extends BtConnection implements EndPoint {
 		
 		mSerialization = serialization;
 		
-		Initialize(mSocket, mSerialization);
-
+		//Initialize(mSocket, mSerialization);
+		//InputStream inputStream = mSocket.getInputStream();
+		//OutputStream outputStream = mSocket.getOutputStream();
 	}
 	
 	public void cancel() {
@@ -66,6 +69,7 @@ public class BtClient extends BtConnection implements EndPoint {
 		}
 	}
 	
+	/*
 	public void update() {
 		
 		while (true) {
@@ -99,9 +103,16 @@ public class BtClient extends BtConnection implements EndPoint {
 		mWorkThread.setDaemon(true);
 		mWorkThread.start();
 	}
+	*/
 
 	@Override
 	public void stop() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void close() {
 		// TODO Auto-generated method stub
 		
 	}

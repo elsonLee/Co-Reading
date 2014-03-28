@@ -6,32 +6,36 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
  
-public class PdfDB {
-	private final String TAG = PdfDB.class.getSimpleName();
+public class PDFDB {
+	private final String TAG = PDFDB.class.getSimpleName();
 
     private Context mContext = null; 
     private PdfDBHelper mDBHelper = null; 
     private SQLiteDatabase mPdfDB = null; 
  
-    private static final String DATABASE_NAME = "PDF.db";  
+    private static final String DATABASE_NAME = "co_writing.db";  
     private static final int DATABASE_VERSION = 1;
-    public static final String MAP_TABLE = "TBMap";
+    public static final String SHA1_TABLE = "TBMap";
     private static final String LEGAL_TABLE[] = {
-    	MAP_TABLE,
+    	SHA1_TABLE,
     };
     private String mTableName;
  
-    public PdfDB(Context context){ 
-        mContext = context; 
+    public PDFDB(Context context){ 
+        mContext = context;
     }
 
     public void open(String tableName) throws SQLException {
-    	if (checkTable(tableName) == false)
-    	   throw new SQLException("failed to find table:" + tableName);
+        mTableName = tableName;
+    	if (checkTable(mTableName) == false)
+    	   throw new SQLException("failed to find table:" + mTableName);
     	
-    	mTableName = tableName;
         mDBHelper = new PdfDBHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION); 
-        mPdfDB = mDBHelper.getWritableDatabase(); 
+        mPdfDB = mDBHelper.getWritableDatabase();
+        if (tabbleIsExist(mTableName) == false) {
+        	Log.i(TAG, mTableName + " doesn't exist, create ...");
+        	createTable();
+        }
         Log.i(TAG, "open");
     }
 
@@ -49,7 +53,7 @@ public class PdfDB {
     	return result;
     }
    
-    public void createTable() throws SQLException {
+    private void createTable() throws SQLException {
        String sql = "drop table " + mTableName;
 
        try {
@@ -89,10 +93,12 @@ public class PdfDB {
         String SHA1 = null;
    
         String col[] = {"sha1", "path", "jnum"};
-        String strPath = "PATH=\"" +  path + "\"";
+        String strPath = "PATH='" +  path.trim() + "'";
         
         cur = mPdfDB.query(mTableName, col, strPath, null, null, null, null);
-        Log.i(TAG, "cursor has rows " + cur.getCount());
+        if (cur.getCount() == 0)
+        	return null;
+
         cur.moveToFirst();
         SHA1 = cur.getString(0);
         
@@ -101,6 +107,26 @@ public class PdfDB {
 
         Log.i(TAG, "finished query sha1 for " + path);        
         return SHA1;
-    }     
-
+    } 
+    
+    private boolean tabbleIsExist(String tableName){  
+        boolean result = false;  
+        if(tableName == null){  
+             return false;  
+        }  
+            
+        Cursor cursor = null;  
+        try {  
+         	String sql = "select count(*) as c from Sqlite_master  where type ='table' and name ='"+tableName.trim()+"' ";  
+            cursor = mPdfDB.rawQuery(sql, null);  
+            if(cursor.moveToNext()){  
+                int count = cursor.getInt(0);  
+                if(count>0)
+                    result = true;  
+            }  
+        } catch (Exception e) {  
+          	e.printStackTrace();
+        }                  
+        return result;  
+    }  
 }

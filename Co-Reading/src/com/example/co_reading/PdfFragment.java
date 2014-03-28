@@ -1,9 +1,6 @@
 package com.example.co_reading;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -16,8 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.co_reading.painting.PaintingView;
-import com.example.co_reading.util.Encrypt;
-import com.example.co_reading.util.PdfDB;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.joanzapata.pdfview.listener.*;
 
@@ -36,7 +31,6 @@ public class PdfFragment extends Fragment
 	private boolean mDrawMode;
 
 	public PaintingView mPaintingView;
-	private PdfDB mDB;
 
 	@Override
 	public void onCreate (Bundle savedInstanceState) {		
@@ -58,32 +52,10 @@ public class PdfFragment extends Fragment
         /**
          * PDFView need explicitly reloaded each time
          */
-        if (mFile != null) {
+        if (mFile != null)
         	mPaintingView.fromFile(mFile).defaultPage(curPage)
         					.onPageChange(this).onDrawListener(mPaintingView)
         					.onLoad(mPaintingView).enableSwipe(true).load();
-        
-	        InputStream is = null;
-	   		String SHA1 = null;	
-	        try {
-	        	is = new FileInputStream(mFile);
-	        	SHA1 = Encrypt.SHA1(is);
-	        } catch (FileNotFoundException e) {
-	        	Log.i(TAG, "file not found");
-	        }
-	        String path = mFile.getName();
-	
-	        Log.i(TAG, "file path:" + path + " sha1:" + SHA1);
-	        try {
-	        	mDB = new PdfDB(getActivity());
-	        	mDB.open(PdfDB.MAP_TABLE);
-	        	mDB.createTable();
-	        	mDB.insertItem(SHA1, path, 1);
-	        	Log.i(TAG, "get SHA1:" + mDB.getSHA1(path));
-	        } catch (Exception e) {
-	        	e.printStackTrace();
-	        }
-        }
     }
     
     @Override

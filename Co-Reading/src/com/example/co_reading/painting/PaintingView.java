@@ -1,5 +1,7 @@
 package com.example.co_reading.painting;
 
+import java.io.*;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,6 +13,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.example.co_reading.painting.Brush;
+import com.example.co_reading.util.Encrypt;
+import com.example.co_reading.util.PDFDB;
 import com.joanzapata.pdfview.*;
 import com.joanzapata.pdfview.listener.*;
 
@@ -30,11 +34,20 @@ public class PaintingView extends PDFView
     private int     mPageWidth;
     private int     mPageHeight;
     private float   mOptimalRatio;
+    private PDFDB  mDB;
+    private File    mFile;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
 
         dragPinchManager = new CoDragPinchManager(this);
+    }
+    
+    @Override
+    public Configurator fromFile(File file) {
+    	mFile = file;
+    	DBInit();
+    	return super.fromFile(file);
     }
     
     public void loadComplete(int nbPages) {
@@ -49,6 +62,35 @@ public class PaintingView extends PDFView
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
     }
+    
+    private void DBInit() {
+    	String path = mFile.getPath();    	
+
+    	try {
+    		mDB = new PDFDB(getContext());
+    		mDB.open(PDFDB.SHA1_TABLE);
+    		if (mDB.getSHA1(path) == null) {
+    			Log.i(TAG, "" + path + " doesn't exist in db, create it");
+    			mDB.insertItem(SHA1_encode(path), path, 1);
+    		} else
+    			Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
+    		Log.i(TAG, "get sha1 " + mDB.getSHA1(path));
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    private String SHA1_encode(String path) {
+   		InputStream is = null;
+   		String SHA1 = null;	
+        try {
+        	is = new BufferedInputStream(new FileInputStream(mFile));
+        	SHA1 = Encrypt.SHA1(is);
+        } catch (FileNotFoundException e) {
+        	Log.i(TAG, "file not found");
+        }
+        return SHA1;
+	}
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {

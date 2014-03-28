@@ -17,9 +17,12 @@ import com.example.co_reading.util.Encrypt;
 import com.example.co_reading.util.PDFDB;
 import com.joanzapata.pdfview.*;
 import com.joanzapata.pdfview.listener.*;
+import com.joanzapata.pdfview.PDFView;
 
-public class PaintingView extends PDFView 
-						implements OnLoadCompleteListener, OnDrawListener {
+import com.joanzapata.pdfview.listener.OnDrawListener;
+import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
+
+public class PaintingView extends PDFView implements OnLoadCompleteListener, OnDrawListener {
     private static final String TAG = PaintingView.class.getSimpleName();
     private Bitmap  mBitmap;
     private Canvas  mCanvas;

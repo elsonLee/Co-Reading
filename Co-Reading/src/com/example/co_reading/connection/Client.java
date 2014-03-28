@@ -39,10 +39,12 @@ public class Client extends Connection implements EndPoint {
 
 			if (obj != null) {
 				// just for test
+				/*
 				if (obj instanceof Packet) {
 					Packet pack = (Packet) obj;
 					Log.d(TAG, "Received obj: mId="+ pack.mId);
 				}
+				*/
 				notifyReceived(obj);
 			}
 		}

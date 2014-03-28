@@ -1,5 +1,9 @@
 package com.example.co_reading.util;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -39,7 +43,19 @@ public class Encrypt {
 
 		return toHexString(digest);
 	}
-  
+    
+    public static String SHA1_file(File file) {
+   		InputStream is = null;
+   		String SHA1 = null;	
+        try {
+        	is = new BufferedInputStream(new FileInputStream(file));
+        	SHA1 = Encrypt.SHA1(is);
+        } catch (FileNotFoundException e) {
+        	e.printStackTrace();
+        }
+        return SHA1;
+	}
+    
     public static String SHA1(String s) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");

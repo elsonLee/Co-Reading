@@ -14,22 +14,14 @@ import android.view.ViewGroup;
 
 import com.example.co_reading.painting.PaintingView;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.joanzapata.pdfview.listener.*;
 
-public class PdfFragment extends Fragment 
-		implements OnPageChangeListener {	
-
+public class PdfFragment extends Fragment {	
 	private final String TAG = PdfFragment.class.getSimpleName();
 
 	private final int REQUEST_CHOOSER = 1234;	
-
 	private String mCurPdfUriString = "";
-	private File mFile;
-	private int defaultPage = 1;
-	private int curPage;
-	
+	private File mFile;	
 	private boolean mDrawMode;
-
 	public PaintingView mPaintingView;
 
 	@Override
@@ -53,9 +45,9 @@ public class PdfFragment extends Fragment
          * PDFView need explicitly reloaded each time
          */
         if (mFile != null) {
-        	mPaintingView.fromFile(mFile).defaultPage(curPage)
-        					.onPageChange(this).onDrawListener(mPaintingView)
-        					.onLoad(mPaintingView).enableSwipe(true).load();
+        	mPaintingView.fromFile(mFile)
+        				.onPageChange(mPaintingView).onDrawListener(mPaintingView)
+        				.onLoad(mPaintingView).enableSwipe(true).load();
         	getActivity().getActionBar().getSelectedTab().setText(mFile.getName().trim());
         }
     }
@@ -96,7 +88,6 @@ public class PdfFragment extends Fragment
 					if (mFile != null && mFile.exists()) {
 							Log.d(TAG, "file:"+ mFile);
 							mCurPdfUriString = uriString;
-							curPage = defaultPage;
 						}
 					}
 				}
@@ -104,13 +95,6 @@ public class PdfFragment extends Fragment
 		default:
 			break;
 		}		
-	}
-	
-	@Override
-	public void onPageChanged(int page, int pageCount) {
-		Log.d(TAG, "page:" + page + " pageCount:" + pageCount);
-		curPage = page;
-		mPaintingView.onPageChanged(page);
 	}
 	
 	public void setDrawMode(boolean on) {

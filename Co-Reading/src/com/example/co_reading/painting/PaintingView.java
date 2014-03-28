@@ -17,10 +17,10 @@ import com.example.co_reading.util.Encrypt;
 import com.example.co_reading.util.PDFDB;
 import com.joanzapata.pdfview.PDFView;
 
-import com.joanzapata.pdfview.listener.OnDrawListener;
-import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
+import com.joanzapata.pdfview.listener.*;
 
-public class PaintingView extends PDFView implements OnLoadCompleteListener, OnDrawListener {
+public class PaintingView extends PDFView 
+			implements OnLoadCompleteListener, OnDrawListener, OnPageChangeListener {
     private static final String TAG = PaintingView.class.getSimpleName();
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
@@ -30,6 +30,7 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
     private boolean mDrawMode;
     private boolean mLoadComplete = false;
     private int 	mCurPage;
+    private int     mDefaultPage;
     private float   mXoffset;
     private float   mYoffset;
     private int     mPageWidth;
@@ -38,6 +39,7 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
     private PDFDB   mDB;
     private File    mFile;
     private String  mFileSHA1;
+    private boolean mDirty = false;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
@@ -49,7 +51,30 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
     public Configurator fromFile(File file) {
     	mFile = file;
     	DBInit();
-    	return super.fromFile(file);
+    	return super.fromFile(file).defaultPage(mDefaultPage);
+    }
+    
+    private void DBInit() {
+    	String path = mFile.getPath();    	
+
+    	try {
+    		mDB = new PDFDB(getContext());
+    		mDB.open(PDFDB.SHA1_TABLE);
+    		if (mDB.getSHA1(path) == null) {
+    			Log.i(TAG, "" + path + " doesn't exist in db, create it");
+    			mDB.insertItem(Encrypt.SHA1_file(mFile), path, 1);
+    		} else
+    			Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
+    		mFileSHA1 = mDB.getSHA1(path);
+    		mDefaultPage = mDB.getDefaultPage(path);
+    		Log.i(TAG, "get sha1 " + mFileSHA1);
+    		Log.i(TAG, "default page:" + mDefaultPage);
+    		mDB.createPaintTable(mFileSHA1);
+    		if (mDefaultPage == -1)
+    			mDefaultPage = 1;
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
     
     public void loadComplete(int nbPages) {
@@ -64,36 +89,6 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
     }
-    
-    private void DBInit() {
-    	String path = mFile.getPath();    	
-
-    	try {
-    		mDB = new PDFDB(getContext());
-    		mDB.open(PDFDB.SHA1_TABLE);
-    		if (mDB.getSHA1(path) == null) {
-    			Log.i(TAG, "" + path + " doesn't exist in db, create it");
-    			mDB.insertItem(SHA1_encode(path), path, 1);
-    		} else
-    			Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
-    		mFileSHA1 = mDB.getSHA1(path);
-    		Log.i(TAG, "get sha1 " + mFileSHA1);;
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    }
-    
-    private String SHA1_encode(String path) {
-   		InputStream is = null;
-   		String SHA1 = null;	
-        try {
-        	is = new BufferedInputStream(new FileInputStream(mFile));
-        	SHA1 = Encrypt.SHA1(is);
-        } catch (FileNotFoundException e) {
-        	Log.i(TAG, "file not found");
-        }
-        return SHA1;
-	}
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -101,7 +96,7 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
         Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
 
     	mOptimalRatio = getOptimalPageWidth()/mPageWidth;
-    }
+    }    
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -143,6 +138,7 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
         if (mDrawMode == false) {
             return true;
         }
+        mDirty = true;
         float x = event.getX();
         float y = event.getY();
         int action = event.getAction();
@@ -190,9 +186,24 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
         }
 	}
     
-    public void onPageChanged(int pageNum) {
-    	Log.i(TAG, "current page:" + pageNum);
+   	@Override
+    public void onPageChanged(int pageNum, int pageCount) {
+    	Log.i(TAG, "current page:" + pageNum + "/" + pageCount);
+    	Log.i(TAG, "dirty? " + mDirty);
     	mCurPage = pageNum;
+		mDB.updateDefaultPageNum(mFileSHA1, pageNum);
+		if (mDirty == true)
+			mDB.insertBitmap(mFileSHA1, pageNum - 1, mBitmap);
+		Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
+		if (bm != null) {
+			mBitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
+			mCanvas = new Canvas(mBitmap);
+		} else if (mBitmap != null) {
+			mBitmap.eraseColor(mColor);
+		}
+		
+		mDirty = false;
+		invalidate();
     }
 
     public void setDrawMode(boolean on) {

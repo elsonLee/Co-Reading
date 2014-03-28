@@ -20,6 +20,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.co_reading.connection.Client;
+import com.example.co_reading.connection.INetworkListener;
 import com.example.co_reading.connection.ITransceiverOps;
 import com.example.co_reading.connection.Server;
 import com.example.co_reading.connection.bluetooth.BlueToothManager;
@@ -111,6 +112,29 @@ public class MainActivity extends Activity {
         try {
 			client = new PipeClient();
 			client.Initialize(fileReadStream1, fileWriteStream2);
+			client.addListener(new INetworkListener() {
+
+				@Override
+				public void onNetworkConnected() {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onNetworkDisconnected() {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onNetworkReceivedObj(Object object) {
+					if (object instanceof Packet) {
+						Packet pack = (Packet) object;
+						Log.d(TAG, "Received obj: mId="+ pack.mId);
+					}	
+				}
+			});
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

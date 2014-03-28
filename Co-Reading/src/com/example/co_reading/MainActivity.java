@@ -1,9 +1,6 @@
 package com.example.co_reading;
 
 import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,14 +16,8 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.example.co_reading.connection.Client;
-import com.example.co_reading.connection.INetworkListener;
 import com.example.co_reading.connection.ITransceiverOps;
-import com.example.co_reading.connection.Server;
 import com.example.co_reading.connection.bluetooth.BlueToothManager;
-import com.example.co_reading.connection.pipe.PipeClient;
-import com.example.co_reading.connection.pipe.PipeServer;
-import com.example.co_reading.util.Packet;
 
 public class MainActivity extends Activity {
 

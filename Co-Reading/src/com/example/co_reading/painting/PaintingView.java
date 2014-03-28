@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -31,7 +30,6 @@ public class PaintingView extends PDFView
     private int     mPageWidth;
     private int     mPageHeight;
     private float   mOptimalRatio;
-    private Matrix  mViewMatrix;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);

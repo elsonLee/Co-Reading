@@ -45,8 +45,6 @@ public class MainActivity extends Activity {
     public native FileDescriptor[] createpipe(); 
     public native void closefd(FileDescriptor fdesc); 
 
-    /** don't remove */
-    @SuppressWarnings("unused")
     private ITransceiverOps mTransceiverManager = null;
 
     public class OnRestoreData {

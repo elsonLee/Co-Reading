@@ -11,9 +11,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.example.co_reading.painting.Brush;
-import com.joanzapata.pdfview.*;
-import com.joanzapata.pdfview.listener.*;
+import com.joanzapata.pdfview.PDFView;
+import com.joanzapata.pdfview.listener.OnDrawListener;
+import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
 
 public class PaintingView extends PDFView 
 						implements OnLoadCompleteListener, OnDrawListener {

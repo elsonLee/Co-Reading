@@ -1,12 +1,12 @@
-package com.example.co_reading.paint;
+package com.example.co_reading.util;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
- public class PaintingDBHelper extends SQLiteOpenHelper {	 
-	 public PaintingDBHelper(Context context, String name, CursorFactory factory,
+ public class PdfDBHelper extends SQLiteOpenHelper {	 
+	 public PdfDBHelper(Context context, String name, CursorFactory factory,
 	        int version) {
 	     super(context, name, factory, version);
 	     // TODO Auto-generated constructor stub

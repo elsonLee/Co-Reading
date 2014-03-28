@@ -52,10 +52,12 @@ public class PdfFragment extends Fragment
         /**
          * PDFView need explicitly reloaded each time
          */
-        if (mFile != null)
+        if (mFile != null) {
         	mPaintingView.fromFile(mFile).defaultPage(curPage)
         					.onPageChange(this).onDrawListener(mPaintingView)
         					.onLoad(mPaintingView).enableSwipe(true).load();
+        	getActivity().getActionBar().getSelectedTab().setText(mFile.getName().trim());
+        }
     }
     
     @Override

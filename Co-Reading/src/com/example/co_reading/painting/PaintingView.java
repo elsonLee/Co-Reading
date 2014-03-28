@@ -15,8 +15,6 @@ import android.view.MotionEvent;
 import com.example.co_reading.painting.Brush;
 import com.example.co_reading.util.Encrypt;
 import com.example.co_reading.util.PDFDB;
-import com.joanzapata.pdfview.*;
-import com.joanzapata.pdfview.listener.*;
 import com.joanzapata.pdfview.PDFView;
 
 import com.joanzapata.pdfview.listener.OnDrawListener;
@@ -37,8 +35,9 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
     private int     mPageWidth;
     private int     mPageHeight;
     private float   mOptimalRatio;
-    private PDFDB  mDB;
+    private PDFDB   mDB;
     private File    mFile;
+    private String  mFileSHA1;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
@@ -77,7 +76,8 @@ public class PaintingView extends PDFView implements OnLoadCompleteListener, OnD
     			mDB.insertItem(SHA1_encode(path), path, 1);
     		} else
     			Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
-    		Log.i(TAG, "get sha1 " + mDB.getSHA1(path));
+    		mFileSHA1 = mDB.getSHA1(path);
+    		Log.i(TAG, "get sha1 " + mFileSHA1);;
     	} catch (Exception e) {
     		e.printStackTrace();
     	}

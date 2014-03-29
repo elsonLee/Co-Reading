@@ -1,3 +1,18 @@
+/*Copyright (C) 2014  ElsonLee & WenPin Cui
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/	
 package com.example.co_reading.connection.bluetooth;
 
 import java.io.IOException;
@@ -11,6 +26,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 
+import com.example.co_reading.connection.Connection;
 import com.example.co_reading.connection.ITransceiverOps;
 
 public class BlueToothManager implements ITransceiverOps {
@@ -18,6 +34,10 @@ public class BlueToothManager implements ITransceiverOps {
 	public static final int REQUEST_ENABLE_BT = 10;
 	public static final int	REQUEST_DIALOG_BT = 11;
 	
+	public static final int	ROLE_CLIENT = 12;
+	public static final int	ROLE_SERVER = 13;
+	public static final int	ROLE_NOCONNECTION = 14;
+
 	public static UUID	m_UUID = UUID.fromString("04c6093b-0000-1000-8000-00805f9b34fb");
 	
 	private static ArrayList<BluetoothDevice> m_pairedDevList;
@@ -25,10 +45,12 @@ public class BlueToothManager implements ITransceiverOps {
 	
 	private static BluetoothAdapter	m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	
-	private static BlueToothManager	m_instance;
+	private static BlueToothManager	mInstance;
 	
 	private static BtClient mClient = null;
 	private static BtServer mServer = null;
+	
+	private static int mRole = ROLE_NOCONNECTION;
 	
 	private BlueToothManager(){
 		m_pairedDevList = new ArrayList<BluetoothDevice>();
@@ -36,14 +58,22 @@ public class BlueToothManager implements ITransceiverOps {
 	}
 	
 	public static BlueToothManager getInstance() {
-		if (m_instance == null)
-			m_instance = new BlueToothManager();
-		return m_instance;
+		if (mInstance == null)
+			mInstance = new BlueToothManager();
+		return mInstance;
+	}
+
+	public static int getRole() {
+		return mRole;
 	}
 	
 	public BtClient getClient(BluetoothDevice btDevice) throws IOException {
 		if (btDevice != null && mClient == null && mServer == null) {
 			mClient = new BtClient(btDevice);
+			mClient.start();
+			if (mClient != null) {
+				mRole = ROLE_CLIENT;
+			}
 		}
 
 		return mClient;
@@ -52,10 +82,27 @@ public class BlueToothManager implements ITransceiverOps {
 	public BtServer getServer() throws IOException {
 		if (mServer == null && mClient == null) {
 			mServer = new BtServer();
-			mServer.run();
+			mServer.start();
+			if (mServer != null) {
+				mRole = ROLE_SERVER;
+			}
 		}
 
 		return mServer;
+	}
+	
+	public Connection getConnection() throws IOException {
+		Connection connection = null;
+		switch (mRole) {
+		case ROLE_CLIENT:
+			connection = getClient(null);
+			break;
+		case ROLE_SERVER:
+			connection = getServer();
+			break;
+		}
+		
+		return connection;
 	}
 
 	/* ITransceiverOps implementation */
@@ -67,12 +114,11 @@ public class BlueToothManager implements ITransceiverOps {
 	}
 
 	public boolean open(Activity activity) {
-		if (null != m_BluetoothAdapter) {
-			if (false == m_BluetoothAdapter.isEnabled()) {
+		if (m_BluetoothAdapter != null) {
+			if (m_BluetoothAdapter.isEnabled() == false) {
 				
 				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-			} else {
+				activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT); } else {
 				return true;
 			}
 		}

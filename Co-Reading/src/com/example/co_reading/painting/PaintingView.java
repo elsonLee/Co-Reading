@@ -1,3 +1,18 @@
+/*Copyright (C) 2014  ElsonLee & WenPin Cui
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/	
 package com.example.co_reading.painting;
 
 import java.io.*;
@@ -12,23 +27,30 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff.Mode;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.graphics.PorterDuff.Mode;
 
-import com.example.co_reading.painting.Brush;
+import com.example.co_reading.connection.Connection;
+import com.example.co_reading.connection.INetworkListener;
+import com.example.co_reading.connection.bluetooth.BlueToothManager;
 import com.example.co_reading.util.Encrypt;
 import com.example.co_reading.util.PDFDB;
+import com.example.co_reading.util.Packet;
 import com.joanzapata.pdfview.PDFView;
-
-import com.joanzapata.pdfview.listener.*;
+import com.joanzapata.pdfview.listener.OnDrawListener;
+import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
+import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
 public class PaintingView extends PDFView 
     implements OnLoadCompleteListener, OnDrawListener, OnPageChangeListener {
     private static final String TAG = PaintingView.class.getSimpleName();
+
+    private final int POINT_MSG = 0;
+
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
     private Path    mPath;
@@ -53,10 +75,23 @@ public class PaintingView extends PDFView
     private FutureTask<Integer> mLastTask;
     private byte[]  mBitmapLock = new byte[]{};
 
+    private Handler mPointHandler;
+    
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
 
         dragPinchManager = new CoDragPinchManager(this);
+        
+        mPointHandler = new Handler( new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg) {
+				if (msg.what == POINT_MSG) {
+					Packet pack = (Packet) msg.obj;
+					onTouchEvent(pack.mEvent, pack.mX, pack.mY);
+				}
+				return false;
+			}
+		});
     }
     
     @Override
@@ -118,6 +153,40 @@ public class PaintingView extends PDFView
         };  
         
         onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
+        
+        // FIXME
+        // if (BlueToothManager.getInstance().getRole() == BlueToothManager.ROLE_CLIENT) {
+        try {
+        	Connection connection = BlueToothManager.getInstance().getConnection();
+			if (connection != null) {
+				connection.addListener(new INetworkListener() {
+
+					@Override
+					public void onNetworkConnected() {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onNetworkDisconnected() {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onNetworkReceivedObj(Object object) {
+						if (object instanceof Packet) {
+							Packet pack = (Packet) object;
+							Message msg = Message.obtain(mPointHandler, POINT_MSG, pack);
+							msg.sendToTarget();
+						}	
+					}
+				});
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
@@ -152,6 +221,7 @@ public class PaintingView extends PDFView
             mX = x;
             mY = y;
         }
+        
     }
 
     private void touch_up() {
@@ -179,10 +249,25 @@ public class PaintingView extends PDFView
         x = toRealScale(x) / mOptimalRatio;
         y = toRealScale(y) / mOptimalRatio;
 
+    	// FIXME
+        Connection connection = null;
+		try {
+			connection = BlueToothManager.getInstance().getConnection();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (connection != null) {
+        //if (BlueToothManager.getInstance().getRole() == BlueToothManager.ROLE_SERVER) {
+        	Packet pack = new Packet(action, x, y);
+        	connection.send(pack);
+        }
+
         return onTouchEvent(action, x, y);
     }
 
     public boolean onTouchEvent(int event, float x, float y) {
+
         switch (event) {
         case MotionEvent.ACTION_DOWN:
             touch_start(x, y);

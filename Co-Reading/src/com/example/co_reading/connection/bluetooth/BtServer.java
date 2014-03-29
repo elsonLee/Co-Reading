@@ -26,6 +26,8 @@ public class BtServer extends Server {
     }
     
     public BtServer(ISerialization serialization) throws IOException {
+    	super(serialization);
+
         BluetoothServerSocket tmpSocket = null;
         try {
             // MY_UUID is the app's UUID string, also used by the client code
@@ -52,6 +54,9 @@ public class BtServer extends Server {
 				e.printStackTrace();
 			}
         }
+        
+        // Initialize
+        Initialize(socket.getInputStream(), socket.getOutputStream());
     }
 
 	@Override

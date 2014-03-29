@@ -1,22 +1,27 @@
 package com.example.co_reading.painting;
 
+import java.io.*;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.graphics.PorterDuff.Mode;
 
+import com.example.co_reading.painting.Brush;
+import com.example.co_reading.util.Encrypt;
+import com.example.co_reading.util.PDFDB;
 import com.joanzapata.pdfview.PDFView;
-import com.joanzapata.pdfview.listener.OnDrawListener;
-import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
+
+import com.joanzapata.pdfview.listener.*;
 
 public class PaintingView extends PDFView 
-						implements OnLoadCompleteListener, OnDrawListener {
+			implements OnLoadCompleteListener, OnDrawListener, OnPageChangeListener {
     private static final String TAG = PaintingView.class.getSimpleName();
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
@@ -26,17 +31,51 @@ public class PaintingView extends PDFView
     private boolean mDrawMode;
     private boolean mLoadComplete = false;
     private int 	mCurPage;
+    private int     mDefaultPage;
     private float   mXoffset;
     private float   mYoffset;
     private int     mPageWidth;
     private int     mPageHeight;
     private float   mOptimalRatio;
-    private Matrix  mViewMatrix;
+    private PDFDB   mDB;
+    private File    mFile;
+    private String  mFileSHA1;
+    private boolean mDirty = false;
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
 
         dragPinchManager = new CoDragPinchManager(this);
+    }
+    
+    @Override
+    public Configurator fromFile(File file) {
+    	mFile = file;
+    	DBInit();
+    	return super.fromFile(file).defaultPage(mDefaultPage);
+    }
+    
+    private void DBInit() {
+    	String path = mFile.getPath();    	
+
+    	try {
+    		mDB = new PDFDB(getContext());
+    		mDB.open(PDFDB.SHA1_TABLE);
+    		if (mDB.getSHA1(path) == null) {
+    			Log.i(TAG, "" + path + " doesn't exist in db, create it");
+    			mDB.insertItem(Encrypt.SHA1_file(mFile), path, 1);
+    		} else
+    			Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
+    		mFileSHA1 = mDB.getSHA1(path);
+    		mDefaultPage = mDB.getDefaultPage(path);
+    		Log.i(TAG, "get sha1 " + mFileSHA1);
+    		Log.i(TAG, "default page:" + mDefaultPage);
+    		mDB.createPaintTable(mFileSHA1);
+    		if (mDefaultPage == -1)
+    			mDefaultPage = 1;
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
     
     public void loadComplete(int nbPages) {
@@ -50,6 +89,8 @@ public class PaintingView extends PDFView
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
+        
+        onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
     }
 
     @Override
@@ -58,7 +99,7 @@ public class PaintingView extends PDFView
         Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
 
     	mOptimalRatio = getOptimalPageWidth()/mPageWidth;
-    }
+    }    
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -100,6 +141,7 @@ public class PaintingView extends PDFView
         if (mDrawMode == false) {
             return true;
         }
+        mDirty = true;
         float x = event.getX();
         float y = event.getY();
         int action = event.getAction();
@@ -142,14 +184,33 @@ public class PaintingView extends PDFView
 			canvas.scale(zoom, zoom);
         	canvas.drawColor(mColor);
         	canvas.drawPath(mPath, Brush.getPaint());
-            canvas.drawBitmap(mBitmap, getMatrix(), mBitmapPaint);
+            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
             canvas.restore();
         }
 	}
     
-    public void onPageChanged(int pageNum) {
-    	Log.i(TAG, "current page:" + pageNum);
+   	@Override
+    public void onPageChanged(int pageNum, int pageCount) {
+    	Log.i(TAG, "current page:" + pageNum + "/" + pageCount);
+    	Log.i(TAG, "dirty? " + mDirty);
+
+		mDB.updateDefaultPageNum(mFileSHA1, pageNum);
+		if (mDirty == true)
+			mDB.insertBitmap(mFileSHA1, mCurPage, mBitmap);
     	mCurPage = pageNum;
+    	
+		if (mCanvas != null) {
+			mCanvas.drawColor(mColor, Mode.SRC);
+
+			Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
+			if (bm != null) {
+				Log.i(TAG, "draw bitmap from db");
+				mCanvas.drawBitmap(bm, 0, 0, mBitmapPaint);
+			}
+			
+			mDirty = false;
+			invalidate();
+		}
     }
 
     public void setDrawMode(boolean on) {

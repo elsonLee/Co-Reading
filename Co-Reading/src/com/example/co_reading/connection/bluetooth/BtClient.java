@@ -16,17 +16,14 @@ public class BtClient extends Client {
 	
 	private BluetoothDevice mDevice = null;
 
-	private final ISerialization mSerialization;
-
 	private BluetoothSocket mSocket = null;
 
-	private Thread mWorkThread = null;
-	
 	public BtClient(BluetoothDevice device) throws IOException {
 		this(device, new BinarySerialization());
 	}
 	
 	public BtClient(BluetoothDevice device, ISerialization serialization) throws IOException {
+		super(serialization);
 		
 		BluetoothSocket tmpSocket = null;
 		
@@ -52,8 +49,6 @@ public class BtClient extends Client {
 			}
 		}
 		
-		mSerialization = serialization;
-
 	}
 	
 	public void cancel() {

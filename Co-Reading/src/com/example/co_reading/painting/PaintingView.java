@@ -1,6 +1,10 @@
 package com.example.co_reading.painting;
 
 import java.io.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,6 +12,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -21,7 +27,7 @@ import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.*;
 
 public class PaintingView extends PDFView 
-			implements OnLoadCompleteListener, OnDrawListener, OnPageChangeListener {
+    implements OnLoadCompleteListener, OnDrawListener, OnPageChangeListener {
     private static final String TAG = PaintingView.class.getSimpleName();
     private Bitmap  mBitmap;
     private Canvas  mCanvas;
@@ -38,9 +44,14 @@ public class PaintingView extends PDFView
     private int     mPageHeight;
     private float   mOptimalRatio;
     private PDFDB   mDB;
+    private ExecutorService mDBThreadPool;
     private File    mFile;
     private String  mFileSHA1;
     private boolean mDirty = false;
+    private final int GUIUPDATE = 0xa5;
+    private Handler mHandler;
+    private FutureTask<Integer> mLastTask;
+    private byte[]  mBitmapLock = new byte[]{};
 
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
@@ -51,30 +62,35 @@ public class PaintingView extends PDFView
     @Override
     public Configurator fromFile(File file) {
     	mFile = file;
-    	DBInit();
+    	loadDB();
     	return super.fromFile(file).defaultPage(mDefaultPage);
     }
     
-    private void DBInit() {
+    private void loadDB() {
     	String path = mFile.getPath();    	
 
     	try {
-    		mDB = new PDFDB(getContext());
-    		mDB.open(PDFDB.SHA1_TABLE);
-    		if (mDB.getSHA1(path) == null) {
-    			Log.i(TAG, "" + path + " doesn't exist in db, create it");
-    			mDB.insertItem(Encrypt.SHA1_file(mFile), path, 1);
-    		} else
-    			Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
-    		mFileSHA1 = mDB.getSHA1(path);
-    		mDefaultPage = mDB.getDefaultPage(path);
-    		Log.i(TAG, "get sha1 " + mFileSHA1);
-    		Log.i(TAG, "default page:" + mDefaultPage);
-    		mDB.createPaintTable(mFileSHA1);
-    		if (mDefaultPage == -1)
-    			mDefaultPage = 1;
+            mDB = new PDFDB(getContext());
+            mDB.open(PDFDB.MAP_TABLE);
+            if (mDB.getSHA1(path) == null) {
+                Log.i(TAG, "" + path + " doesn't exist in db, create it");
+                mDB.insertNewMap(Encrypt.SHA1_file(mFile), path, 1);
+            } else
+                Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
+
+            mFileSHA1 = mDB.getSHA1(path);
+            mDefaultPage = mDB.getDefaultPage(path);
+
+            Log.i(TAG, "get sha1 " + mFileSHA1);
+            Log.i(TAG, "default page:" + mDefaultPage);
+
+            mDB.createPaintTable(mFileSHA1);
+            if (mDefaultPage == -1)
+                mDefaultPage = 1;
+            
+            mDBThreadPool = Executors.newFixedThreadPool(3);
     	} catch (Exception e) {
-    		e.printStackTrace();
+            e.printStackTrace();
     	}
     }
     
@@ -89,6 +105,17 @@ public class PaintingView extends PDFView
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
+        
+        mHandler = new Handler() {  
+          public void handleMessage(Message msg) {   
+               switch (msg.what) {   
+                    case GUIUPDATE:
+                   		invalidate();  
+                        break;   
+               }   
+               super.handleMessage(msg);   
+          }   
+        };  
         
         onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
     }
@@ -105,7 +132,7 @@ public class PaintingView extends PDFView
     protected void onDraw(Canvas canvas) {
         Log.v(TAG, "on Draw");
         super.onDraw(canvas);
-     }
+    }
 
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
@@ -173,46 +200,68 @@ public class PaintingView extends PDFView
         return true;
     }
     
-   	@Override
-	public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {	
-		mXoffset = getCurrentXOffset() + (mCurPage - 1) * pageWidth;
-		mYoffset = getCurrentYOffset();
-		float zoom = getZoom() * mOptimalRatio;
+    @Override
+    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {	
+        mXoffset = getCurrentXOffset() + (mCurPage - 1) * pageWidth;
+        mYoffset = getCurrentYOffset();
+        float zoom = getZoom() * mOptimalRatio;
 
-		if (mLoadComplete) {
-			canvas.save();
-			canvas.scale(zoom, zoom);
-        	canvas.drawColor(mColor);
-        	canvas.drawPath(mPath, Brush.getPaint());
+        synchronized (mBitmapLock)  {
+        if (mLoadComplete) {
+            canvas.save();
+            canvas.scale(zoom, zoom);
+            canvas.drawColor(mColor);
+            canvas.drawPath(mPath, Brush.getPaint());
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
             canvas.restore();
         }
-	}
+        }
+    }
     
-   	@Override
+    @Override
     public void onPageChanged(int pageNum, int pageCount) {
     	Log.i(TAG, "current page:" + pageNum + "/" + pageCount);
-    	Log.i(TAG, "dirty? " + mDirty);
+    	if (pageNum != mCurPage) {
+    		if (mLastTask != null && !mLastTask.isDone())
+    			mLastTask.cancel(false);
 
-		mDB.updateDefaultPageNum(mFileSHA1, pageNum);
-		if (mDirty == true)
-			mDB.insertBitmap(mFileSHA1, mCurPage, mBitmap);
-    	mCurPage = pageNum;
-    	
-		if (mCanvas != null) {
-			mCanvas.drawColor(mColor, Mode.SRC);
-
-			Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
-			if (bm != null) {
-				Log.i(TAG, "draw bitmap from db");
-				mCanvas.drawBitmap(bm, 0, 0, mBitmapPaint);
-			}
-			
-			mDirty = false;
-			invalidate();
-		}
+    		mLastTask = new FutureTask<Integer>(new DBSyncTask(pageNum));
+    		mDBThreadPool.submit(mLastTask);
+    	}
     }
+   	
+    class DBSyncTask implements Callable<Integer> {
+        private int pageNum;
 
+        DBSyncTask(int pageNum) {
+            this.pageNum = pageNum;
+        }
+
+        public Integer call() {
+            mDB.updateDefaultPageNum(mFileSHA1, pageNum);
+            if (mDirty == true)
+                mDB.insertBitmap(mFileSHA1, mCurPage, mBitmap);
+            mCurPage = pageNum;
+
+            synchronized(mBitmapLock) {
+            if (mCanvas != null) {
+            	mCanvas.drawColor(Color.TRANSPARENT, Mode.SRC);
+
+                Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
+                if (bm != null) {
+                    Log.i(TAG, "draw bitmap from db");
+                    mCanvas.drawBitmap(bm, 0, 0, mBitmapPaint);
+                   	Message message = new Message();
+                   	message.what = GUIUPDATE;
+                   	mHandler.sendMessage(message);
+                }
+                mDirty = false;
+            }
+            }
+            return 0;
+        }
+    }
+ 
     public void setDrawMode(boolean on) {
         Log.i(TAG, "draw mode " + on);
         mDrawMode = on;

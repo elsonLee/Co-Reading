@@ -4,3 +4,9 @@
 [submodule "aFileChooser"]
 	path = aFileChooser
 	url = https://github.com/elsonLee/aFileChooser.git
+[submodule "SlidingMenu"]
+	path = SlidingMenu
+	url = https://github.com/wenpincui/SlidingMenu.git
+[submodule "ActionBarSherlock"]
+	path = ActionBarSherlock
+	url = https://github.com/wenpincui/ActionBarSherlock.git

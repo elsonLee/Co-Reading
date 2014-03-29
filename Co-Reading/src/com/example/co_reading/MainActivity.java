@@ -95,7 +95,6 @@ public class MainActivity extends Activity {
         }
         
         /* test for network */
-        /*
         FileDescriptor[] fd1 = createpipe(); 
         FileDescriptor[] fd2 = createpipe(); 
         
@@ -154,7 +153,6 @@ public class MainActivity extends Activity {
         server.send(new Packet(20));
         client.send(new Packet(10));
         client.send(new Packet(100));
-        */
 
         /*
         closefd(fd1[0]);

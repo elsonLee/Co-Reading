@@ -1,4 +1,4 @@
-/*Copyright (C) 2014  ElsonLee & WenPin Cui
+Copyright (C) 2014  ElsonLee & WenPin Cui
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,21 +12,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/	
-package com.example.co_reading.connection;
-
-public interface EndPoint extends Runnable {
-	
-	// public void addListener(Listener listener);
-	
-	// public void removeListener(Listener listener);
-	
-	public void run();
-	
-	public void start();
-	
-	public void stop();
-	
-	public void close();
-
-}

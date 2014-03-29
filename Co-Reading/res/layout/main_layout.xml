@@ -11,15 +11,5 @@
 
     </RelativeLayout>
 
-    <Switch
-        android:id="@+id/draw_mode_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:gravity="bottom"
-        android:onClick="onChangeDrawMode"
-        android:textOff="Read"
-        android:textOn="Draw" />
 
 </RelativeLayout>

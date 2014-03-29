@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/slide_menu_bg"
+    android:gravity="right"
+    android:orientation="vertical" >
+
+    <Switch
+        android:id="@+id/draw_mode_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="top|left"
+        android:onClick="onChangeDrawMode"
+        android:textOff="Read"
+        android:textOn="Draw" />
+
+    <Button
+        android:id="@+id/pick_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSlideMenuClick"
+        android:text="@string/pick_color" />
+
+    <Button
+        android:id="@+id/erase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSlideMenuClick"
+        android:text="@string/erase" />
+
+    <Button
+        android:id="@+id/srcatop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSlideMenuClick"
+        android:text="@string/srcatop" />
+
+    <Button
+        android:id="@+id/emboss"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSlideMenuClick"
+        android:text="@string/emboss" />
+
+    <Button
+        android:id="@+id/blur"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSlideMenuClick"
+        android:text="@string/blur" />
+
+</LinearLayout>

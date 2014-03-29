@@ -22,6 +22,10 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.MaskFilter;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,6 +36,9 @@ import android.widget.Toast;
 
 import com.example.co_reading.connection.ITransceiverOps;
 import com.example.co_reading.connection.bluetooth.BlueToothManager;
+import com.example.co_reading.painting.Brush;
+import com.example.co_reading.painting.ColorPickerDialog;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class MainActivity extends Activity {
 
@@ -42,14 +49,14 @@ public class MainActivity extends Activity {
     private OnRestoreData mRestoreData = null;
 
     private boolean mDrawMode = false;
-    
+
     static {
     	System.loadLibrary("gen_pipe");
     }
-    
+
     // first: read, second: write
-    public native FileDescriptor[] createpipe(); 
-    public native void closefd(FileDescriptor fdesc); 
+    public native FileDescriptor[] createpipe();
+    public native void closefd(FileDescriptor fdesc);
 
     private ITransceiverOps mTransceiverManager = null;
 
@@ -78,6 +85,17 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
+        SlidingMenu menu = new SlidingMenu(this);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        menu.setMode(SlidingMenu.RIGHT);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadow);
+        menu.setFadeDegree(0.35f);
+        menu.setFadeEnabled(true);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setMenu(R.layout.slide_menu);
+
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -96,15 +114,15 @@ public class MainActivity extends Activity {
             ActionBar mactionBar = getActionBar();
             mRestoreData.restoreNavigationTab(mactionBar);
         }
-        
+
         /* test for network */
         /*
-        FileDescriptor[] fd1 = createpipe(); 
-        FileDescriptor[] fd2 = createpipe(); 
-        
+        FileDescriptor[] fd1 = createpipe();
+        FileDescriptor[] fd2 = createpipe();
+
         Log.d(TAG, "file: "+fd1[0]+" "+fd1[1]);
         Log.d(TAG, "file: "+fd2[0]+" "+fd2[1]);
-        
+
         FileInputStream fileReadStream1 = new FileInputStream(fd1[0]);
         FileOutputStream fileWriteStream1 = new FileOutputStream(fd1[1]);
         FileInputStream fileReadStream2 = new FileInputStream(fd2[0]);
@@ -120,13 +138,13 @@ public class MainActivity extends Activity {
 				@Override
 				public void onNetworkConnected() {
 					// TODO Auto-generated method stub
-					
+
 				}
 
 				@Override
 				public void onNetworkDisconnected() {
 					// TODO Auto-generated method stub
-					
+
 				}
 
 				@Override
@@ -134,7 +152,7 @@ public class MainActivity extends Activity {
 					if (object instanceof Packet) {
 						Packet pack = (Packet) object;
 						Log.d(TAG, "Received obj: mId="+ pack.mId);
-					}	
+					}
 				}
 			});
 
@@ -148,10 +166,10 @@ public class MainActivity extends Activity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        
+
         client.start();
         server.start();
-        
+
         server.send(new Packet(2));
         client.send(new Packet(1));
         server.send(new Packet(20));
@@ -221,6 +239,44 @@ public class MainActivity extends Activity {
     	default:
             return super.onOptionsItemSelected(item);
     	}
+    }
+
+    public void onSlideMenuClick(View v) {
+        Paint pt = Brush.getPaint();
+        Brush brush = Brush.getInstance();
+
+        pt.setXfermode(null);
+        pt.setAlpha(0xFF);
+    	switch (v.getId()) {
+    	case R.id.pick_color:
+        	new ColorPickerDialog(this, brush, pt.getColor()).show();
+        	break;
+        case R.id.emboss:
+            MaskFilter embossFilter = Brush.getEmbossFilter();
+            if (pt.getMaskFilter() != embossFilter)
+                pt.setMaskFilter(embossFilter);
+            else
+                pt.setMaskFilter(null);
+            break;
+        case R.id.blur:
+            MaskFilter blurFilter = Brush.getBlurFilter();
+            if (pt.getMaskFilter() != blurFilter)
+                pt.setMaskFilter(blurFilter);
+            else
+                pt.setMaskFilter(null);
+            break;
+        case R.id.erase:
+            pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            break;
+        case R.id.srcatop:
+            pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
+            pt.setAlpha(0x80);
+            break;
+        default:
+            break;
+    	}
+
+        return;
     }
 
     public void onSort(MenuItem item) {

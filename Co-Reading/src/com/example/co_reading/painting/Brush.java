@@ -12,21 +12,24 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/	
+*/
 package com.example.co_reading.painting;
 
-import android.graphics.Paint;
+import android.graphics.*;
 import android.util.Log;
 
 /**
- * 
+ *
  * @author wenpincui
  *
  */
-public class Brush {
+public class Brush implements ColorPickerDialog.OnColorChangedListener {
     private final String TAG = Brush.class.getSimpleName();
 
     private Paint mPaint;
+    private MaskFilter  mEmboss;
+    private MaskFilter  mBlur;
+
     private static Brush mSelf;
 
     protected Brush() {
@@ -40,6 +43,23 @@ public class Brush {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
+
+        mEmboss = new EmbossMaskFilter(new float[] { 1, 1, 1 },
+                                       0.4f, 6, 3.5f);
+
+        mBlur = new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL);
+    }
+
+    public void colorChanged(int color) {
+        mPaint.setColor(color);
+    }
+
+    public static MaskFilter getEmbossFilter() {
+        return getInstance().mEmboss;
+    }
+
+    public static MaskFilter getBlurFilter() {
+        return getInstance().mBlur;
     }
 
     public static Paint getPaint() {

@@ -4,9 +4,9 @@
     <string name="app_name">Co Writing</string>
     <string name="init_message">Please Input Something</string>
     <string name="title_activity_display_message">DisplayMessageActivity</string>
-    
+
     <string name="connect_menu">connect menu</string>
-    
+
     <string name="tab_name">New Tab</string>
     <string name="send">send</string>
     <string name="pdf_visibility">PDF Layer</string>
@@ -24,10 +24,10 @@
     <string name="bluetooth_listdevice">Available Devices</string>
     <string name="bluetooth_createconnect">Create Connect&#8230;</string>
     <string name="bluetooth_waitconncet">Waiting someone add in&#8230;</string>
-    
+
     <string name="bluetooth_client">client</string>
     <string name="bluetooth_server">server</string>
-    
+
     <!-- bluetooth test -->
     <string name="bluetooth_send12">Send 12</string>
 
@@ -35,4 +35,10 @@
     <string name="chooser_nofile">No File</string>
 
     <string name="painter_name">Painter</string>
+
+    <string name="pick_color">Pick Color</string>
+    <string name="emboss">Emboss</string>
+    <string name="blur">Blur</string>
+    <string name="erase">Erase</string>
+    <string name="srcatop">Srcatop</string>
 </resources>

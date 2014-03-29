@@ -33,16 +33,18 @@ public class Server extends Connection implements EndPoint {
 			try {
 				obj = readObj();
 			} catch (Exception e) {
-				Log.e(TAG, "read object error");
-				this.stop();
+				//Log.e(TAG, "read object error");
+				//this.stop();
 			}
 
 			if (obj != null) {
 				// just for test
+				/*
 				if (obj instanceof Packet) {
 					Packet pack = (Packet) obj;
 					Log.d(TAG, "Received obj: mId="+ pack.mId);
 				}
+				*/
 				notifyReceived(obj);
 			}
 		}

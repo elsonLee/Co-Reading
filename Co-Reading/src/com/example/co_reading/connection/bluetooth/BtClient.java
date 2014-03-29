@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import com.example.co_reading.connection.Client;
 import com.example.co_reading.util.BinarySerialization;
@@ -39,6 +40,7 @@ public class BtClient extends Client {
 			mSocket = tmpSocket;
 			try {
 				mSocket.connect();
+				Log.d(TAG, "connect successful");
 			} catch (IOException e) {
 				try {
 					mSocket.close();
@@ -47,6 +49,9 @@ public class BtClient extends Client {
 				}
 				throw new IOException();
 			}
+
+			// Initialize
+			Initialize(mSocket.getInputStream(), mSocket.getOutputStream());
 		}
 		
 	}

@@ -6,9 +6,13 @@ public class Packet implements Serializable {
 
 	private static final long serialVersionUID = 3325687393518576184L;
 
-	public int mId;
-	
-	public Packet(int id) {
-		mId = id;
+	public int mEvent;
+	public float mX;
+	public float mY;
+
+	public Packet(int event, float x, float y) {
+		mEvent = event;
+		mX = x;
+		mY = y;
 	}
 }

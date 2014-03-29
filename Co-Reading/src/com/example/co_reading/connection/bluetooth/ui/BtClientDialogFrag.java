@@ -147,27 +147,6 @@ public class BtClientDialogFrag extends Fragment {
 			}
 		});
 		
-		// button for test
-//		Button testButton = (Button) mDialogView.findViewById(R.id.testbutton);
-//		testButton.setOnClickListener(new View.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				BtConnectClient client = null;
-//				try {
-//					client = BlueToothManager.getInstance().getClient(null);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//
-//				if (client != null) {
-//					byte[] tmpByte = new byte[1];
-//					tmpByte[0] = (byte)12;
-//					client.write(tmpByte);
-//				}
-//			}
-//		});
-
 		List<BluetoothDevice> mArrayDevicesData = mBlueToothManager
 				.getPairedList();
 
@@ -197,6 +176,5 @@ public class BtClientDialogFrag extends Fragment {
 		
 		Log.i(TAG, "onDestroy");
 	}
-	
 
 }

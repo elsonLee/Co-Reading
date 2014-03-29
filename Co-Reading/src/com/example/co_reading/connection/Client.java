@@ -34,7 +34,7 @@ public class Client extends Connection implements EndPoint {
 				obj = readObj();
 			} catch (Exception e) {
 				Log.e(TAG, "read object error");
-				this.stop();
+				//this.stop();
 			}
 
 			if (obj != null) {

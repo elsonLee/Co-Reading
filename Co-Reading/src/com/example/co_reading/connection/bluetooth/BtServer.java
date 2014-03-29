@@ -10,6 +10,7 @@ import android.util.Log;
 import com.example.co_reading.connection.Server;
 import com.example.co_reading.util.BinarySerialization;
 import com.example.co_reading.util.ISerialization;
+import com.example.co_reading.util.Packet;
 
 public class BtServer extends Server {
 	
@@ -40,6 +41,7 @@ public class BtServer extends Server {
         BluetoothSocket socket = null;
         try {
         	socket = mServerSocket.accept();
+        	Log.e(TAG, "accept connection successful");
         } catch (IOException e) {
         	Log.e(TAG, "accept connection error");
         }
@@ -48,6 +50,18 @@ public class BtServer extends Server {
         if (socket != null) {
         	// Do work to manage the connection (in a separate thread)
             // manageConnectedSocket(socket);
+        	/*
+            try {
+				mServerSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			*/
+
+            // Initialize
+            Initialize(socket.getInputStream(), socket.getOutputStream());
+
+        } else {
             try {
 				mServerSocket.close();
 			} catch (IOException e) {
@@ -55,8 +69,6 @@ public class BtServer extends Server {
 			}
         }
         
-        // Initialize
-        Initialize(socket.getInputStream(), socket.getOutputStream());
     }
 
 	@Override

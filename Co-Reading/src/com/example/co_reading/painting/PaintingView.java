@@ -11,6 +11,7 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.graphics.PorterDuff.Mode;
 
 import com.example.co_reading.painting.Brush;
 import com.example.co_reading.util.Encrypt;
@@ -88,6 +89,8 @@ public class PaintingView extends PDFView
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
+        
+        onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
     }
 
     @Override
@@ -181,7 +184,7 @@ public class PaintingView extends PDFView
 			canvas.scale(zoom, zoom);
         	canvas.drawColor(mColor);
         	canvas.drawPath(mPath, Brush.getPaint());
-            canvas.drawBitmap(mBitmap, getMatrix(), mBitmapPaint);
+            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
             canvas.restore();
         }
 	}
@@ -190,20 +193,24 @@ public class PaintingView extends PDFView
     public void onPageChanged(int pageNum, int pageCount) {
     	Log.i(TAG, "current page:" + pageNum + "/" + pageCount);
     	Log.i(TAG, "dirty? " + mDirty);
-    	mCurPage = pageNum;
+
 		mDB.updateDefaultPageNum(mFileSHA1, pageNum);
 		if (mDirty == true)
-			mDB.insertBitmap(mFileSHA1, pageNum - 1, mBitmap);
-		Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
-		if (bm != null) {
-			mBitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
-			mCanvas = new Canvas(mBitmap);
-		} else if (mBitmap != null) {
-			mBitmap.eraseColor(mColor);
+			mDB.insertBitmap(mFileSHA1, mCurPage, mBitmap);
+    	mCurPage = pageNum;
+    	
+		if (mCanvas != null) {
+			mCanvas.drawColor(mColor, Mode.SRC);
+
+			Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
+			if (bm != null) {
+				Log.i(TAG, "draw bitmap from db");
+				mCanvas.drawBitmap(bm, 0, 0, mBitmapPaint);
+			}
+			
+			mDirty = false;
+			invalidate();
 		}
-		
-		mDirty = false;
-		invalidate();
     }
 
     public void setDrawMode(boolean on) {

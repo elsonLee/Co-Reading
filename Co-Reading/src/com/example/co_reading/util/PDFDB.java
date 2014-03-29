@@ -177,14 +177,12 @@ public class PDFDB {
     	 * argument: SHA1 of PDF file
     	 */
     	name = "SHA1" + name;
-    	deletePaintTable(name);
-    	if (tabbleIsExist(name) == false) {
-    		String sql = "create table if not exists " + name  
-                 + " (pageNum integer primary key, bitmap blob);";
+ 
+    	String sql = "create table if not exists " + name  
+                	+ " (pageNum integer primary key, bitmap blob);";
 
-    		mPdfDB.execSQL(sql);  
-    		Log.i(TAG, "Succeed create table" + name);
-    	}
+    	mPdfDB.execSQL(sql);  
+    	Log.i(TAG, "Succeed create table" + name);
     }
     
     public Bitmap getBitmap(String name, int pageNum) throws SQLException {

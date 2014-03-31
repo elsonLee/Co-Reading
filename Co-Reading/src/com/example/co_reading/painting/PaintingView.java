@@ -106,7 +106,7 @@ public class PaintingView extends PDFView
 
     	try {
             mDB = new PDFDB(getContext());
-            mDB.open(PDFDB.MAP_TABLE);
+            mDB.open();
             if (mDB.getSHA1(path) == null) {
                 Log.i(TAG, "" + path + " doesn't exist in db, create it");
                 mDB.insertNewMap(Encrypt.SHA1_file(mFile), path, 1);

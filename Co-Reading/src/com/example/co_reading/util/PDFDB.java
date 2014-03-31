@@ -17,6 +17,7 @@ package com.example.co_reading.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -42,7 +43,7 @@ public class PDFDB {
         mContext = context;
     }
 
-    public void open(String tableName) throws SQLException {
+    public void open() throws SQLException {
     	Log.i(TAG, "open");
 
         mDBHelper = new PdfDBHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION); 
@@ -68,7 +69,35 @@ public class PDFDB {
        	mPdfDB.delete(MAP_TABLE, null, null);  
 
         Log.i(TAG, "Clear table " + MAP_TABLE);        
-    }      
+    }
+    
+    public ArrayList<String> queryFileList() throws SQLException {
+       	Cursor cur = null;
+        ArrayList<String> bookList = new ArrayList<String>();
+   
+        String col[] = {"path"};
+        /* path has special char, we should quote it */
+        String where = "*";
+        
+        cur = mPdfDB.query(MAP_TABLE, col, null, null, null, null, null);
+        if (cur.getCount() == 0) {
+        	Log.i(TAG, "nothing - -");
+        	return null;
+        }
+
+        cur.moveToFirst();
+        for (int i = 0; i < cur.getCount(); i++) {
+            String s = cur.getString(cur.getColumnIndex("path"));
+            Log.i(TAG, "found " + s);
+            bookList.add(s);
+            cur.moveToNext();
+        }
+        
+        if (cur !=null)
+        	cur.close();
+        
+        return bookList;
+    }
    
     public void insertNewMap(String SHA1, String path, int defaultPage)
     			throws SQLException {
@@ -116,7 +145,7 @@ public class PDFDB {
         	return -1;
 
         cur.moveToFirst();
-        defaultPage = cur.getColumnIndex("defaultPage");
+        defaultPage = cur.getInt(cur.getColumnIndex("defaultPage"));
         
         if (cur !=null)
         	cur.close();

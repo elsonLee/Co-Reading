@@ -44,15 +44,19 @@ public class PdfFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		Bundle bd = getArguments();
-		mCurPdfUriString = bd.getString("uri");
 
-		if (mCurPdfUriString.isEmpty()) {
+		Log.i(TAG, "bd " + bd + " file " + mFile);
+		if (bd == null && mFile == null) {
 			Intent getContentIntent = FileUtils.createGetContentIntent();
 			Intent intent = Intent.createChooser(getContentIntent,
 					"Select a PDF file");
 			startActivityForResult(intent, REQUEST_CHOOSER);
-		} else {
+		} else if (bd != null) {
+			mCurPdfUriString = bd.getString("uri");
 			mFile = new File(mCurPdfUriString);
+		} else {
+			Log.i(TAG, "cur file:" + mCurPdfUriString);
+			//mFile = new File(mCurPdfUriString);
 		}
 	}
 	

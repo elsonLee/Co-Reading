@@ -90,11 +90,9 @@ public class MainActivity extends Activity {
         
         Log.i(TAG, "MainActivity create");
 
-        mUri = getIntent().getData();
-
         SlidingMenu menu = new SlidingMenu(this);
         menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-        menu.setMode(SlidingMenu.RIGHT);
+        menu.setMode(SlidingMenu.LEFT);
         menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
         menu.setShadowWidthRes(R.dimen.shadow_width);
         menu.setShadowDrawable(R.drawable.shadow);
@@ -121,6 +119,10 @@ public class MainActivity extends Activity {
             ActionBar mactionBar = getActionBar();
             mRestoreData.restoreNavigationTab(mactionBar);
         }
+       
+        //TODO: temp code
+        mUri = getIntent().getData();
+        addTab();
 
         /* test for network */
         /*
@@ -205,44 +207,60 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
     	getMenuInflater().inflate(R.menu.main_actionbar_menu, menu);
 
-    	return super.onCreateOptionsMenu(menu);
+    	super.onCreateOptionsMenu(menu);
+    	
+    	return true;
+    }
+    
+    protected void addTab() {
+   	    ActionBar.Tab newTab = null;
+        ActionBar actionBar = getActionBar();
+ 
+        PdfFragment fragment = new PdfFragment();
+
+        if (mUri != null) {
+          	Bundle bd = new Bundle();
+           	bd.putString("uri", mUri.getPath());
+           	fragment.setArguments(bd);
+           	mUri = null;
+        }
+        fragment.setDrawMode(mDrawMode);
+
+        newTab = actionBar.newTab().setText("newTab");
+        newTab.setTabListener(new TabListener(fragment));
+        newTab.setTag(fragment);
+
+        actionBar.addTab(newTab);
+        mRestoreData.addToTabList(newTab);
+
+        if (actionBar.getNavigationItemCount() > 1)
+            actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-    	Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+//    	Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
 
     	switch (item.getItemId()) {
 
     	case R.id.action_addtab:
-            ActionBar.Tab newTab = null;
-            ActionBar actionBar = getActionBar();
-
-            PdfFragment fragment = new PdfFragment();
-            if (mUri != null) {
-            	Bundle bd = new Bundle();
-            	bd.putString("uri", mUri.getPath());
-            	fragment.setArguments(bd);
-            }
-            fragment.setDrawMode(mDrawMode);
-
-            newTab = actionBar.newTab().setText("newTab");
-            newTab.setTabListener(new TabListener(fragment));
-            newTab.setTag(fragment);
-
-            actionBar.addTab(newTab);
-            mRestoreData.addToTabList(newTab);
-
-            if (actionBar.getNavigationItemCount() > 1)
-                actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
-
+    		addTab();
             return true;
 
         case R.id.action_painter:
+        	ActionBar ab = getActionBar();
+        	mDrawMode = !mDrawMode;
+        	String msg = mDrawMode ? "Draw Mode" : "Read  Mode";
+        	Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            for (int index = 0; index < ab.getTabCount(); index++) {
+                PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
+                frag.setDrawMode(mDrawMode);
+            }
             return true;
 
     	case R.id.action_search:
+    		// wenpin: don't add code here, it's an action view
             return true;
 
     	case R.id.action_settings:

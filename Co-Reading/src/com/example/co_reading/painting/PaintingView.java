@@ -74,24 +74,27 @@ public class PaintingView extends PDFView
     private Handler mHandler;
     private FutureTask<Integer> mLastTask;
     private byte[]  mBitmapLock = new byte[]{};
-
-    private Handler mPointHandler;
     
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
 
         dragPinchManager = new CoDragPinchManager(this);
         
-        mPointHandler = new Handler( new Handler.Callback() {
+        mHandler = new Handler( new Handler.Callback() {
 			@Override
 			public boolean handleMessage(Message msg) {
-				if (msg.what == POINT_MSG) {
+				switch (msg.what) {
+				case POINT_MSG:
 					Packet pack = (Packet) msg.obj;
 					onTouchEvent(pack.mEvent, pack.mX, pack.mY);
+					return false;
+				case GUIUPDATE:
+               		invalidate();
+				default:
+               		return true;
 				}
-				return false;
 			}
-		});
+        });
     }
     
     @Override
@@ -140,18 +143,7 @@ public class PaintingView extends PDFView
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
-        
-        mHandler = new Handler() {  
-          public void handleMessage(Message msg) {   
-               switch (msg.what) {   
-                    case GUIUPDATE:
-                   		invalidate();  
-                        break;   
-               }   
-               super.handleMessage(msg);   
-          }   
-        };  
-        
+
         onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
         
         // FIXME
@@ -177,7 +169,7 @@ public class PaintingView extends PDFView
 					public void onNetworkReceivedObj(Object object) {
 						if (object instanceof Packet) {
 							Packet pack = (Packet) object;
-							Message msg = Message.obtain(mPointHandler, POINT_MSG, pack);
+							Message msg = Message.obtain(mHandler, POINT_MSG, pack);
 							msg.sendToTarget();
 						}	
 					}
@@ -234,10 +226,11 @@ public class PaintingView extends PDFView
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.i(TAG, "on Touch Event");
         if (mDrawMode == false) {
             return true;
         }
+        Log.i(TAG, "on Touch Event");
+
         mDirty = true;
         float x = event.getX();
         float y = event.getY();

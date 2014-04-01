@@ -71,6 +71,9 @@ public class PDFDB {
         Log.i(TAG, "Clear table " + MAP_TABLE);        
     }
     
+    /**
+     * return empty list if nothing in DB.
+     */
     public ArrayList<String> queryFileList() throws SQLException {
     	ArrayList<String> bookList = new ArrayList<String>();
        	Cursor cur = null;
@@ -81,7 +84,7 @@ public class PDFDB {
         cur = mPdfDB.query(MAP_TABLE, col, null, null, null, null, null);
         if (cur.getCount() == 0) {
         	Log.i(TAG, "nothing - -");
-        	return null;
+        	return bookList;
         }
 
         cur.moveToFirst();

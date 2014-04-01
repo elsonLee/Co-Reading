@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.example.co_reading.util.PDFDB;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
@@ -23,16 +25,19 @@ public class BookShelf extends ListActivity {
 	private ArrayList<String> bookList;
 	private ListView listView;
 	private final String TAG = "BookShelf";
+	private final String newFile = "Open other ...";
+	private final int REQUEST_CHOOSER = 1234;
+	private File mFile;
+
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.book_shelf);
-    	bookList = new ArrayList<String>();
        	listView = (ListView)findViewById(android.R.id.list);
     	pdfDB = new PDFDB(this);
     	pdfDB.open();
-    	ArrayList<String> queryResult = pdfDB.queryFileList();
-    	bookList.addAll(queryResult);
+    	bookList = pdfDB.queryFileList();
+    	bookList.add(newFile);
 
     	listView.setAdapter(new ArrayAdapter<String>(this, 
     				android.R.layout.simple_expandable_list_item_1,
@@ -57,16 +62,48 @@ public class BookShelf extends ListActivity {
     
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-    	if (bookList == null) {
-    		Log.i(TAG, "book list is null");
-    	} else
-    		Log.i(TAG, "it is ok");
     	Log.i(TAG, "clicked item " + bookList.get((int)id));
-    	File file = new File(bookList.get((int)id));
-    	if (file.exists()) {
-    		Intent intent = new Intent("com.example.co_reading.LOAD_PDF");
-    		intent.setData(Uri.fromFile(file));
-    		startActivity(intent);
+    	if (bookList.get((int)id).equals(newFile)) {
+    		Log.i(TAG, "new file ...");
+			Intent getContentIntent = FileUtils.createGetContentIntent();
+			Intent intent = Intent.createChooser(getContentIntent,
+					"Select a PDF file");
+			startActivityForResult(intent, REQUEST_CHOOSER);
+    	} else {		
+    		mFile = new File(bookList.get((int)id));
+        	loadPDF();
     	}
     }
+    
+    protected void loadPDF() {
+    	if (mFile.exists()) {
+			Intent intent = new Intent("com.example.co_reading.LOAD_PDF");
+			intent.setData(Uri.fromFile(mFile));
+			startActivity(intent);
+    	} else {
+    		Log.e(TAG, "" + mFile + " doesn't exist");
+    	}
+    }
+    
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.i(TAG, "onActivityResult");
+		switch (requestCode) {
+		case REQUEST_CHOOSER:
+			if (resultCode == Activity.RESULT_OK) {
+				final Uri uri = data.getData();
+				String uriString = uri.toString();
+				if (uri != null && FileUtils.isLocal(FileUtils.getPath(this, uri))) {
+					mFile = FileUtils.getFile(this, Uri.parse(uriString));
+					if (mFile != null && mFile.exists()) {
+							Log.d(TAG, "file:"+ mFile);
+							loadPDF();
+						}
+					}
+				}
+			break;
+		default:
+			break;
+		}		
+	}
 }

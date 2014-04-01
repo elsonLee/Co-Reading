@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
         menu.setMenu(R.layout.slide_menu);
 
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         FragmentManager fm = getFragmentManager();

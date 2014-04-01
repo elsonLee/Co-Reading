@@ -1,10 +1,13 @@
 package com.example.co_reading;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import com.example.co_reading.util.PDFDB;
 
 import android.app.ListActivity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +27,16 @@ public class BookShelf extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.book_shelf);
+    	bookList = new ArrayList<String>();
        	listView = (ListView)findViewById(android.R.id.list);
     	pdfDB = new PDFDB(this);
     	pdfDB.open();
-    	bookList = pdfDB.queryFileList();
-    	listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1, bookList));
+    	ArrayList<String> queryResult = pdfDB.queryFileList();
+    	bookList.addAll(queryResult);
+
+    	listView.setAdapter(new ArrayAdapter<String>(this, 
+    				android.R.layout.simple_expandable_list_item_1,
+    				bookList));
     }
     
     @Override
@@ -49,6 +57,16 @@ public class BookShelf extends ListActivity {
     
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
+    	if (bookList == null) {
+    		Log.i(TAG, "book list is null");
+    	} else
+    		Log.i(TAG, "it is ok");
     	Log.i(TAG, "clicked item " + bookList.get((int)id));
+    	File file = new File(bookList.get((int)id));
+    	if (file.exists()) {
+    		Intent intent = new Intent("com.example.co_reading.LOAD_PDF");
+    		intent.setData(Uri.fromFile(file));
+    		startActivity(intent);
+    	}
     }
 }

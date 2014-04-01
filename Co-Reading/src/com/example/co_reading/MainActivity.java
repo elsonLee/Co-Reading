@@ -26,6 +26,7 @@ import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -49,6 +50,8 @@ public class MainActivity extends Activity {
     private OnRestoreData mRestoreData = null;
 
     private boolean mDrawMode = false;
+    
+    private Uri mUri;
 
     static {
     	System.loadLibrary("gen_pipe");
@@ -84,6 +87,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
+        
+        Log.i(TAG, "MainActivity create");
+
+        mUri = getIntent().getData();
 
         SlidingMenu menu = new SlidingMenu(this);
         menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
@@ -213,6 +220,11 @@ public class MainActivity extends Activity {
             ActionBar actionBar = getActionBar();
 
             PdfFragment fragment = new PdfFragment();
+            if (mUri != null) {
+            	Bundle bd = new Bundle();
+            	bd.putString("uri", mUri.getPath());
+            	fragment.setArguments(bd);
+            }
             fragment.setDrawMode(mDrawMode);
 
             newTab = actionBar.newTab().setText("newTab");

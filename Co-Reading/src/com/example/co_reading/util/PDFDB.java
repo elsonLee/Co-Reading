@@ -72,12 +72,11 @@ public class PDFDB {
     }
     
     public ArrayList<String> queryFileList() throws SQLException {
+    	ArrayList<String> bookList = new ArrayList<String>();
        	Cursor cur = null;
-        ArrayList<String> bookList = new ArrayList<String>();
    
         String col[] = {"path"};
         /* path has special char, we should quote it */
-        String where = "*";
         
         cur = mPdfDB.query(MAP_TABLE, col, null, null, null, null, null);
         if (cur.getCount() == 0) {

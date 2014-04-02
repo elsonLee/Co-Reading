@@ -40,7 +40,7 @@ public class PdfFragment extends Fragment {
 	public PaintingView mPaintingView;
 
 	@Override
-	public void onCreate (Bundle savedInstanceState) {		
+	public void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		Bundle bd = getArguments();
@@ -58,6 +58,9 @@ public class PdfFragment extends Fragment {
 			Log.i(TAG, "cur file:" + mCurPdfUriString);
 			//mFile = new File(mCurPdfUriString);
 		}
+
+		if (mFile != null)
+			getActivity().setTitle(mFile.getName());
 	}
 	
     @Override
@@ -111,6 +114,7 @@ public class PdfFragment extends Fragment {
 					if (mFile != null && mFile.exists()) {
 							Log.d(TAG, "file:"+ mFile);
 							mCurPdfUriString = uriString;
+							getActivity().setTitle(mFile.getName());
 						}
 					}
 				}

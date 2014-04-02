@@ -1,7 +1,7 @@
 package com.example.co_reading;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.*;
 
 import com.example.co_reading.util.PDFDB;
 import com.ipaulpro.afilechooser.utils.FileUtils;
@@ -9,18 +9,19 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.util.Log;
 
 public class BookShelf extends ListActivity {
+	private final String TAG = "BookShelf";
+
 	private PDFDB pdfDB;
 	private ArrayList<String> bookList;
-	private ListView listView;
-	private final String TAG = "BookShelf";
 	private final String newFile = "Open other ...";
 	private final int REQUEST_CHOOSER = 1234;
 	private File mFile;
@@ -28,32 +29,38 @@ public class BookShelf extends ListActivity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-    	setContentView(R.layout.book_shelf);
-       	listView = (ListView)findViewById(android.R.id.list);
+    	
+    	ListView lv = new ListView(this);
+    	lv.setId(android.R.id.list);
+    	lv.setBackgroundColor(Color.GRAY);
+    	setContentView(lv);
+    }
+	
+	protected void onStart() {
+		super.onStart();
+
+		SimpleAdapter adapter = new SimpleAdapter(this, getData(), R.layout.book_shelf,
+				new String[]{"icon", "bookName"}, new int[]{R.id.thumbnail, R.id.bookname});
+
+		setListAdapter(adapter);
+	}
+	
+	protected List<Map<String, Object>> getData() {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
     	pdfDB = new PDFDB(this);
     	pdfDB.open();
     	bookList = pdfDB.queryFileList();
     	bookList.add(newFile);
-
-    	listView.setAdapter(new ArrayAdapter<String>(this, 
-    				android.R.layout.simple_expandable_list_item_1,
-    				bookList));
-    }
-    
-    @Override
-    protected void onStart() {
-    	super.onStart();
-    }
-    
-    @Override
-    protected void onStop() {
-    	super.onStop();
-    }
-    
-    @Override
-    protected void onDestroy() {
-    	super.onDestroy();   	
-    }
+    	
+    	for (String s:bookList) {
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put("icon", R.drawable.ic_launcher);
+    		map.put("bookName", s.replaceAll("\\.(pdf|PDF)$", "").replaceAll("^.*/", ""));
+    		list.add(map);
+    	}
+		
+		return list;
+	}
     
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {

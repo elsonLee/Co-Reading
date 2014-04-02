@@ -43,304 +43,300 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class MainActivity extends Activity {
 
-    private final String TAG = MainActivity.class.getSimpleName();
+	private final String TAG = MainActivity.class.getSimpleName();
 
-    private RetainedFragment mRetainedFragment = null;
+	private RetainedFragment mRetainedFragment = null;
 
-    private OnRestoreData mRestoreData = null;
+	private OnRestoreData mRestoreData = null;
 
-    private boolean mDrawMode = false;
-    
-    private Uri mUri;
+	private boolean mDrawMode = false;
 
-    static {
-    	System.loadLibrary("gen_pipe");
-    }
+	private Uri mUri;
 
-    // first: read, second: write
-    public native FileDescriptor[] createpipe();
-    public native void closefd(FileDescriptor fdesc);
+	static {
+		System.loadLibrary("gen_pipe");
+	}
 
-    private ITransceiverOps mTransceiverManager = null;
+	// first: read, second: write
+	public native FileDescriptor[] createpipe();
 
-    public class OnRestoreData {
-    	List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
-    	int m_curTabPos;
+	public native void closefd(FileDescriptor fdesc);
 
-     	void addToTabList(ActionBar.Tab tab) {
-            m_tabList.add(tab);
-    	}
+	private ITransceiverOps mTransceiverManager = null;
 
-    	void restoreNavigationTab(ActionBar actionBar) {
+	public class OnRestoreData {
+		List<ActionBar.Tab> m_tabList = new ArrayList<ActionBar.Tab>();
+		int m_curTabPos;
 
-            if (m_tabList.isEmpty() == false) {
-            	for (ActionBar.Tab mtab : m_tabList) {
-                    actionBar.addTab(mtab);
-            	}
-            }
-
-            actionBar.setSelectedNavigationItem(m_curTabPos);
-    	}
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_layout);
-        
-        Log.i(TAG, "MainActivity create");
-
-        SlidingMenu menu = new SlidingMenu(this);
-        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-        menu.setMode(SlidingMenu.LEFT);
-        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-        menu.setShadowWidthRes(R.dimen.shadow_width);
-        menu.setShadowDrawable(R.drawable.shadow);
-        menu.setFadeDegree(0.35f);
-        menu.setFadeEnabled(true);
-        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        menu.setMenu(R.layout.slide_menu);
-
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        FragmentManager fm = getFragmentManager();
-        mRetainedFragment = (RetainedFragment) fm.findFragmentByTag("restoreData");
-
-        if (mRetainedFragment == null) {
-            mRetainedFragment = new RetainedFragment();
-            fm.beginTransaction().add(mRetainedFragment, "restoreData").commit();
-            if (mRestoreData == null)
-                mRestoreData = new OnRestoreData();
-            mRetainedFragment.setData(mRestoreData);
-        } else {
-            mRestoreData = mRetainedFragment.getData();
-            ActionBar mactionBar = getActionBar();
-            mRestoreData.restoreNavigationTab(mactionBar);
-        }
-       
-        //TODO: temp code
-        mUri = getIntent().getData();
-        addTab();
-
-        /* test for network */
-        /*
-        FileDescriptor[] fd1 = createpipe();
-        FileDescriptor[] fd2 = createpipe();
-
-        Log.d(TAG, "file: "+fd1[0]+" "+fd1[1]);
-        Log.d(TAG, "file: "+fd2[0]+" "+fd2[1]);
-
-        FileInputStream fileReadStream1 = new FileInputStream(fd1[0]);
-        FileOutputStream fileWriteStream1 = new FileOutputStream(fd1[1]);
-        FileInputStream fileReadStream2 = new FileInputStream(fd2[0]);
-        FileOutputStream fileWriteStream2 = new FileOutputStream(fd2[1]);
-
-        Client client = null;
-        Server server = null;
-        try {
-			client = new PipeClient();
-			client.Initialize(fileReadStream1, fileWriteStream2);
-			client.addListener(new INetworkListener() {
-
-				@Override
-				public void onNetworkConnected() {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void onNetworkDisconnected() {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void onNetworkReceivedObj(Object object) {
-					if (object instanceof Packet) {
-						Packet pack = (Packet) object;
-						Log.d(TAG, "Received obj: mId="+ pack.mId);
-					}
-				}
-			});
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		void addToTabList(ActionBar.Tab tab) {
+			m_tabList.add(tab);
 		}
 
-        try {
-			server = new PipeServer();
-			server.Initialize(fileReadStream2, fileWriteStream1);
-		} catch (IOException e) {
-			e.printStackTrace();
+		void restoreNavigationTab(ActionBar actionBar) {
+
+			if (m_tabList.isEmpty() == false) {
+				for (ActionBar.Tab mtab : m_tabList) {
+					actionBar.addTab(mtab);
+				}
+			}
+
+			actionBar.setSelectedNavigationItem(m_curTabPos);
+		}
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main_layout);
+
+		Log.i(TAG, "MainActivity create");
+
+		SlidingMenu menu = new SlidingMenu(this);
+		menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+		menu.setMode(SlidingMenu.LEFT);
+		menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+		menu.setShadowWidthRes(R.dimen.shadow_width);
+		menu.setShadowDrawable(R.drawable.shadow);
+		menu.setFadeDegree(0.35f);
+		menu.setFadeEnabled(true);
+		menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+		menu.setMenu(R.layout.slide_menu);
+
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+		FragmentManager fm = getFragmentManager();
+		mRetainedFragment = (RetainedFragment) fm
+				.findFragmentByTag("restoreData");
+
+		if (mRetainedFragment == null) {
+			mRetainedFragment = new RetainedFragment();
+			fm.beginTransaction().add(mRetainedFragment, "restoreData")
+					.commit();
+			if (mRestoreData == null)
+				mRestoreData = new OnRestoreData();
+			mRetainedFragment.setData(mRestoreData);
+		} else {
+			mRestoreData = mRetainedFragment.getData();
+			ActionBar mactionBar = getActionBar();
+			mRestoreData.restoreNavigationTab(mactionBar);
 		}
 
-        client.start();
-        server.start();
+		if (savedInstanceState != null)
+			mUri = savedInstanceState.getParcelable("uri"); 
+		if (mUri == null) {
+			mUri = getIntent().getData();
+			setIntent(null);
+			addTab();
+		}
 
-        server.send(new Packet(2));
-        client.send(new Packet(1));
-        server.send(new Packet(20));
-        client.send(new Packet(10));
-        client.send(new Packet(100));
-        */
+		/* test for network */
+		/*
+		 * FileDescriptor[] fd1 = createpipe(); FileDescriptor[] fd2 =
+		 * createpipe();
+		 * 
+		 * Log.d(TAG, "file: "+fd1[0]+" "+fd1[1]); Log.d(TAG,
+		 * "file: "+fd2[0]+" "+fd2[1]);
+		 * 
+		 * FileInputStream fileReadStream1 = new FileInputStream(fd1[0]);
+		 * FileOutputStream fileWriteStream1 = new FileOutputStream(fd1[1]);
+		 * FileInputStream fileReadStream2 = new FileInputStream(fd2[0]);
+		 * FileOutputStream fileWriteStream2 = new FileOutputStream(fd2[1]);
+		 * 
+		 * Client client = null; Server server = null; try { client = new
+		 * PipeClient(); client.Initialize(fileReadStream1, fileWriteStream2);
+		 * client.addListener(new INetworkListener() {
+		 * 
+		 * @Override public void onNetworkConnected() { // TODO Auto-generated
+		 * method stub
+		 * 
+		 * }
+		 * 
+		 * @Override public void onNetworkDisconnected() { // TODO
+		 * Auto-generated method stub
+		 * 
+		 * }
+		 * 
+		 * @Override public void onNetworkReceivedObj(Object object) { if
+		 * (object instanceof Packet) { Packet pack = (Packet) object;
+		 * Log.d(TAG, "Received obj: mId="+ pack.mId); } } });
+		 * 
+		 * } catch (IOException e) { e.printStackTrace(); }
+		 * 
+		 * try { server = new PipeServer(); server.Initialize(fileReadStream2,
+		 * fileWriteStream1); } catch (IOException e) { e.printStackTrace(); }
+		 * 
+		 * client.start(); server.start();
+		 * 
+		 * server.send(new Packet(2)); client.send(new Packet(1));
+		 * server.send(new Packet(20)); client.send(new Packet(10));
+		 * client.send(new Packet(100));
+		 */
 
-        /*
-        closefd(fd1[0]);
-        closefd(fd1[1]);
-        closefd(fd2[0]);
-        closefd(fd2[1]);
-        */
-    }
+		/*
+		 * closefd(fd1[0]); closefd(fd1[1]); closefd(fd2[0]); closefd(fd2[1]);
+		 */
+	}
 
-    @Override
-    protected void onDestroy() {
-    	ActionBar actionBar = getActionBar();
-    	mRestoreData.m_curTabPos = actionBar.getSelectedNavigationIndex();
-    	mRetainedFragment.setData(mRestoreData);
+	@Override
+	protected void onDestroy() {
+		ActionBar actionBar = getActionBar();
+		mRestoreData.m_curTabPos = actionBar.getSelectedNavigationIndex();
+		mRetainedFragment.setData(mRestoreData);
 
-    	super.onDestroy();
-    }
+		super.onDestroy();
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	getMenuInflater().inflate(R.menu.main_actionbar_menu, menu);
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main_actionbar_menu, menu);
 
-    	super.onCreateOptionsMenu(menu);
-    	
-    	return true;
-    }
-    
-    protected void addTab() {
-   	    ActionBar.Tab newTab = null;
-        ActionBar actionBar = getActionBar();
- 
-        PdfFragment fragment = new PdfFragment();
+		super.onCreateOptionsMenu(menu);
 
-        if (mUri != null) {
-          	Bundle bd = new Bundle();
-           	bd.putString("uri", mUri.getPath());
-           	fragment.setArguments(bd);
-           	mUri = null;
-        }
-        fragment.setDrawMode(mDrawMode);
+		return true;
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelable("uri", mUri);
+	}
+	
 
-        newTab = actionBar.newTab().setText("newTab");
-        newTab.setTabListener(new TabListener(fragment));
-        newTab.setTag(fragment);
+	protected void addTab() {
+		ActionBar.Tab newTab = null;
+		ActionBar actionBar = getActionBar();
 
-        actionBar.addTab(newTab);
-        mRestoreData.addToTabList(newTab);
+		PdfFragment fragment = new PdfFragment();
 
-        if (actionBar.getNavigationItemCount() > 1)
-            actionBar.setSelectedNavigationItem(actionBar.getNavigationItemCount()-1);
-    }
+		if (mUri != null) {
+			Bundle bd = new Bundle();
+			bd.putString("uri", mUri.getPath());
+			fragment.setArguments(bd);
+		}
+		fragment.setDrawMode(mDrawMode);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+		newTab = actionBar.newTab().setText("newTab");
+		newTab.setTabListener(new TabListener(fragment));
+		newTab.setTag(fragment);
 
-//    	Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+		actionBar.addTab(newTab);
+		mRestoreData.addToTabList(newTab);
 
-    	switch (item.getItemId()) {
+		if (actionBar.getNavigationItemCount() > 1)
+			actionBar.setSelectedNavigationItem(actionBar
+					.getNavigationItemCount() - 1);
+	}
 
-    	case R.id.action_addtab:
-    		addTab();
-            return true;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-        case R.id.action_painter:
-        	ActionBar ab = getActionBar();
-        	mDrawMode = !mDrawMode;
-        	String msg = mDrawMode ? "Draw Mode" : "Read  Mode";
-        	Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-            for (int index = 0; index < ab.getTabCount(); index++) {
-                PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
-                frag.setDrawMode(mDrawMode);
-            }
-            return true;
+		// Toast.makeText(this, "Selected Item: " + item.getTitle(),
+		// Toast.LENGTH_SHORT).show();
 
-    	case R.id.action_search:
-    		// wenpin: don't add code here, it's an action view
-            return true;
+		switch (item.getItemId()) {
 
-    	case R.id.action_settings:
-            return true;
+		case R.id.action_addtab:
+			addTab();
+			return true;
 
-    	default:
-            return super.onOptionsItemSelected(item);
-    	}
-    }
+		case R.id.action_painter:
+			ActionBar ab = getActionBar();
+			mDrawMode = !mDrawMode;
+			String msg = mDrawMode ? "Draw Mode" : "Read  Mode";
+			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+			for (int index = 0; index < ab.getTabCount(); index++) {
+				PdfFragment frag = (PdfFragment) (ab.getTabAt(index).getTag());
+				frag.setDrawMode(mDrawMode);
+			}
+			return true;
 
-    public void onSlideMenuClick(View v) {
-        Paint pt = Brush.getPaint();
-        Brush brush = Brush.getInstance();
+		case R.id.action_search:
+			// wenpin: don't add code here, it's an action view
+			return true;
 
-        pt.setXfermode(null);
-        pt.setAlpha(0xFF);
-    	switch (v.getId()) {
-    	case R.id.pick_color:
-        	new ColorPickerDialog(this, brush, pt.getColor()).show();
-        	break;
-        case R.id.emboss:
-            MaskFilter embossFilter = Brush.getEmbossFilter();
-            if (pt.getMaskFilter() != embossFilter)
-                pt.setMaskFilter(embossFilter);
-            else
-                pt.setMaskFilter(null);
-            break;
-        case R.id.blur:
-            MaskFilter blurFilter = Brush.getBlurFilter();
-            if (pt.getMaskFilter() != blurFilter)
-                pt.setMaskFilter(blurFilter);
-            else
-                pt.setMaskFilter(null);
-            break;
-        case R.id.erase:
-            pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            break;
-        case R.id.srcatop:
-            pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
-            pt.setAlpha(0x80);
-            break;
-        default:
-            break;
-    	}
+		case R.id.action_settings:
+			return true;
 
-        return;
-    }
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
-    public void onSort(MenuItem item) {
-    	// invalidateOptionsMenu();
+	public void onSlideMenuClick(View v) {
+		Paint pt = Brush.getPaint();
+		Brush brush = Brush.getInstance();
 
-    	switch (item.getItemId()) {
+		pt.setXfermode(null);
+		pt.setAlpha(0xFF);
+		switch (v.getId()) {
+		case R.id.pick_color:
+			new ColorPickerDialog(this, brush, pt.getColor()).show();
+			break;
+		case R.id.emboss:
+			MaskFilter embossFilter = Brush.getEmbossFilter();
+			if (pt.getMaskFilter() != embossFilter)
+				pt.setMaskFilter(embossFilter);
+			else
+				pt.setMaskFilter(null);
+			break;
+		case R.id.blur:
+			MaskFilter blurFilter = Brush.getBlurFilter();
+			if (pt.getMaskFilter() != blurFilter)
+				pt.setMaskFilter(blurFilter);
+			else
+				pt.setMaskFilter(null);
+			break;
+		case R.id.erase:
+			pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+			break;
+		case R.id.srcatop:
+			pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
+			pt.setAlpha(0x80);
+			break;
+		default:
+			break;
+		}
 
-            /** Bluetooth connect */
-    	case R.id.bt_connect:
-            mTransceiverManager = BlueToothManager.getInstance();
+		return;
+	}
 
-            // Intent intent = new Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
-            Intent intent = new Intent(this, com.example.co_reading.connection.bluetooth.ui.BtDialogFragContainer.class);
-            if (intent.resolveActivity(getPackageManager()) == null) {
-                Log.e(TAG, "has no corresponding intent");
-                return;
-            }
-            startActivity(intent);
+	public void onSort(MenuItem item) {
+		// invalidateOptionsMenu();
 
-            break;
+		switch (item.getItemId()) {
 
-    	default:
-            break;
-    	}
-    }
+		/** Bluetooth connect */
+		case R.id.bt_connect:
+			mTransceiverManager = BlueToothManager.getInstance();
 
-    public void onChangeDrawMode(View view) {
-        boolean on = ((Switch) view).isChecked();
-    	ActionBar ab = getActionBar();
-    	mDrawMode = on;
-        Log.i(TAG, on ? "Draw Mode" : "Read  Mode");
-        for (int index = 0; index < ab.getTabCount(); index++) {
-            PdfFragment frag = (PdfFragment)(ab.getTabAt(index).getTag());
-            frag.setDrawMode(on);
-        }
-    }
+			// Intent intent = new
+			// Intent(BluetoothDiscoveryDialog.ACTION_BTDIALOG);
+			Intent intent = new Intent(
+					this,
+					com.example.co_reading.connection.bluetooth.ui.BtDialogFragContainer.class);
+			if (intent.resolveActivity(getPackageManager()) == null) {
+				Log.e(TAG, "has no corresponding intent");
+				return;
+			}
+			startActivity(intent);
+
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	public void onChangeDrawMode(View view) {
+		boolean on = ((Switch) view).isChecked();
+		ActionBar ab = getActionBar();
+		mDrawMode = on;
+		Log.i(TAG, on ? "Draw Mode" : "Read  Mode");
+		for (int index = 0; index < ab.getTabCount(); index++) {
+			PdfFragment frag = (PdfFragment) (ab.getTabAt(index).getTag());
+			frag.setDrawMode(on);
+		}
+	}
 }

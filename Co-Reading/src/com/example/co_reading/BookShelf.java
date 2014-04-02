@@ -43,7 +43,6 @@ public class BookShelf extends ListActivity {
     @Override
     protected void onStart() {
     	super.onStart();
-
     }
     
     @Override

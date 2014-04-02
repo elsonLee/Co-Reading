@@ -41,4 +41,6 @@
     <string name="blur">Blur</string>
     <string name="erase">Erase</string>
     <string name="srcatop">Srcatop</string>
+    
+    <string name="book_shelf_title">Available books</string>
 </resources>

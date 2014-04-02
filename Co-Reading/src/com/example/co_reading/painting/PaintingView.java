@@ -1,25 +1,22 @@
 /*Copyright (C) 2014  ElsonLee & WenPin Cui
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/	
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package com.example.co_reading.painting;
 
 import java.io.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -40,12 +37,13 @@ import com.example.co_reading.connection.bluetooth.BlueToothManager;
 import com.example.co_reading.util.Encrypt;
 import com.example.co_reading.util.PDFDB;
 import com.example.co_reading.util.Packet;
+import com.example.co_reading.util.ThreadPool;
 import com.joanzapata.pdfview.PDFView;
 import com.joanzapata.pdfview.listener.OnDrawListener;
 import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
 
-public class PaintingView extends PDFView 
+public class PaintingView extends PDFView
     implements OnLoadCompleteListener, OnDrawListener, OnPageChangeListener {
     private static final String TAG = PaintingView.class.getSimpleName();
 
@@ -55,9 +53,10 @@ public class PaintingView extends PDFView
     private Canvas  mCanvas;
     private Path    mPath;
     private Paint   mBitmapPaint;
-    private int	    mColor = Color.argb(0x30, 0x0, 0xf0, 0x00);
+    private int	    mColor = Color.TRANSPARENT;
     private boolean mDrawMode;
     private boolean mLoadComplete = false;
+    private boolean mDBLoadComplete = false;
     private int 	mCurPage;
     private int     mDefaultPage;
     private float   mXoffset;
@@ -72,49 +71,51 @@ public class PaintingView extends PDFView
     private boolean mDirty = false;
     private final int GUIUPDATE = 0xa5;
     private Handler mHandler;
-    private FutureTask<Integer> mLastTask;
     private byte[]  mBitmapLock = new byte[]{};
-    
+
     public PaintingView(Context context, AttributeSet set) {
         super(context, set);
 
         dragPinchManager = new CoDragPinchManager(this);
-        
+        mDBThreadPool = ThreadPool.getService();
+
         mHandler = new Handler( new Handler.Callback() {
-			@Override
-			public boolean handleMessage(Message msg) {
-				switch (msg.what) {
-				case POINT_MSG:
-					Packet pack = (Packet) msg.obj;
-					onTouchEvent(pack.mEvent, pack.mX, pack.mY);
-					return false;
-				case GUIUPDATE:
+                @Override
+                public boolean handleMessage(Message msg) {
+                    switch (msg.what) {
+                    case POINT_MSG:
+                        Packet pack = (Packet) msg.obj;
+                        onTouchEvent(pack.mEvent, pack.mX, pack.mY);
+                        return false;
+                    case GUIUPDATE:
                		invalidate();
-				default:
+                    default:
                		return true;
-				}
-			}
-        });
+                    }
+                }
+            });
     }
-    
+
     @Override
     public Configurator fromFile(File file) {
     	mFile = file;
-    	loadDB();
+    	mDBThreadPool.execute(new Runnable() {
+    		public void run() {
+                    loadDB();
+    		}
+            });
     	return super.fromFile(file).defaultPage(mDefaultPage);
     }
-    
+
     private void loadDB() {
-    	String path = mFile.getPath();    	
+    	String path = mFile.getPath();
 
     	try {
+            /* db not ready, block canvas access db */
             mDB = new PDFDB(getContext());
             mDB.open();
-            if (mDB.getSHA1(path) == null) {
-                Log.i(TAG, "" + path + " doesn't exist in db, create it");
+            if (mDB.getSHA1(path) == null)
                 mDB.insertNewMap(Encrypt.SHA1_file(mFile), path, 1);
-            } else
-                Log.i(TAG, "" + path + " already exist, skip SHA-1 calc");
 
             mFileSHA1 = mDB.getSHA1(path);
             mDefaultPage = mDB.getDefaultPage(path);
@@ -125,60 +126,60 @@ public class PaintingView extends PDFView
             mDB.createPaintTable(mFileSHA1);
             if (mDefaultPage == -1)
                 mDefaultPage = 1;
-            
-            mDBThreadPool = Executors.newFixedThreadPool(3);
+            mDBLoadComplete = true;
     	} catch (Exception e) {
             e.printStackTrace();
     	}
     }
-    
+
     public void loadComplete(int nbPages) {
     	mPageWidth = getPageWidth();
     	mPageHeight = getPageHeight();
     	mOptimalRatio = getOptimalPageWidth()/mPageWidth;
 
-        Log.i(TAG, "--> page width:" + mPageWidth + "page height:" + mPageHeight + " ratio:" + mOptimalRatio);
+        Log.v(TAG, "load complete: page width:" + mPageWidth + 
+        		"page height:" + mPageHeight + " ratio:" + mOptimalRatio);
         mBitmap = Bitmap.createBitmap(mPageWidth, mPageHeight, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
         mPath = new Path();
         mBitmapPaint = new Paint(Paint.DITHER_FLAG);
         mLoadComplete = true;
 
-        onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
-        
+        //        onPageChanged(mCurPage, nbPages); // explicitly load bitmap from db if exists.
+
         // FIXME
         // if (BlueToothManager.getInstance().getRole() == BlueToothManager.ROLE_CLIENT) {
         try {
-        	Connection connection = BlueToothManager.getInstance().getConnection();
-			if (connection != null) {
-				connection.addListener(new INetworkListener() {
+            Connection connection = BlueToothManager.getInstance().getConnection();
+            if (connection != null) {
+                connection.addListener(new INetworkListener() {
 
-					@Override
-					public void onNetworkConnected() {
-						// TODO Auto-generated method stub
-						
-					}
+                        @Override
+                        public void onNetworkConnected() {
+                            // TODO Auto-generated method stub
 
-					@Override
-					public void onNetworkDisconnected() {
-						// TODO Auto-generated method stub
-						
-					}
+                        }
 
-					@Override
-					public void onNetworkReceivedObj(Object object) {
-						if (object instanceof Packet) {
-							Packet pack = (Packet) object;
-							Message msg = Message.obtain(mHandler, POINT_MSG, pack);
-							msg.sendToTarget();
-						}	
-					}
-				});
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+                        @Override
+                        public void onNetworkDisconnected() {
+                            // TODO Auto-generated method stub
+
+                        }
+
+                        @Override
+                        public void onNetworkReceivedObj(Object object) {
+                            if (object instanceof Packet) {
+                                Packet pack = (Packet) object;
+                                Message msg = Message.obtain(mHandler, POINT_MSG, pack);
+                                msg.sendToTarget();
+                            }
+                        }
+                    });
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -187,7 +188,7 @@ public class PaintingView extends PDFView
         Log.i(TAG, "w:" + w + " h:" + h + " oldw:" + oldw + " oldh:" + oldh);
 
     	mOptimalRatio = getOptimalPageWidth()/mPageWidth;
-    }    
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -213,7 +214,7 @@ public class PaintingView extends PDFView
             mX = x;
             mY = y;
         }
-        
+
     }
 
     private void touch_up() {
@@ -229,7 +230,7 @@ public class PaintingView extends PDFView
         if (mDrawMode == false) {
             return true;
         }
-        Log.i(TAG, "on Touch Event");
+        Log.d(TAG, "on Touch Event");
 
         mDirty = true;
         float x = event.getX();
@@ -238,29 +239,28 @@ public class PaintingView extends PDFView
 
         x -= mXoffset;
         y -= mYoffset;
-        
+
         x = toRealScale(x) / mOptimalRatio;
         y = toRealScale(y) / mOptimalRatio;
 
     	// FIXME
         Connection connection = null;
-		try {
-			connection = BlueToothManager.getInstance().getConnection();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (connection != null) {
-        //if (BlueToothManager.getInstance().getRole() == BlueToothManager.ROLE_SERVER) {
-        	Packet pack = new Packet(action, x, y);
-        	connection.send(pack);
+        try {
+            connection = BlueToothManager.getInstance().getConnection();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if (connection != null) {
+            //if (BlueToothManager.getInstance().getRole() == BlueToothManager.ROLE_SERVER) {
+            Packet pack = new Packet(action, x, y);
+            connection.send(pack);
         }
 
         return onTouchEvent(action, x, y);
     }
 
     public boolean onTouchEvent(int event, float x, float y) {
-
         switch (event) {
         case MotionEvent.ACTION_DOWN:
             touch_start(x, y);
@@ -277,15 +277,17 @@ public class PaintingView extends PDFView
         }
         return true;
     }
-    
+
     @Override
-    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {	
+    public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage) {
         mXoffset = getCurrentXOffset() + (mCurPage - 1) * pageWidth;
         mYoffset = getCurrentYOffset();
         float zoom = getZoom() * mOptimalRatio;
 
+        if (!mDBLoadComplete || !mLoadComplete)
+            return;
+
         synchronized (mBitmapLock)  {
-        if (mLoadComplete) {
             canvas.save();
             canvas.scale(zoom, zoom);
             canvas.drawColor(mColor);
@@ -293,53 +295,51 @@ public class PaintingView extends PDFView
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
             canvas.restore();
         }
-        }
     }
-    
+
     @Override
     public void onPageChanged(int pageNum, int pageCount) {
     	Log.i(TAG, "current page:" + pageNum + "/" + pageCount);
-    	if (pageNum != mCurPage) {
-    		if (mLastTask != null && !mLastTask.isDone())
-    			mLastTask.cancel(false);
 
-    		mLastTask = new FutureTask<Integer>(new DBSyncTask(pageNum));
-    		mDBThreadPool.submit(mLastTask);
-    	}
+    	if (pageNum != mCurPage)
+            mDBThreadPool.execute(new DBasyncTask(pageNum));
     }
-   	
-    class DBSyncTask implements Callable<Integer> {
+
+    class DBasyncTask implements Runnable {
         private int pageNum;
 
-        DBSyncTask(int pageNum) {
+        DBasyncTask(int pageNum) {
             this.pageNum = pageNum;
         }
 
-        public Integer call() {
+        public void run() {
+            while (!mDBLoadComplete || !mLoadComplete)
+            	Thread.yield();
+
             mDB.updateDefaultPageNum(mFileSHA1, pageNum);
             if (mDirty == true)
                 mDB.insertBitmap(mFileSHA1, mCurPage, mBitmap);
             mCurPage = pageNum;
 
-            synchronized(mBitmapLock) {
             if (mCanvas != null) {
-            	mCanvas.drawColor(Color.TRANSPARENT, Mode.SRC);
+                synchronized(mBitmapLock) {
+                    mCanvas.drawColor(Color.TRANSPARENT, Mode.SRC);
 
-                Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
-                if (bm != null) {
-                    Log.i(TAG, "draw bitmap from db");
-                    mCanvas.drawBitmap(bm, 0, 0, mBitmapPaint);
-                   	Message message = new Message();
-                   	message.what = GUIUPDATE;
-                   	mHandler.sendMessage(message);
+                    Bitmap bm = mDB.getBitmap(mFileSHA1, pageNum);
+                    if (bm != null) {
+                        Log.i(TAG, "draw bitmap from db");
+                        mCanvas.drawBitmap(bm, 0, 0, mBitmapPaint);
+                        Message message = new Message();
+                        message.what = GUIUPDATE;
+                        mHandler.sendMessage(message);
+                    }
+                    mDirty = false;
                 }
-                mDirty = false;
             }
-            }
-            return 0;
+            return;
         }
     }
- 
+
     public void setDrawMode(boolean on) {
         Log.i(TAG, "draw mode " + on);
         mDrawMode = on;

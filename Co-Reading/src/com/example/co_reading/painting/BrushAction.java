@@ -1,6 +1,7 @@
 package com.example.co_reading.painting;
 import com.example.co_reading.R;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.MaskFilter;
 import android.graphics.Paint;
@@ -8,13 +9,17 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.Log;
 import android.view.ActionProvider;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.SeekBar;
+import android.widget.Toast;
 
 public class BrushAction extends ActionProvider {
 	private Context mContext;
 	private final String TAG = "BrushAction";
+	private float strokeWidth;
 	public BrushAction(Context context) {
 		super(context);
 		mContext = context;
@@ -28,10 +33,10 @@ public class BrushAction extends ActionProvider {
 	}
 	
 	@Override  
-	public void onPrepareSubMenu(SubMenu subMenu) {  
+	public void onPrepareSubMenu(SubMenu subMenu) {
 		subMenu.clear();
 		String[] menus = new String[] {
-				"color", "emboss", "blur", "srcatop", "erase"			
+				"color", "emboss", "blur", "size", "erase"			
 		};
 
 		for (int i = 0; i < menus.length; i++) {
@@ -64,8 +69,31 @@ public class BrushAction extends ActionProvider {
 		                pt.setMaskFilter(null);
 		            break;
 		        case 3:
-		            pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
-		            pt.setAlpha(0x80);
+		        	strokeWidth = Brush.getPaint().getStrokeWidth();
+		        	LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		        	View layout = inflater.inflate(R.layout.painter_size_sel, null);
+		        	AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
+		        	    .setView(layout);
+		        	AlertDialog alertDialog = builder.create();
+		        	alertDialog.show();
+		        	SeekBar sb = (SeekBar)layout.findViewById(R.id.painter_size_seek);
+		        	sb.setProgress((int)strokeWidth);
+		        	sb.setMax(30);
+		        	sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+		        		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+		        			Paint pt = Brush.getPaint();
+		        			pt.setStrokeWidth(progress);
+		        		}
+		        		
+		        		public void onStartTrackingTouch (SeekBar seekBar) {
+		        			
+		        		}
+
+		        		public void onStopTrackingTouch (SeekBar seekBar) {
+		        			Toast.makeText(mContext, "" + Brush.getPaint().getStrokeWidth(), Toast.LENGTH_SHORT)
+		        			.show();
+		        		}
+		        	});
 		            break;
 		        case 4:
 		        	pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));

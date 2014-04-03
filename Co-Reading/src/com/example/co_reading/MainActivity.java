@@ -291,10 +291,6 @@ public class MainActivity extends Activity {
 		case R.id.erase:
 			pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 			break;
-		case R.id.srcatop:
-			pt.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
-			pt.setAlpha(0x80);
-			break;
 		default:
 			break;
 		}

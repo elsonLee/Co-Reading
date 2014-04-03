@@ -31,13 +31,6 @@
         android:text="@string/erase" />
 
     <Button
-        android:id="@+id/srcatop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onSlideMenuClick"
-        android:text="@string/srcatop" />
-
-    <Button
         android:id="@+id/emboss"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

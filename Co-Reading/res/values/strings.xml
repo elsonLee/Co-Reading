@@ -40,7 +40,7 @@
     <string name="emboss">Emboss</string>
     <string name="blur">Blur</string>
     <string name="erase">Erase</string>
-    <string name="srcatop">Srcatop</string>
+    <string name="painter_size_sel">Set the Painter Size</string>
     
     <string name="book_shelf_title">Available books</string>
 </resources>

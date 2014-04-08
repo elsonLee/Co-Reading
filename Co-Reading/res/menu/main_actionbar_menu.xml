@@ -3,17 +3,17 @@
    	xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item android:id="@+id/action_addtab"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@drawable/ic_queue_add"
         android:title="@string/action_addtab"
         android:showAsAction="always" />
 
     <item android:id="@+id/action_painter"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_edit"
         android:title="@string/action_painter"
         android:showAsAction="always" />
 
     <item android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_font"
         android:title="@string/action_search"
         android:showAsAction="always"
         android:actionProviderClass="com.example.co_reading.painting.BrushAction" />
@@ -31,22 +31,24 @@
     -->
     
     <item android:id="@+id/connect_menu"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@drawable/ic_group"
         android:title="@string/connect_menu"
         android:showAsAction="ifRoom" >
         <menu >
             <item android:id="@+id/bt_connect"
-                android:icon="@android:drawable/ic_menu_sort_by_size"
+                android:title="@+string/bt_connect"
+                android:icon="@drawable/ic_bluetooth_search"
                 android:onClick="onSort" />
 
             <item android:id="@+id/wifi_connect"
-                android:icon="@android:drawable/ic_menu_sort_alphabetically"
+	            android:title="@+string/wifi_connect"	
+                android:icon="@drawable/ic_network_wifi"
                 android:onClick="onSort" />
         </menu>
     </item>
 
     <item android:id="@+id/action_settings"
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/ic_settings"
         android:title="@string/action_settings"
         android:showAsAction="ifRoom" />
 </menu>
